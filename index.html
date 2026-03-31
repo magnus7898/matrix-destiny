@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ნუმეროლოგიური მატრიცა</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+Georgian:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 20% 20%, #001a2e 0%, #002233 40%, #001018 100%);
+      font-family: 'Noto Sans Georgian', sans-serif;
+      color: #2a2010;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Starfield */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 8%,  rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 12%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 22%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  60%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 18% 75%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 33% 88%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 82%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 48% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 68%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 15% 50%, rgba(200,180,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 65% 25%, rgba(180,220,255,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 45% 80%, rgba(255,200,180,0.3) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(600px 400px at 15% 30%, rgba(255,240,150,0.25) 0%, transparent 70%),
+        radial-gradient(500px 500px at 85% 70%, rgba(180,160,80,0.20) 0%, transparent 70%),
+        radial-gradient(400px 300px at 50% 85%, rgba(120,110,60,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffd700, #ff9fd7, #a78bfa, #60d0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 1;
+      text-shadow: none;
+      filter: drop-shadow(0 0 20px rgba(167,139,250,0.5));
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: rgba(60,50,20,0.7);
+      text-align: center;
+      margin-bottom: 36px;
+      position: relative;
+      z-index: 1;
+      text-transform: uppercase;
+    }
+
+    /* Decorative divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    .divider-line {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.6), transparent);
+    }
+    .divider-gem {
+      width: 8px; height: 8px;
+      background: #a78bfa;
+      transform: rotate(45deg);
+      box-shadow: 0 0 10px #a78bfa;
+    }
+
+    .input-panel {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 36px;
+      background: rgba(255,245,200,0.2);
+      border: 1px solid rgba(120,100,40,0.3);
+      padding: 20px 32px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,80,140,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+      position: relative;
+      z-index: 1;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .input-panel label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(60,50,20,0.7);
+    }
+    .input-panel input {
+      width: 58px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(120,100,40,0.4);
+      border-radius: 8px;
+      font-size: 18px;
+      text-align: center;
+      color: #2a2010;
+      font-family: 'Cinzel', serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-panel input:focus {
+      border-color: rgba(167,139,250,0.8);
+      box-shadow: 0 0 12px rgba(167,139,250,0.3);
+    }
+    .input-panel input[name="yyyy"] { width: 80px; }
+
+    .calc-btn {
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      border: 1px solid rgba(167,139,250,0.4);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: white;
+      font-family: 'Noto Sans Georgian', sans-serif;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+      margin-top: 14px;
+    }
+    .calc-btn:hover {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      box-shadow: 0 6px 28px rgba(124,58,237,0.6);
+      transform: translateY(-1px);
+    }
+
+    .main-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .side-table-wrapper {
+      width: 1800px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,180,200,0.15);
+    }
+
+    .side-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: 'Noto Sans Georgian', sans-serif;
+      font-size: 14px;
+    }
+    .side-table thead th {
+      background: rgba(0,100,140,0.9);
+      color: #7ff0ff;
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(0,200,230,0.3);
+    }
+    .side-table td {
+      padding: 10px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: rgba(200,235,255,0.85);
+      font-size: 14px;
+    }
+    .side-table td:first-child { font-weight: 600; color: rgba(150,220,255,0.9); text-align: left; }
+    .side-table td:nth-child(2) { font-weight: 700; color: #FFD700; font-size: 16px; }
+    .side-table tr.anchor-row td { background: rgba(0,80,120,0.7); color: #7ff0ff; font-weight: 700; font-size: 15px; }
+    .side-table tr.anchor-row td:nth-child(2) { color: #FFD700; font-size: 18px; }
+    .side-table tr.mid-row td { background: rgba(0,50,80,0.5); }
+    .side-table tr:hover td { background: rgba(0,100,140,0.3); }
+
+    .diagram-wrapper {
+      position: relative;
+      border-radius: 50%;
+      padding: 20px;
+      background: radial-gradient(circle at 50% 50%, rgba(0,60,100,0.08) 0%, transparent 70%);
+      border: 1px solid rgba(167,139,250,0.12);
+      box-shadow:
+        0 0 60px rgba(0,80,140,0.15),
+        0 0 120px rgba(0,100,140,0.08),
+        inset 0 0 60px rgba(0,60,100,0.05);
+    }
+
+    svg text { dominant-baseline: central; text-anchor: middle; }
+
+    /* Table */
+    .table-wrapper {
+      width: 1800px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,139,250,0.15);
+    }
+
+    .chakra-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: 'Noto Sans Georgian', sans-serif;
+    }
+    .chakra-table thead tr {
+      background: linear-gradient(135deg, rgba(240,100,160,0.85), rgba(180,60,120,0.85));
+      backdrop-filter: blur(10px);
+    }
+    .chakra-table th {
+      padding: 16px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      color: white;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+    .chakra-table th:first-child { text-align: left; }
+    .chakra-table td {
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+      border-right: 1px solid rgba(0,0,0,0.1);
+      transition: filter 0.2s;
+    }
+    .chakra-table td:first-child {
+      text-align: left;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .chakra-table tbody tr:hover td { filter: brightness(1.15); }
+
+    .row-sahasrara  td { background: rgba(126,87,194,0.85); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .row-ajna       td { background: rgba(92,155,214,0.85);  color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .row-vishudha   td { background: rgba(181,212,244,0.85); color: #0c3060; }
+    .row-anahata    td { background: rgba(102,187,106,0.85); color: #0d3b0f; }
+    .row-manipura   td { background: rgba(255,215,0,0.85);   color: #412402; }
+    .row-svadhistana td{ background: rgba(239,159,39,0.85);  color: #2d1500; }
+    .row-muladhara  td { background: rgba(220,70,70,0.85);   color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+
+    .footer-text {
+      margin-top: 48px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(167,139,250,0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── RESPONSIVE ── */
+    .diagram-wrapper { width: 100%; max-width: 700px; }
+    .diagram-wrapper svg { width: 100%; height: auto; display: block; }
+    .table-wrapper, .side-table-wrapper { width: 100%; max-width: 1800px; }
+
+    @media (max-width: 900px) {
+      body { padding: 20px 12px 40px; }
+      .page-title { font-size: 20px; letter-spacing: 2px; }
+      .page-subtitle { font-size: 10px; letter-spacing: 1.5px; margin-bottom: 20px; }
+      .divider { margin-bottom: 16px; }
+      .divider-line { width: 70px; }
+      .input-panel { flex-wrap: wrap; justify-content: center; gap: 10px; padding: 14px 16px; margin-bottom: 20px; }
+      .diagram-wrapper { max-width: 100%; }
+      .chakra-table th, .chakra-table td { padding: 9px 6px; font-size: 12px; }
+      .chakra-table td:first-child { font-size: 11px; }
+      .side-table thead th { font-size: 12px; padding: 10px 8px; }
+      .side-table td { font-size: 11px; padding: 7px 8px; }
+      .side-table tr.anchor-row td { font-size: 12px; }
+      .side-table tr.anchor-row td:nth-child(2) { font-size: 14px; }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 12px 0 30px; }
+      .page-title { font-size: 15px; letter-spacing: 1px; }
+      .page-subtitle { display: none; }
+      .divider { display: none; }
+      .diagram-wrapper { max-width: 100%; width: 100%; margin: 0; border-radius: 0; padding: 0; }
+      .input-panel { gap: 8px; padding: 12px; border-radius: 12px; margin: 0 8px 16px; }
+      .input-panel input { width: 48px; font-size: 14px; padding: 6px; }
+      .input-panel input[name="yyyy"] { width: 62px; }
+      .calc-btn { padding: 8px 14px; font-size: 11px; letter-spacing: 1px; margin-top: 8px; }
+      .chakra-table th { font-size: 10px; padding: 7px 4px; letter-spacing: 0; }
+      .chakra-table td { font-size: 11px; padding: 7px 4px; }
+      .chakra-table td:first-child { font-size: 9px; }
+      .side-table thead th { font-size: 11px; padding: 8px 5px; }
+      .side-table td { font-size: 10px; padding: 5px 6px; }
+      .side-table tr.anchor-row td:nth-child(2) { font-size: 13px; }
+      .footer-text { font-size: 9px; letter-spacing: 1px; margin-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="page-title">✦ ნუმეროლოგიური მატრიცა ✦</h1>
+<p class="page-subtitle">სულის რუქა · სამყაროს კოდი</p>
+
+<div class="divider">
+  <div class="divider-line"></div>
+  <div class="divider-gem"></div>
+  <div class="divider-line" style="background:linear-gradient(90deg,rgba(167,139,250,0.6),rgba(96,208,255,0.6),transparent)"></div>
+  <div class="divider-gem" style="background:#60d0ff;box-shadow:0 0 10px #60d0ff"></div>
+  <div class="divider-line" style="background:linear-gradient(90deg,rgba(96,208,255,0.6),transparent)"></div>
+</div>
+
+<div class="input-panel">
+  <div class="input-group">
+    <label>სახელი</label>
+    <input name="name" placeholder="სახელი" style="width:120px;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;"/>
+  </div>
+  <div class="input-group">
+    <label>დღე</label>
+    <input name="dd" maxlength="2" placeholder="DD" value="24"/>
+  </div>
+  <div class="input-group">
+    <label>თვე</label>
+    <input name="mm" maxlength="2" placeholder="MM" value="06"/>
+  </div>
+  <div class="input-group">
+    <label>წელი</label>
+    <input name="yyyy" maxlength="4" placeholder="YYYY" value="1987"/>
+  </div>
+  <div class="input-group">
+    <label>&nbsp;</label>
+    <button class="calc-btn" onclick="calculate()">⟡ გამოთვლა</button>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="diagram-wrapper">
+    <svg id="diagram" width="1800" height="1800" viewBox="-120 -120 1440 1440" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="side-table-wrapper">
+    <table class="side-table" id="side-table">
+      <thead>
+        <tr>
+          <th>ასაკი</th>
+          <th>ენერგია</th>
+          <th>განმარტება</th>
+        </tr>
+      </thead>
+      <tbody id="side-table-body">
+        <tr><td colspan="3" style="color:rgba(150,220,255,0.5);padding:20px;text-align:center">შეიყვანეთ თარიღი</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="chakra-table" id="chakra-table">
+      <thead>
+        <tr>
+          <th>ჩაკრა</th>
+          <th>ენერგია</th>
+          <th>მატერია (სხეული)</th>
+          <th>ემოცია</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-sahasrara"> <td>საჰასრარა (გვირგვინი)</td>         <td id="c-t3">-</td><td id="c-l3">-</td><td id="c-s1">-</td></tr>
+        <tr class="row-ajna">       <td>აჯნა (მესამე თვალი)</td>           <td id="c-t2">-</td><td id="c-l2">-</td><td id="c-s2">-</td></tr>
+        <tr class="row-vishudha">   <td>ვიშუდჰა (ყელის ჩაკრა)</td>        <td id="c-t1">-</td><td id="c-l1">-</td><td id="c-s3">-</td></tr>
+        <tr class="row-anahata">    <td>ანაჰატა (გულის ჩაკრა)</td>        <td id="c-g2">-</td><td id="c-g1">-</td><td id="c-s4">-</td></tr>
+        <tr class="row-manipura">   <td>მანიპურა (მზის წნული)</td>         <td id="c-cv">-</td><td id="c-cv2">-</td><td id="c-s5">-</td></tr>
+        <tr class="row-svadhistana"><td>სვადჰისტანა (საკრალური ჩაკრა)</td><td id="c-b1">-</td><td id="c-r1">-</td><td id="c-s6">-</td></tr>
+        <tr class="row-muladhara">  <td>მულადჰარა (ფუძის ჩაკრა)</td>      <td id="c-b3">-</td><td id="c-r3">-</td><td id="c-s7">-</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p class="footer-text">✦ სამყაროს რიცხვები · ენერგიის ნიმუში ✦</p>
+
+<script>
+function reduce22(n) {
+  while (n > 22) n = String(n).split('').reduce((a,d)=>a+parseInt(d),0);
+  return n;
+}
+
+function calculate() {
+  const dd   = parseInt(document.querySelector('[name=dd]').value)  || 1;
+  const mm   = parseInt(document.querySelector('[name=mm]').value)  || 1;
+  const yyyy = parseInt(document.querySelector('[name=yyyy]').value)|| 2000;
+
+  const L3v = reduce22(dd);
+  const T3v = reduce22(mm);
+  const R3v = reduce22(yyyy);
+  const B3v = reduce22(L3v + T3v + R3v);
+  const Cv  = reduce22(L3v + T3v + R3v + B3v);
+
+  const B1v = reduce22(Cv + B3v);
+  const B2v = reduce22(B1v + B3v);
+  const R1v = reduce22(Cv + R3v);
+  const R2v = reduce22(R1v + R3v);
+  const L1v = reduce22(Cv + L3v);
+  const L2v = reduce22(L1v + L3v);
+  const T1v = reduce22(Cv + T3v);
+  const T2v = reduce22(T1v + T3v);
+
+  const G1v = reduce22(L1v + Cv);
+  const G2v = reduce22(T1v + Cv);
+
+  const TL3v = reduce22(L3v + T3v);
+  const TR3v = reduce22(T3v + R3v);
+  const BR3v = reduce22(B3v + R3v);
+  const BL3v = reduce22(B3v + L3v);
+  const RC1v = reduce22(TL3v + TR3v + BR3v + BL3v);
+  const RC2v = reduce22(RC1v + Cv);
+
+  const TL1v = reduce22(TL3v + RC1v);
+  const TL2v = reduce22(TL1v + TL3v);
+  const TR1v = reduce22(TR3v + RC1v);
+  const TR2v = reduce22(TR1v + TR3v);
+  const BR1v = reduce22(BR3v + RC1v);
+  const BR2v = reduce22(BR1v + BR3v);
+  const BL1v = reduce22(BL3v + RC1v);
+  const BL2v = reduce22(BL3v + BL1v);
+
+  const W2v = reduce22(B1v + R1v);
+  const W1v = reduce22(B1v + W2v);
+  const W3v = reduce22(R1v + W2v);
+
+  draw({L3v,T3v,R3v,B3v,Cv,B1v,B2v,R1v,R2v,L1v,L2v,T1v,T2v,G1v,G2v,
+        TL3v,TR3v,BR3v,BL3v,RC1v,RC2v,TL1v,TL2v,TR1v,TR2v,BR1v,BR2v,BL1v,BL2v,W1v,W2v,W3v});
+
+  // Build side table - 8 anchors + 8 sections x 7 dots = 65 rows with header
+  const anchors = [
+    {age:'0',   val:L3v,  name:'L3'},
+    {age:'10',  val:TL3v, name:'TL3'},
+    {age:'20',  val:T3v,  name:'T3'},
+    {age:'30',  val:TR3v, name:'TR3'},
+    {age:'40',  val:R3v,  name:'R3'},
+    {age:'50',  val:BR3v, name:'BR3'},
+    {age:'60',  val:B3v,  name:'B3'},
+    {age:'70',  val:BL3v, name:'BL3'},
+  ];
+  const secAnchors = [
+    [L3v, TL3v], [TL3v, T3v], [T3v, TR3v], [TR3v, R3v],
+    [R3v, BR3v], [BR3v, B3v], [B3v, BL3v], [BL3v, L3v],
+  ];
+  const ageStarts = [1,11,21,31,41,51,61,71];
+
+  function sideAges(start) {
+    function fmt(n){ return n===Math.floor(n)?String(n):String(n).replace('.',','); }
+    return [
+      `${fmt(start)}-${fmt(start+1.5)}`,`${fmt(start+1.5)}-${fmt(start+2.5)}`,
+      `${fmt(start+2.5)}-${fmt(start+3)}`,`${fmt(start+4)}`,
+      `${fmt(start+5)}-${fmt(start+6.5)}`,`${fmt(start+6.5)}-${fmt(start+7.5)}`,
+      `${fmt(start+7.5)}-${fmt(start+8)}`,
+    ];
+  }
+  function sideEnergies(A,B){
+    const d4=reduce22(A+B), d2=reduce22(A+d4), d1=reduce22(A+d2),
+          d3=reduce22(d2+d4), d6=reduce22(d4+B), d5=reduce22(d4+d6), d7=reduce22(d6+B);
+    return [d1,d2,d3,d4,d5,d6,d7];
+  }
+
+  const tbody = document.getElementById('side-table-body');
+  tbody.innerHTML = '';
+
+  for (let i = 0; i < 8; i++) {
+    // anchor row
+    const ar = document.createElement('tr');
+    ar.className = 'anchor-row';
+    ar.innerHTML = `<td>${anchors[i].age}</td><td>${anchors[i].val}</td><td></td>`;
+    tbody.appendChild(ar);
+
+    // 7 dot rows for this section
+    const ages = sideAges(ageStarts[i]);
+    const energies = sideEnergies(secAnchors[i][0], secAnchors[i][1]);
+    for (let d = 0; d < 7; d++) {
+      const tr = document.createElement('tr');
+      if (d === 3) tr.className = 'mid-row';
+      tr.innerHTML = `<td>${ages[d]}</td><td>${energies[d]}</td><td></td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  const set = (id, val) => { const e=document.getElementById(id); if(e) e.textContent=val; };
+  set('c-t3', T3v); set('c-l3', L3v); set('c-s1', reduce22(T3v+L3v));
+  set('c-t2', T2v); set('c-l2', L2v); set('c-s2', reduce22(T2v+L2v));
+  set('c-t1', T1v); set('c-l1', L1v); set('c-s3', reduce22(T1v+L1v));
+  set('c-g2', G2v); set('c-g1', G1v); set('c-s4', reduce22(G1v+G2v));
+  set('c-cv', Cv);  set('c-cv2', Cv); set('c-s5', reduce22(Cv+Cv));
+  set('c-b1', B1v); set('c-r1', R1v); set('c-s6', reduce22(B1v+R1v));
+  set('c-b3', B3v); set('c-r3', R3v); set('c-s7', reduce22(B3v+R3v));
+}
+
+function draw(v) {
+  const svg = document.getElementById('diagram');
+  svg.innerHTML = '';
+
+  const cx=600, cy=600;
+  const rc_r=50, r1_r=20, r2_r=32, r3_r=52, gap=180;
+  const d1=rc_r+gap+r1_r, d2=d1+r1_r+r2_r, d3=d2+r2_r+r3_r;
+  const f=Math.sqrt(2)/2;
+  const dd1=Math.round((rc_r+gap+r1_r)*f);
+  const dd2=Math.round(dd1+(r1_r+r2_r)*f);
+  const dd3=Math.round(dd2+(r2_r+r3_r)*f);
+  const outerR = d3 + r3_r;
+
+  function el(tag, attrs, txt) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [k,val] of Object.entries(attrs)) e.setAttribute(k, val);
+    if (txt !== undefined) e.textContent = txt;
+    svg.appendChild(e);
+    return e;
+  }
+
+  function circle(cx2, cy2, r, fill, stroke, sw, label, isColored) {
+    el('circle',{cx:cx2,cy:cy2,r,fill,stroke,'stroke-width':sw||1});
+    if (label !== undefined) {
+      const textFill = isColored ? 'white' : 'white';
+      const fs = Math.max(16, Math.round(r * 1.1));
+      el('text',{x:cx2,y:cy2,'font-size':fs,'font-weight':700,fill:textFill,'font-family':'Cinzel,serif'}, label);
+    }
+  }
+
+  function icon(x, y, type) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg','text');
+    e.setAttribute('x', x); e.setAttribute('y', y);
+    e.setAttribute('font-size', '14');
+    e.setAttribute('text-anchor','middle');
+    e.setAttribute('dominant-baseline','central');
+    e.textContent = type === 'heart' ? '♥' : '$';
+    e.setAttribute('fill', type === 'heart' ? '#ff6b8a' : '#7ec850');
+    e.setAttribute('transform', `rotate(-45,${x},${y})`);
+    e.setAttribute('filter', type==='heart'
+      ? 'drop-shadow(0 0 4px rgba(255,100,140,0.7))'
+      : 'drop-shadow(0 0 4px rgba(126,200,80,0.7))');
+    svg.appendChild(e);
+  }
+
+  // SVG background
+  el('rect',{x:-120,y:-120,width:1440,height:1440,fill:'#001520',rx:0});
+
+  // Subtle glow behind center
+  const defs = el('defs',{});
+  const rg = document.createElementNS('http://www.w3.org/2000/svg','radialGradient');
+  rg.setAttribute('id','centerGlow'); rg.setAttribute('cx','50%'); rg.setAttribute('cy','50%'); rg.setAttribute('r','50%');
+  const s1 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','rgba(0,80,120,0.25)');
+  const s2 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','rgba(0,0,0,0)');
+  rg.appendChild(s1); rg.appendChild(s2); defs.appendChild(rg);
+  el('circle',{cx,cy,r:outerR+40,fill:'url(#centerGlow)'});
+
+  // Outer big circle
+  el('circle',{cx,cy,r:outerR,fill:'none',stroke:'rgba(167,139,250,0.3)','stroke-width':'1'});
+
+  // Rectangle: left side through L1 center, top through T1, bottom through B1, right through R3
+  // Square: all 4 sides pass through 1st circles (d1) — L1, T1, B1, R1
+  el('rect',{x:cx-d1, y:cy-d1, width:d1*2, height:d1*2, fill:'none',stroke:'rgba(167,139,250,0.45)','stroke-width':'1.2'});
+
+  // Rhombus 98%
+  const rhD = Math.round(d3 * 0.98);
+  el('polygon',{points:`${cx},${cy-rhD} ${cx+rhD},${cy} ${cx},${cy+rhD} ${cx-rhD},${cy}`,fill:'none',stroke:'rgba(96,208,255,0.35)','stroke-width':'1'});
+
+  // Small rhombuses
+  const rh=(x,y,r)=>`${x},${y-r} ${x+r},${y} ${x},${y+r} ${x-r},${y}`;
+  ['rgba(167,139,250,0.4)'].forEach(c=>{
+    el('polygon',{points:rh(cx,cy-d3,r3_r),fill:'none',stroke:c,'stroke-width':'0.7'});
+    el('polygon',{points:rh(cx,cy+d3,r3_r),fill:'none',stroke:c,'stroke-width':'0.7'});
+    el('polygon',{points:rh(cx-d3,cy,r3_r),fill:'none',stroke:c,'stroke-width':'0.7'});
+    el('polygon',{points:rh(cx+d3,cy,r3_r),fill:'none',stroke:c,'stroke-width':'0.7'});
+  });
+
+  // Lines
+  const lc = 'rgba(200,180,255,0.25)';
+  el('line',{x1:cx,y1:cy+d1,x2:cx+d1,y2:cy,stroke:lc,'stroke-width':'0.8'});
+  el('line',{x1:cx-(d3+r3_r),y1:cy,x2:cx+(d3+r3_r),y2:cy,stroke:lc,'stroke-width':'0.8'});
+  el('line',{x1:cx,y1:cy-(d3+r3_r),x2:cx,y2:cy+(d3+r3_r),stroke:lc,'stroke-width':'0.8'});
+
+  // Red line: TR1 -> BL1 (full diagonal), label on left side of TR1->center half, rotated -45°
+  el('line',{x1:cx+dd1,y1:cy-dd1,x2:cx-dd1,y2:cy+dd1,stroke:'rgba(255,100,100,0.6)','stroke-width':'1.5'});
+  el('text',{x:670,y:493,'font-size':13,'font-weight':600,fill:'rgba(255,130,130,0.95)','font-family':'Noto Sans Georgian,sans-serif','text-anchor':'middle',transform:'rotate(-45,670,493)'},'ქალის ხაზი');
+
+  // Purple line: TL1 -> BR1 (full diagonal), label on right side of TL1->center half, rotated 45°
+  el('line',{x1:cx-dd1,y1:cy-dd1,x2:cx+dd1,y2:cy+dd1,stroke:'rgba(180,80,220,0.7)','stroke-width':'1.5'});
+  el('text',{x:529,y:493,'font-size':13,'font-weight':600,fill:'rgba(200,130,255,0.95)','font-family':'Noto Sans Georgian,sans-serif','text-anchor':'middle',transform:'rotate(45,529,493)'},'მამაკაცის ხაზი');
+
+  // CENTER
+  circle(cx,cy,rc_r,'#FFD700','#BA7517',1.5,v.Cv,true);
+
+  // Green
+  circle(cx-rc_r-gap/2,cy,r1_r,'#639922','#3B6D11',1,v.G1v,true);
+  circle(cx,cy-rc_r-gap/2,r1_r,'#639922','#3B6D11',1,v.G2v,true);
+
+  // TOP
+  circle(cx,cy-d1,r1_r,'#B5D4F4','#378ADD',1,v.T1v,true);
+  circle(cx,cy-d2,r2_r,'#378ADD','#185FA5',1,v.T2v,true);
+  circle(cx,cy-d3,r3_r,'#7F77DD','#534AB7',1,v.T3v,true);
+
+  // BOTTOM
+  circle(cx,cy+d1,r1_r,'#EF9F27','#BA7517',1,v.B1v,true);
+  circle(cx,cy+d2,r2_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.B2v,false);
+  circle(cx,cy+d3,r3_r,'#E24B4A','#A32D2D',1,v.B3v,true);
+
+  // LEFT
+  circle(cx-d1,cy,r1_r,'#B5D4F4','#378ADD',1,v.L1v,true);
+  circle(cx-d2,cy,r2_r,'#378ADD','#185FA5',1,v.L2v,true);
+  circle(cx-d3,cy,r3_r,'#7F77DD','#534AB7',1,v.L3v,true);
+
+  // RIGHT
+  circle(cx+d1,cy,r1_r,'#EF9F27','#BA7517',1,v.R1v,true);
+  circle(cx+d2,cy,r2_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.R2v,false);
+  circle(cx+d3,cy,r3_r,'#E24B4A','#A32D2D',1,v.R3v,true);
+
+  // RC1 RC2
+  circle(cx+rc_r+r2_r,cy,r2_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.RC1v,false);
+  circle(cx+rc_r+r2_r*2+r1_r,cy,r1_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.RC2v,false);
+
+  // Diagonals
+  const dc=(x,y,r,lbl)=>circle(x,y,r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,lbl,false);
+  dc(cx-dd1,cy-dd1,r1_r,v.TL1v); dc(cx-dd2,cy-dd2,r2_r,v.TL2v); dc(cx-dd3,cy-dd3,r3_r,v.TL3v);
+  dc(cx+dd1,cy-dd1,r1_r,v.TR1v); dc(cx+dd2,cy-dd2,r2_r,v.TR2v); dc(cx+dd3,cy-dd3,r3_r,v.TR3v);
+  dc(cx-dd1,cy+dd1,r1_r,v.BL1v); dc(cx-dd2,cy+dd2,r2_r,v.BL2v); dc(cx-dd3,cy+dd3,r3_r,v.BL3v);
+  dc(cx+dd1,cy+dd1,r1_r,v.BR1v); dc(cx+dd2,cy+dd2,r2_r,v.BR2v); dc(cx+dd3,cy+dd3,r3_r,v.BR3v);
+
+  // W circles
+  const B1x=cx, B1y=cy+d1, R1x=cx+d1, R1y=cy;
+  const W1x=Math.round(B1x+0.25*(R1x-B1x)), W1y=Math.round(B1y+0.25*(R1y-B1y));
+  const W2x=Math.round(B1x+0.5*(R1x-B1x)),  W2y=Math.round(B1y+0.5*(R1y-B1y));
+  const W3x=Math.round(B1x+0.75*(R1x-B1x)), W3y=Math.round(B1y+0.75*(R1y-B1y));
+
+  circle(W1x,W1y,r1_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.W1v,false);
+  circle(W2x,W2y,r1_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.W2v,false);
+  circle(W3x,W3y,r1_r,'rgba(30,20,50,0.8)','rgba(200,180,255,0.5)',1.5,v.W3v,false);
+
+  icon(W1x, W1y - r1_r - 14, 'heart');
+  icon(W3x, W3y - r1_r - 14, 'dollar');
+
+  // ── OUTER CIRCLE DOTS ──
+  // 8 sections, 7 dots each (including endpoints which are the anchor circles)
+  // Anchor angles in SVG (0=right, 90=down, 180=left, 270=up):
+  // R3=0, BR3=45, B3=90, BL3=135, L3=180, TL3=225, T3=270, TR3=315
+  // Section 1: L3(180)->TL3(225), Section 2: TL3(225)->T3(270), etc.
+
+  const anchorAngles = [180, 225, 270, 315, 0, 45, 90, 135]; // L3,TL3,T3,TR3,R3,BR3,B3,BL3
+  const sectionStarts = [1,11,21,31,41,51,61,71];
+
+  // Energy anchors per section [left-val, right-val]
+  const energyAnchors = [
+    [v.L3v,  v.TL3v],
+    [v.TL3v, v.T3v],
+    [v.T3v,  v.TR3v],
+    [v.TR3v, v.R3v],
+    [v.R3v,  v.BR3v],
+    [v.BR3v, v.B3v],
+    [v.B3v,  v.BL3v],
+    [v.BL3v, v.L3v],
+  ];
+
+  function sectionAges(start) {
+    function fmt(n) {
+      return n === Math.floor(n) ? String(n) : String(n).replace('.', ',');
+    }
+    return [
+      `${fmt(start)}-${fmt(start+1.5)}`,
+      `${fmt(start+1.5)}-${fmt(start+2.5)}`,
+      `${fmt(start+2.5)}-${fmt(start+3)}`,
+      `${fmt(start+4)}`,
+      `${fmt(start+5)}-${fmt(start+6.5)}`,
+      `${fmt(start+6.5)}-${fmt(start+7.5)}`,
+      `${fmt(start+7.5)}-${fmt(start+8)}`,
+    ];
+  }
+
+  function sectionEnergies(A, B) {
+    const d4 = reduce22(A + B);    // middle (dot 4)
+    const d2 = reduce22(A + d4);   // dot 2
+    const d1 = reduce22(A + d2);   // dot 1
+    const d3 = reduce22(d2 + d4);  // dot 3
+    const d6 = reduce22(d4 + B);   // dot 6
+    const d5 = reduce22(d4 + d6);  // dot 5
+    const d7 = reduce22(d6 + B);   // dot 7
+    return [d1, d2, d3, d4, d5, d6, d7];
+  }
+
+  for (let sec = 0; sec < 8; sec++) {
+    const startAngle = anchorAngles[sec];
+    const endAngle   = anchorAngles[(sec + 1) % 8];
+
+    // Handle wrap: if going from 315 to 0, endAngle in terms of increment
+    let angleDiff = endAngle - startAngle;
+    if (angleDiff <= 0) angleDiff += 360; // always positive arc
+
+    const ages    = sectionAges(sectionStarts[sec]);
+    const [A, B]  = energyAnchors[sec];
+    const energies = sectionEnergies(A, B);
+
+    for (let d = 0; d < 7; d++) {
+      const t    = (d + 1) / 8; // equally spaced, never on anchors
+      const ang  = startAngle + angleDiff * t;
+      const rad  = ang * Math.PI / 180;
+      const dotX = Math.round(cx + outerR * Math.cos(rad));
+      const dotY = Math.round(cy + outerR * Math.sin(rad));
+
+      // dot size: middle (d=3) is bigger
+      const isMiddle = d === 3;
+      const dotR     = isMiddle ? 5 : 3;
+      const dotFill  = isMiddle ? '#FFD700' : 'rgba(200,180,255,0.9)';
+
+      el('circle',{cx:dotX,cy:dotY,r:dotR,fill:dotFill,stroke:'none'});
+
+      // Age label — use tighter angle range (35%–65%) so labels bunch close together
+      const tAge    = 0.20 + (d / 6) * 0.60;
+      const angAge  = startAngle + angleDiff * tAge;
+      const radAge  = angAge * Math.PI / 180;
+      const inset   = outerR - 16;
+      const ageX    = Math.round(cx + inset * Math.cos(radAge));
+      const ageY    = Math.round(cy + inset * Math.sin(radAge));
+
+      el('text',{
+        x: ageX, y: ageY,
+        'font-size': isMiddle ? 7 : 6,
+        'font-weight': isMiddle ? 700 : 400,
+        fill: isMiddle ? '#FFD700' : 'rgba(200,180,255,0.85)',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'sans-serif',
+      }, ages[d]);
+
+      // Energy label — outside the circle
+      const outset  = outerR + 30;
+      const eneX    = Math.round(cx + outset * Math.cos(rad));
+      const eneY    = Math.round(cy + outset * Math.sin(rad));
+
+      el('text',{
+        x: eneX, y: eneY,
+        'font-size': isMiddle ? 13 : 11,
+        'font-weight': isMiddle ? 700 : 600,
+        fill: isMiddle ? '#FFD700' : 'rgba(167,139,250,0.95)',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+        'font-family': 'Cinzel,serif',
+      }, energies[d]);
+    }
+  }
+}
+
+calculate();
+</script>
+</body>
+</html>
