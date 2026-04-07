@@ -410,24 +410,54 @@ function draw(v){
   const isCompat=v.compat===true, isM3=!!v.m3Cv2, isM2=CUR===2;
 
   // ── Geometry FIRST (behind circles) ─────────────────────────────────
-  // Rhombus and square — shown in ALL tabs
+  // ── Purple rhombus — tips at 2*dd1, sides pass through TL1/TR1/BL1/BR1
   el('polygon',{points:`${cx},${cy-2*dd1} ${cx+2*dd1},${cy} ${cx},${cy+2*dd1} ${cx-2*dd1},${cy}`,
     fill:'none',stroke:'rgba(127,119,221,0.9)','stroke-width':'1.5'});
-  el('rect',{x:cx-dd3,y:cy-dd3,width:dd3*2,height:dd3*2,
+
+  // ── Square — sides pass through L1/T1/R1/B1 centers (at distance d1 from center)
+  // Square with side midpoints at L1/T1/R1/B1: corners at (cx±d1, cy±d1)
+  el('rect',{x:cx-d1,y:cy-d1,width:d1*2,height:d1*2,
     fill:'none',stroke:'rgba(220,200,255,0.9)','stroke-width':'1.5'});
 
-  // Cross lines
-  const lc='rgba(220,200,255,0.75)';
-  el('line',{x1:cx,y1:cy+d1,x2:cx+d1,y2:cy,stroke:lc,'stroke-width':'0.8'});
-  el('line',{x1:cx-(d3+r3_r),y1:cy,x2:cx+(d3+r3_r),y2:cy,stroke:lc,'stroke-width':'0.8'});
-  el('line',{x1:cx,y1:cy-(d3+r3_r),x2:cx,y2:cy+(d3+r3_r),stroke:lc,'stroke-width':'0.8'});
+  // ── Axis cross lines (horizontal + vertical) — skip circles they pass through
+  const lc='rgba(220,200,255,0.75)', xExt=d3+r3_r;
+  function skipLine(x1,y1,x2,y2,gaps,col){
+    // gaps: [{lo,hi}] sorted ascending — segments between gaps
+    let cur=x1===x2?(y1<y2?y1:y2):(x1<x2?x1:x2);
+    const end=x1===x2?(y1<y2?y2:y1):(x1<x2?x2:x1);
+    const isV=x1===x2;
+    for(const g of gaps){
+      if(cur<g.lo) el('line',{x1:isV?x1:cur,y1:isV?cur:y1,x2:isV?x1:g.lo,y2:isV?g.lo:y1,stroke:col,'stroke-width':'0.8'});
+      cur=Math.max(cur,g.hi);
+    }
+    if(cur<end) el('line',{x1:isV?x1:cur,y1:isV?cur:y1,x2:isV?x1:end,y2:isV?end:y1,stroke:col,'stroke-width':'0.8'});
+  }
+  // Horizontal — skips L3,L2,L1,Center,R1,R2,R3
+  const hGaps=[cx-d3-r3_r,cx-d2-r2_r,cx-d1-r1_r,cx-rc_r,cx+rc_r,cx+d1+r1_r,cx+d2+r2_r,cx+d3+r3_r]
+    .reduce((a,v,i,ar)=>i%2===0?[...a,{lo:ar[i],hi:ar[i+1]}]:a,[]);
+  skipLine(cx-xExt,cy,cx+xExt,cy,hGaps,lc);
+  // Vertical — skips T3,T2,T1,Center,B1,B2,B3
+  const vGaps=[cy-d3-r3_r,cy-d2-r2_r,cy-d1-r1_r,cy-rc_r,cy+rc_r,cy+d1+r1_r,cy+d2+r2_r,cy+d3+r3_r]
+    .reduce((a,v,i,ar)=>i%2===0?[...a,{lo:ar[i],hi:ar[i+1]}]:a,[]);
+  skipLine(cx,cy-xExt,cx,cy+xExt,vGaps,lc);
 
-  // Diagonal lines — compat: stop at inner edge of dd3 circles; normal: full through dd1
-  const diagEnd = isCompat ? dd3-r3_r : d3+r3_r;
-  const f45=Math.sqrt(2)/2;
-  const dx45=Math.round(diagEnd*f45), dy45=Math.round(diagEnd*f45);
-  el('line',{x1:cx+dx45,y1:cy-dy45,x2:cx-dx45,y2:cy+dy45,stroke:'rgba(255,120,120,1.0)','stroke-width':'1.5'});
-  el('line',{x1:cx-dx45,y1:cy-dy45,x2:cx+dx45,y2:cy+dy45,stroke:'rgba(210,110,255,1.0)','stroke-width':'1.5'});
+  // ── B1→R1 connecting line (always visible in all tabs)
+  el('line',{x1:cx,y1:cy+d1,x2:cx+d1,y2:cy,stroke:lc,'stroke-width':'0.8'});
+
+  // ── L1↔R1 horizontal segment (through center, between the circles)
+  el('line',{x1:cx-d1+r1_r,y1:cy,x2:cx+d1-r1_r,y2:cy,stroke:lc,'stroke-width':'0.8'});
+
+  // ── T1↔B1 vertical segment (through center, between the circles)
+  el('line',{x1:cx,y1:cy-d1+r1_r,x2:cx,y2:cy+d1-r1_r,stroke:lc,'stroke-width':'0.8'});
+
+  // ── Red/purple diagonal lines
+  // Methods 1,2,3: reach TL1/BR1 and TR1/BL1 (dd1)
+  // Method 4 (compat): reach TL3/BR3 and TR3/BL3 (dd3)
+  const dEnd = isCompat ? dd3 : dd1;
+  // Red: TR1→BL1 direction (or TR3→BL3 in compat)
+  el('line',{x1:cx+dEnd,y1:cy-dEnd,x2:cx-dEnd,y2:cy+dEnd,stroke:'rgba(255,120,120,1.0)','stroke-width':'1.5'});
+  // Purple: TL1→BR1 direction (or TL3→BR3 in compat)
+  el('line',{x1:cx-dEnd,y1:cy-dEnd,x2:cx+dEnd,y2:cy+dEnd,stroke:'rgba(210,110,255,1.0)','stroke-width':'1.5'});
   el('text',{x:670,y:493,'font-size':13,'font-weight':600,fill:'rgba(255,130,130,0.95)','font-family':'Noto Sans Georgian,sans-serif','text-anchor':'middle',transform:'rotate(-45,670,493)'},'ქალის ხაზი');
   el('text',{x:529,y:493,'font-size':13,'font-weight':600,fill:'rgba(200,130,255,0.95)','font-family':'Noto Sans Georgian,sans-serif','text-anchor':'middle',transform:'rotate(45,529,493)'},'მამაკაცის ხაზი');
 
