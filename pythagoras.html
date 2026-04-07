@@ -1,1 +1,183 @@
 
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>პითაგორას კვადრატი</title>
+
+<style>
+body {
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#020617;
+  color:white;
+  font-family:sans-serif;
+}
+
+h2 {
+  margin-bottom:20px;
+}
+
+input {
+  padding:10px;
+  font-size:18px;
+  border-radius:10px;
+  border:none;
+  text-align:center;
+  width:180px;
+}
+
+button {
+  padding:10px 20px;
+  margin-left:10px;
+  border:none;
+  border-radius:10px;
+  background:#7c3aed;
+  color:white;
+  cursor:pointer;
+}
+
+#calc {
+  margin:15px 0;
+  text-align:center;
+  font-size:18px;
+  line-height:1.6;
+}
+
+/* grid */
+.grid {
+  display:grid;
+  grid-template-columns: repeat(3, 110px);
+  gap:10px;
+}
+
+.cell {
+  background:#111827;
+  border-radius:10px;
+  height:110px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:5px;
+}
+
+.num {
+  font-size:12px;
+  opacity:0.6;
+  margin-bottom:5px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>პითაგორას კვადრატი</h2>
+
+<input type="text" id="birth" placeholder="DD/MM/YYYY" maxlength="10">
+<button onclick="calculate()">გამოთვლა</button>
+
+<div id="calc"></div>
+<div class="grid" id="grid"></div>
+
+<script>
+// 🔹 auto format DD/MM/YYYY
+document.getElementById("birth").addEventListener("input", function(e) {
+  let value = e.target.value.replace(/\D/g, "");
+
+  if (value.length > 2) value = value.slice(0,2) + "/" + value.slice(2);
+  if (value.length > 5) value = value.slice(0,5) + "/" + value.slice(5,9);
+
+  e.target.value = value;
+});
+
+function sumDigits(n) {
+  return Math.abs(n)
+    .toString()
+    .split("")
+    .reduce((a,b)=>a + Number(b),0);
+}
+
+function calculate() {
+  const value = document.getElementById("birth").value;
+
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+    alert("შეიყვანე თარიღი ფორმატით: DD/MM/YYYY");
+    return;
+  }
+
+  const [day, month, year] = value.split("/");
+
+  const base = day + month + year;
+  let digits = base.split("").map(Number);
+
+  // --- calculations ---
+  const sum1 = digits.reduce((a,b)=>a+b,0);
+  const sum2 = sumDigits(sum1);
+
+  const firstDigit = digits.find(d => d !== 0);
+  let sum3 = Math.abs(sum1 - (firstDigit * 2));
+  const sum4 = sumDigits(sum3);
+
+  const extra = ("" + sum1 + sum2 + sum3 + sum4)
+    .split("")
+    .map(Number);
+
+  digits = digits.concat(extra);
+
+  // ✅ ONLY show these
+  document.getElementById("calc").innerHTML =
+    `"ჯამი": ${sum1}<br>"მისია": ${sum2}`;
+
+  // count digits
+  const count = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+
+  digits.forEach(d => {
+    if (count[d] !== undefined) count[d]++;
+  });
+
+  render(count);
+}
+
+function render(count) {
+  const labels = {
+    1:"პერსონალურობა",
+    2:"ენერგია",
+    3:"ინტერესები",
+    4:"ჯანმრთელობა",
+    5:"ლოგიკა",
+    6:"მუშაობა",
+    7:"იღბალი",
+    8:"პასუხისმგებლობა",
+    9:"მეხსიერება"
+  };
+
+  const order = [1,4,7,2,5,8,3,6,9];
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  order.forEach(n => {
+    let text = "";
+    for (let i=0;i<count[n];i++) text += n;
+
+    const div = document.createElement("div");
+    div.className = "cell";
+    div.innerHTML = `
+      <div class="num">${labels[n]}</div>
+      <div>${text || "-"}</div>
+    `;
+
+    grid.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
+
