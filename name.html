@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>სახელის ნუმეროლოგია</title>
+
+<style>
+body {
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#020617;
+  color:white;
+  font-family:sans-serif;
+}
+
+h2 {
+  margin-bottom:20px;
+}
+
+input {
+  padding:12px;
+  font-size:18px;
+  border-radius:10px;
+  border:none;
+  text-align:center;
+  width:220px;
+}
+
+button {
+  padding:10px 20px;
+  margin-left:10px;
+  border:none;
+  border-radius:10px;
+  background:#10b981;
+  color:white;
+  cursor:pointer;
+}
+
+#result {
+  margin-top:20px;
+  text-align:center;
+  font-size:18px;
+  line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+
+<h2>სახელის ნუმეროლოგია</h2>
+
+<input type="text" id="name" placeholder="შეიყვანე სახელი">
+<button onclick="calculate()">გამოთვლა</button>
+
+<div id="result"></div>
+
+<script>
+// Georgian alphabet numerology
+const values = {
+  "ა":1,"ბ":2,"გ":3,"დ":4,"ე":5,"ვ":6,"ზ":7,"თ":8,"ი":9,
+  "კ":1,"ლ":2,"მ":3,"ნ":4,"ო":5,"პ":6,"ჟ":7,"რ":8,"ს":9,
+  "ტ":1,"უ":2,"ფ":3,"ქ":4,"ღ":5,"ყ":6,"შ":7,"ჩ":8,"ც":9,
+  "ძ":1,"წ":2,"ჭ":3,"ხ":4,"ჯ":5,"ჰ":6
+};
+
+function sumDigits(n) {
+  return n.toString().split("").reduce((a,b)=>a + Number(b),0);
+}
+
+function calculate() {
+  let name = document.getElementById("name").value.toLowerCase().trim();
+
+  if (!name) {
+    alert("შეიყვანე სახელი");
+    return;
+  }
+
+  let sum = 0;
+
+  for (let char of name) {
+    if (values[char]) {
+      sum += values[char];
+    }
+  }
+
+  let mission = sum;
+  while (mission > 9) {
+    mission = sumDigits(mission);
+  }
+
+  document.getElementById("result").innerHTML =
+    `"ჯამი": ${sum}<br>"მისია": ${mission}`;
+}
+</script>
+
+</body>
+</html>
