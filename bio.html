@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ბიორიტმი — სასიცოცხლო ციკლების ვიზუალიზატორი</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0c1525;
+    --surface2: #111e35;
+    --border: rgba(100,180,255,0.12);
+    --physical: #00e5ff;
+    --emotional: #ff4d8d;
+    --intellectual: #a78bfa;
+    --intuitive: #34d399;
+    --text: #e8f0fe;
+    --muted: #6b7fa3;
+    --accent: #00e5ff;
+    --glow-p: 0 0 24px rgba(0,229,255,0.3);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    padding: 56px 0 40px;
+  }
+
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+
+  .header-subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .input-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 40px;
+    margin-bottom: 40px;
+  }
+
+  .panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 20px;
+    align-items: end;
+  }
+
+  @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .field input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; outline: none; }
+
+  .period-toggle { display: flex; gap: 8px; background: var(--surface2); border-radius: 10px; padding: 4px; border: 1px solid var(--border); }
+  .period-btn { flex: 1; padding: 9px 14px; border-radius: 7px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
+  .period-btn.active { background: var(--accent); color: #000; font-weight: 700; }
+
+  .btn-calculate { background: linear-gradient(135deg, var(--accent), #0070ff); color: #000; font-weight: 700; border: none; border-radius: 10px; padding: 14px 28px; cursor: pointer; transition: 0.2s; }
+  .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,255,0.4); }
+
+  .legend { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 20px 28px; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .legend-dot { width: 36px; height: 3px; border-radius: 2px; position: relative; }
+  .legend-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 8px; height: 8px; border-radius: 50%; background: inherit; }
+  .legend-sub { color: var(--muted); font-size: 11px; }
+
+  .chart-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 40px; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+ 
+  .today-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+  @media (max-width: 768px) { .today-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 400px) { .today-grid { grid-template-columns: 1fr; } }
+
+  .cycle-card { background: var(--surface); border-radius: 16px; padding: 24px 20px; border: 1px solid var(--border); text-align: center; position: relative; }
+  .card-name { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .card-value { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: var(--card-color); margin-bottom: 8px; }
+  .cycle-bar-bg { height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .cycle-bar-fill { height: 100%; border-radius: 3px; background: var(--card-color); transition: 1s; }
+
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--surface2); }
+  thead th { padding: 14px 16px; text-align: left; font-size: 10px; color: var(--muted); text-transform: uppercase; }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid rgba(100,180,255,0.05); }
+  .today-row { background: rgba(0,229,255,0.06) !important; }
+
+  .phase-badge { padding: 3px 9px; border-radius: 20px; font-size: 10px; text-transform: uppercase; border: 1px solid; }
+  .phase-high { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.07); }
+  .phase-low { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.07); }
+  .phase-critical { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.07); }
+
+  footer { text-align: center; padding: 32px 0; color: var(--muted); font-size: 11px; margin-top: 40px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-eyebrow">✦ ბიოლოგიური რითმების ანალიზი</div>
+    <h1>ბიორიტმი</h1>
+    <p class="header-subtitle">თქვენი სასიცოცხლო ციკლების ვიზუალიზაცია — ფიზიკური · ემოციური · ინტელექტუალური · ინტუიციური</p>
+  </header>
+
+  <div class="input-panel">
+    <div class="panel-title">⬡ მონაცემების შეყვანა</div>
+    <div class="input-grid">
+      <div class="field">
+        <label>დაბადების თარიღი</label>
+        <input type="date" id="dob" value="1995-01-01">
+      </div>
+      <div class="field">
+        <label>საწყისი თარიღი</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field">
+        <label>პერიოდი</label>
+        <div class="period-toggle">
+          <button class="period-btn" data-period="7">კვირა</button>
+          <button class="period-btn active" data-period="30">თვე</button>
+          <button class="period-btn" data-period="90">კვარტალი</button>
+        </div>
+      </div>
+      <div class="field">
+        <button class="btn-calculate" id="calcBtn">გამოთვლა →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--physical)"></div>
+      <div><div>ფიზიკური</div><div class="legend-sub">23-დღიანი ციკლი</div></div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--emotional)"></div>
+      <div><div>ემოციური</div><div class="legend-sub">28-დღიანი ციკლი</div></div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--intellectual)"></div>
+      <div><div>ინტელექტუალური</div><div class="legend-sub">33-დღიანი ციკლი</div></div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--intuitive)"></div>
+      <div><div>ინტუიციური</div><div class="legend-sub">38-დღიანი ციკლი</div></div>
+    </div>
+  </div>
+
+  <div class="chart-wrapper">
+    <div class="chart-header">
+      <h3 style="font-family:serif">ციკლების ტალღები</h3>
+      <div id="chartPeriodLabel" style="color:var(--accent); font-size:12px">30-დღიანი ხედი</div>
+    </div>
+    <canvas id="bioChart" height="340"></canvas>
+  </div>
+
+  <div class="today-grid" id="todayCards"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>თარიღი</th>
+          <th>დღე</th>
+          <th>ფიზიკური</th>
+          <th>ემოციური</th>
+          <th>ინტელექტუალური</th>
+          <th>მდგომარეობა</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <p>ბიორიტმების ვიზუალიზატორი · ეფუძნება ფლის-სვობოდა-ტელჩერის თეორიას · მნიშვნელობები: -100-დან +100-მდე</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const GEO_MONTHS = ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"];
+const GEO_DAYS = ["კვი", "ორშ", "სამ", "ოთხ", "ხუთ", "პარ", "შაბ"];
+
+const CYCLES = {
+  physical:     { period: 23, color: '#00e5ff', label: 'ფიზიკური' },
+  emotional:    { period: 28, color: '#ff4d8d', label: 'ემოციური' },
+  intellectual: { period: 33, color: '#a78bfa', label: 'ინტელექტუალური' },
+  intuitive:    { period: 38, color: '#34d399', label: 'ინტუიციური' },
+};
+
+function pct(v) { return Math.round(v * 100); }
+
+function getPhase(v) {
+  const p = pct(v);
+  if (Math.abs(p) < 10) return { label: 'კრიტიკული', cls: 'phase-critical' };
+  return p > 0 ? { label: 'პოზიტიური', cls: 'phase-high' } : { label: 'ნეგატიური', cls: 'phase-low' };
+}
+
+let period = 30;
+let chartInst = null;
+const today = new Date();
+today.setHours(0,0,0,0);
+document.getElementById('startDate').valueAsDate = today;
+
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    period = parseInt(btn.dataset.period);
+    calculate();
+  });
+});
+
+document.getElementById('calcBtn').addEventListener('click', calculate);
+calculate();
+
+function calculate() {
+  const dobInput = document.getElementById('dob').value;
+  const startInput = document.getElementById('startDate').value;
+  if (!dobInput) return;
+
+  const dob = new Date(dobInput);
+  const start = startInput ? new Date(startInput) : today;
+ 
+  const rows = [];
+  for (let i = 0; i < period; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    const diff = Math.round((d - dob) / 86400000);
+   
+    rows.push({
+      date: d,
+      physical: Math.sin((2 * Math.PI * diff) / 23),
+      emotional: Math.sin((2 * Math.PI * diff) / 28),
+      intellectual: Math.sin((2 * Math.PI * diff) / 33),
+      intuitive: Math.sin((2 * Math.PI * diff) / 38),
+      diff
+    });
+  }
+
+  renderChart(rows);
+  renderCards(rows[0], rows[0].diff);
+  renderTable(rows);
+}
+
+function renderChart(rows) {
+  const ctx = document.getElementById('bioChart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: rows.map(r => `${r.date.getDate()} ${GEO_MONTHS[r.date.getMonth()]}`),
+      datasets: Object.keys(CYCLES).map(key => ({
+        label: CYCLES[key].label,
+        data: rows.map(r => pct(r[key])),
+        borderColor: CYCLES[key].color,
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0
+      }))
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: -110, max: 110, ticks: { callback: v => v + '%' } }
+      }
+    }
+  });
+}
+
+function renderCards(row, diff) {
+  const container = document.getElementById('todayCards');
+  container.innerHTML = Object.keys(CYCLES).map(key => {
+    const val = pct(row[key]);
+    const cycleDay = ((diff % CYCLES[key].period) + CYCLES[key].period) % CYCLES[key].period + 1;
+    return `
+      <div class="cycle-card" style="--card-color:${CYCLES[key].color}">
+        <div class="card-name">${CYCLES[key].label}</div>
+        <div class="card-value">${val > 0 ? '+' : ''}${val}%</div>
+        <div class="cycle-bar-bg"><div class="cycle-bar-fill" style="width:${(val+100)/2}%;background:${CYCLES[key].color}"></div></div>
+        <div style="font-size:10px; margin-top:8px; color:var(--muted)">დღე: ${cycleDay} / ${CYCLES[key].period}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = rows.map(r => {
+    const ph = getPhase(r.physical);
+    return `
+      <tr>
+        <td>${r.date.getDate()} ${GEO_MONTHS[r.date.getMonth()]}</td>
+        <td>${GEO_DAYS[r.date.getDay()]}</td>
+        <td style="color:${CYCLES.physical.color}">${pct(r.physical)}%</td>
+        <td style="color:${CYCLES.emotional.color}">${pct(r.emotional)}%</td>
+        <td style="color:${CYCLES.intellectual.color}">${pct(r.intellectual)}%</td>
+        <td><span class="phase-badge ${ph.cls}">${ph.label}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+</script>
+</body>
+</html>
