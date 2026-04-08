@@ -635,6 +635,22 @@ function drawWheel(data){
     },svg);
   }
 
+  // ── MOON PATH (above degree ticks) ──
+  if(data._timeUnknown && data._moonPath){
+    const mp=data._moonPath;
+    const R_outer=R1-1, R_inner=R1-8;
+    const span=((mp.end-mp.start)+360)%360;
+    const la=span>180?1:0;
+    const a0=e2s(mp.start,asc), a1e=e2s(mp.end,asc);
+    const x0o=CX+Math.cos(a0)*R_outer,  y0o=CY+Math.sin(a0)*R_outer;
+    const x1o=CX+Math.cos(a1e)*R_outer, y1o=CY+Math.sin(a1e)*R_outer;
+    const x1i=CX+Math.cos(a1e)*R_inner, y1i=CY+Math.sin(a1e)*R_inner;
+    const x0i=CX+Math.cos(a0)*R_inner,  y0i=CY+Math.sin(a0)*R_inner;
+    const pd=`M${x0o},${y0o} A${R_outer},${R_outer} 0 ${la},0 ${x1o},${y1o}`
+      +` L${x1i},${y1i} A${R_inner},${R_inner} 0 ${la},1 ${x0i},${y0i} Z`;
+    el('path',{d:pd,fill:'rgba(100,160,255,0.35)',stroke:'none'},svg);
+  }
+
   // ── ZODIAC DIVIDER LINES ──
   for(let i=0;i<12;i++){
     const a=e2s(i*30,asc);
