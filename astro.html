@@ -261,7 +261,7 @@ const CX=350,CY=350,R1=270,R2=202,R3=135,R4=105;
 // ── SIGN DATA with element colors ──
 const SIGN_KA=['ვერძი','კურო','ტყუპები','კირჩხიბი','ლომი','ქალწული',
                'სასწორი','მორიელი','მშვილდოსანი','თხის რქა','მერწყული','თევზები'];
-const ZSYM=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const ZSYM=['♈︎','♉︎','♊︎','♋︎','♌︎','♍︎','♎︎','♏︎','♐︎','♑︎','♒︎','♓︎'];
 // Fire=red, Earth=graygreen, Air=lightblue, Water=blue
 const ZCOL=[
   '#e05252', // Aries - fire red
@@ -297,7 +297,7 @@ const PI={
   'ჩრდ. კვანძი':      {sym:'☊',   color:'#60c060'},
   'სამხ. კვანძი':     {sym:'☋',   color:'#c06060'},
   'ვერტექსი':         {sym:'Vx',  color:'#8090d0'},
-  'თეთრი მთვარე':     {sym:'⯝',   color:'#d0e8f8'},
+  'თეთრი მთვარე':     {sym:'⯝︎',   color:'#d0e8f8'},
   'ბედის ვარსკვლავი': {sym:'⊕',   color:'#f0c060'},
   'იუნო':             {sym:'⚵',   color:'#c890d0'},
 };
@@ -536,8 +536,6 @@ function drawWheel(data){
       fill:i%2?'rgba(8,7,21,.95)':'rgba(13,11,30,.95)'
     },svg);
   }
-
-  // ── DEGREE TICKS (all 360 visible) ──
   for(let deg=0;deg<360;deg++){
     const a=e2s(deg,asc),co=Math.cos(a),si2=Math.sin(a);
     const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
@@ -703,11 +701,6 @@ function drawWheel(data){
       // center dot
       el('circle',{cx:gxy.x,cy:gxy.y,r:2.5,fill:'#f9c646',filter:'url(#sunF)'},sg2);
       el('circle',{cx:gxy.x,cy:gxy.y,r:1.2,fill:'#fff7d0'},sg2);
-    } else if(name==='თეთრი მთვარე'){
-      const sl=el('g',{},svg);
-      const sx=gxy.x,sy=gxy.y,sr=9;
-      el('path',{d:`M${sx+2},${sy-sr} A${sr},${sr} 0 1,0 ${sx+2},${sy+sr} A${sr-3},${sr-3} 0 1,1 ${sx+2},${sy-sr} Z`,fill:color,opacity:'0.9'},sl);
-      el('circle',{cx:sx-1,cy:sy,r:2,fill:color},sl);
     } else {
       const fsz=name==='⯓'?18:20;
       txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':fsz,'font-family':'serif'});
@@ -718,37 +711,27 @@ function drawWheel(data){
     }
   }
 
-  // ── ASC / DC / MC / IC — all gold ──
+    // ── ASC / MC — gold, outside circle only ──
   const angCol='#e8c06e';
 
-  // ASC — DC axis
+  // ASC line — outside R1 only
   const ascA=e2s(asc,asc);
-  el('line',{x1:CX+Math.cos(ascA)*R4,y1:CY+Math.sin(ascA)*R4,
-    x2:CX+Math.cos(ascA)*(R1+22),y2:CY+Math.sin(ascA)*(R1+22),
-    stroke:angCol,'stroke-width':2,opacity:'0.9'},svg);
-  el('line',{x1:CX+Math.cos(ascA+Math.PI)*R4,y1:CY+Math.sin(ascA+Math.PI)*R4,
-    x2:CX+Math.cos(ascA+Math.PI)*(R1+22),y2:CY+Math.sin(ascA+Math.PI)*(R1+22),
-    stroke:angCol,'stroke-width':2,opacity:'0.9'},svg);
-  txt(svg,'AC',CX+Math.cos(ascA)*(R1+36),CY+Math.sin(ascA)*(R1+36),
+  el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,
+    x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),
+    stroke:angCol,'stroke-width':2.5},svg);
+  txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),
     {fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-  txt(svg,'DC',CX+Math.cos(ascA+Math.PI)*(R1+36),CY+Math.sin(ascA+Math.PI)*(R1+36),
-    {fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
 
-  // MC — IC axis
+  // MC circle — outside R1 only
   const mcA=e2s(data.mc,asc);
-  const icA=mcA+Math.PI;
-  const mcDist=R1+50,mcR=19;
+  const mcDist=R1+52,mcR=19;
   const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
-  el('line',{x1:CX+Math.cos(mcA)*R4,y1:CY+Math.sin(mcA)*R4,
+  el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,
     x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),
-    stroke:angCol,'stroke-width':2,opacity:'0.9'},svg);
-  el('line',{x1:CX+Math.cos(icA)*R4,y1:CY+Math.sin(icA)*R4,
-    x2:CX+Math.cos(icA)*(R1+22),y2:CY+Math.sin(icA)*(R1+22),
-    stroke:angCol,'stroke-width':2,opacity:'0.9'},svg);
+    stroke:angCol,'stroke-width':2.5},svg);
   el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
   txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
-  txt(svg,'IC',CX+Math.cos(icA)*(R1+36),CY+Math.sin(icA)*(R1+36),
-    {fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+
 }
 
 // ── PLANET TABLE ──
@@ -767,9 +750,7 @@ function drawPlanetTable(data){
     const sc=si>=0?signClass(si):'';
     const symCell=name==='მზე'
       ? sunSVG(20)
-      : name==='თეთრი მთვარე'
-      ? selenaSVG(info.color,18)
-      : `<span class="p-sym" style="color:${info.color};font-size:${name==='პლუტონი'?'15':'18'}px">${info.sym}</span>`;
+      : `<span class="p-sym" style="color:${info.color};font-size:18px;font-family:serif">${info.sym}</span>`;
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td>${symCell}</td>
