@@ -475,7 +475,7 @@ function drawPlanetTable(data){
     tr.innerHTML=`
       <td style="color:${info.color};font-size:22px;font-family:serif">${info.sym}</td>
       <td style="color:${info.color}">${name}</td>
-      <td>${d.sign_degree.toFixed(2)}°</td>
+      <td>${`${d.sign_degree}00b0${String(d.centesimal).padStart(2,"0")}`}°</td>
       <td>${si>=0?ZSYM[si]:''} ${d.sign}</td>
       <td><span class="house-badge">${d.house||'?'}</span></td>
       <td>${d.retrograde?'<span class="retro">℞ რეტრო</span>':'პირდაპირი'}</td>`;
@@ -525,6 +525,5 @@ function drawAspectTable(data){
   }
 }
 </script>
-<script src="script.js"></script>
 </body>
 </html>
