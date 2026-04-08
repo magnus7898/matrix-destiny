@@ -126,11 +126,13 @@ tr:hover td { background: #13103a; }
 </div>
 
 <script>
+const BACKEND = 'https://matrixdestiny-production.up.railway.app';
+
 const CX=350, CY=350;
-const R1=270;  // outer circle — degree ticks on inside
-const R2=202;  // zodiac inner / house outer
-const R3=135;  // house inner
-const R4=105;  // innermost
+const R1=270;
+const R2=202;
+const R3=135;
+const R4=105;
 
 const SIGN_KA=['ვერძი','კურო','ტყუპები','კირჩხიბი','ლომი','ქალწული',
                'სასწორი','მორიელი','მშვილდოსანი','თხის რქა','მერწყული','თევზები'];
@@ -172,7 +174,7 @@ function searchCity(){
     const city=document.getElementById('city').value;
     if(city.length<2) return;
     try {
-      const r=await fetch('https://astrology-production-a014.up.railway.app/geocode',{method:'POST',
+      const r=await fetch(`${BACKEND}/geocode`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
       if(r.ok){
         const d=await r.json();
@@ -205,7 +207,7 @@ async function generateChart(){
     lat:+lat, lon:+lon,
     tz_name:document.getElementById('tz_name').value
   };
-  const r=await fetch('https://astrology-production-a014.up.railway.app/chart',{method:'POST',
+  const r=await fetch(`${BACKEND}/chart`,{method:'POST',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const data=await r.json();
   document.getElementById('chart-area').style.display='block';
@@ -235,7 +237,6 @@ function drawWheel(data){
   svg.innerHTML='';
   const asc=data.asc;
 
-  // Arrow marker for MC connection line
   const defs=el('defs',{},svg);
   const marker=el('marker',{id:'arr',viewBox:'0 0 10 10',refX:'8',refY:'5',
     markerWidth:'5',markerHeight:'5',orient:'auto-start-reverse'},defs);
@@ -244,7 +245,6 @@ function drawWheel(data){
 
   el('rect',{width:700,height:700,fill:'#07071a'},svg);
 
-  // Zodiac band R1→R2
   for(let i=0;i<12;i++){
     const p=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
     el('path',{
@@ -253,7 +253,6 @@ function drawWheel(data){
     },svg);
   }
 
-  // House band R2→R3
   for(let i=0;i<12;i++){
     const h1=data.houses[i],h2=data.houses[(i+1)%12];
     const span=((h2-h1)+360)%360,la=span>180?1:0;
@@ -264,7 +263,6 @@ function drawWheel(data){
     },svg);
   }
 
-  // Degree ticks
   for(let deg=0;deg<360;deg++){
     const a=e2s(deg,asc),c=Math.cos(a),s=Math.sin(a);
     const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
@@ -276,7 +274,6 @@ function drawWheel(data){
     },svg);
   }
 
-  // Degree numbers every 10°
   for(let deg=0;deg<360;deg+=10){
     if(deg%30===0) continue;
     const a=e2s(deg,asc);
@@ -288,7 +285,6 @@ function drawWheel(data){
     });
   }
 
-  // Zodiac dividers R1→R2
   for(let i=0;i<12;i++){
     const a=e2s(i*30,asc);
     el('line',{
@@ -298,13 +294,11 @@ function drawWheel(data){
     },svg);
   }
 
-  // Circles
   el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'#8060d0','stroke-width':2},svg);
   el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'#5a3fa8','stroke-width':1.2},svg);
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'#3a2878','stroke-width':1},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'#07071a',stroke:'#2d1f6e','stroke-width':1},svg);
 
-  // Zodiac symbols
   const Rzs=(R1+R2)/2;
   for(let i=0;i<12;i++){
     const a=e2s(i*30+15,asc);
@@ -312,7 +306,6 @@ function drawWheel(data){
       {fill:ZCOL[i],'font-size':22,'font-family':'serif','font-weight':'bold'});
   }
 
-  // House lines + numbers
   const Rhn=(R2+R3)/2;
   for(let i=0;i<12;i++){
     const a=e2s(data.houses[i],asc);
@@ -330,7 +323,6 @@ function drawWheel(data){
       {fill:'#8070c0','font-size':11,'font-family':'serif','font-weight':'bold'});
   }
 
-  // Aspect lines inside R4
   if(data.aspects){
     for(const asp of data.aspects){
       if(!data.planets[asp.p1]||!data.planets[asp.p2]) continue;
@@ -342,129 +334,108 @@ function drawWheel(data){
     }
   }
 
-  // ── Planets outside R1 ─────────────────────────────────────────────────
-  const present = Object.keys(data.planets);
+  const present=Object.keys(data.planets);
+  const trueA={};
+  for(const n of present) trueA[n]=e2s(data.planets[n].degree,asc);
+  const sorted=[...present].sort((a,b)=>trueA[a]-trueA[b]);
+  const dispA={};
+  for(const n of present) dispA[n]=trueA[n];
 
-  // True SVG angles
-  const trueA = {};
-  for(const n of present) trueA[n] = e2s(data.planets[n].degree, asc);
+  const Rg=R1+28;
+  const SYMHALF=11;
+  const MINGAP=(SYMHALF*2+3)/Rg;
 
-  // Sort by true angle for stable spreading
-  const sorted = [...present].sort((a,b) => trueA[a] - trueA[b]);
-
-  // Display angles start at true angles
-  const dispA = {};
-  for(const n of present) dispA[n] = trueA[n];
-
-  const Rg      = R1 + 28;     // glyph ring radius
-  const SYMHALF = 11;           // half-size of symbol in px at Rg
-  const MINGAP  = (SYMHALF * 2 + 3) / Rg; // min angle gap so symbols don't touch
-
-  // Push overlapping pairs apart — 500 iterations, early exit
-  for(let it = 0; it < 500; it++){
-    let moved = false;
-    for(let i = 0; i < sorted.length; i++){
-      for(let j = i + 1; j < sorted.length; j++){
-        const a = sorted[i], b = sorted[j];
-        let d = dispA[b] - dispA[a];
-        while(d >  Math.PI) d -= 2*Math.PI;
-        while(d < -Math.PI) d += 2*Math.PI;
-        if(Math.abs(d) < MINGAP && Math.abs(d) > 0.0001){
-          const push = (MINGAP - Math.abs(d)) / 2;
-          const dir  = d > 0 ? 1 : -1;
-          dispA[a] -= push * dir;
-          dispA[b] += push * dir;
-          moved = true;
+  for(let it=0;it<500;it++){
+    let moved=false;
+    for(let i=0;i<sorted.length;i++){
+      for(let j=i+1;j<sorted.length;j++){
+        const a=sorted[i],b=sorted[j];
+        let d=dispA[b]-dispA[a];
+        while(d>Math.PI) d-=2*Math.PI;
+        while(d<-Math.PI) d+=2*Math.PI;
+        if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){
+          const push=(MINGAP-Math.abs(d))/2;
+          const dir=d>0?1:-1;
+          dispA[a]-=push*dir;
+          dispA[b]+=push*dir;
+          moved=true;
         }
       }
     }
     if(!moved) break;
   }
 
-  // Keep glyphs away from ASC and MC ticks
-  const ascAngle = Math.PI;
-  const mcAngle  = e2s(data.mc, asc);
-  for(let pass = 0; pass < 80; pass++){
-    let moved = false;
+  const ascAngle=Math.PI;
+  const mcAngle=e2s(data.mc,asc);
+  for(let pass=0;pass<80;pass++){
+    let moved=false;
     for(const n of present){
-      for(const blocked of [ascAngle, mcAngle]){
-        let d = dispA[n] - blocked;
-        while(d >  Math.PI) d -= 2*Math.PI;
-        while(d < -Math.PI) d += 2*Math.PI;
-        if(Math.abs(d) < MINGAP && Math.abs(d) > 0.0001){
-          dispA[n] = blocked + MINGAP * (d > 0 ? 1 : -1);
-          moved = true;
+      for(const blocked of [ascAngle,mcAngle]){
+        let d=dispA[n]-blocked;
+        while(d>Math.PI) d-=2*Math.PI;
+        while(d<-Math.PI) d+=2*Math.PI;
+        if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){
+          dispA[n]=blocked+MINGAP*(d>0?1:-1);
+          moved=true;
         }
       }
     }
-    // Re-spread after ASC/MC push
     if(moved){
-      for(let i = 0; i < sorted.length; i++){
-        for(let j = i + 1; j < sorted.length; j++){
-          const a = sorted[i], b = sorted[j];
-          let d = dispA[b] - dispA[a];
-          while(d >  Math.PI) d -= 2*Math.PI;
-          while(d < -Math.PI) d += 2*Math.PI;
-          if(Math.abs(d) < MINGAP && Math.abs(d) > 0.0001){
-            const push = (MINGAP - Math.abs(d)) / 2;
-            const dir  = d > 0 ? 1 : -1;
-            dispA[a] -= push * dir;
-            dispA[b] += push * dir;
+      for(let i=0;i<sorted.length;i++){
+        for(let j=i+1;j<sorted.length;j++){
+          const a=sorted[i],b=sorted[j];
+          let d=dispA[b]-dispA[a];
+          while(d>Math.PI) d-=2*Math.PI;
+          while(d<-Math.PI) d+=2*Math.PI;
+          if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){
+            const push=(MINGAP-Math.abs(d))/2;
+            const dir=d>0?1:-1;
+            dispA[a]-=push*dir;
+            dispA[b]+=push*dir;
           }
         }
       }
     }
   }
 
-  // Draw each planet
   for(const name of present){
-    const info = PI[name] || {sym:'?', color:'#ffffff'};
-    const tA   = trueA[name], color = info.color;
+    const info=PI[name]||{sym:'?',color:'#ffffff'};
+    const tA=trueA[name],color=info.color;
+    let diff=dispA[name]-tA;
+    while(diff>Math.PI) diff-=2*Math.PI;
+    while(diff<-Math.PI) diff+=2*Math.PI;
+    const wasMoved=Math.abs(diff)>0.015;
+    const gxy=pxy(wasMoved?dispA[name]:tA,Rg);
 
-    // Check if glyph was actually moved from true position
-    let diff = dispA[name] - tA;
-    while(diff >  Math.PI) diff -= 2*Math.PI;
-    while(diff < -Math.PI) diff += 2*Math.PI;
-    const wasMoved = Math.abs(diff) > 0.015;
-
-    // Glyph goes at display angle, or exactly at true angle if not moved
-    const gxy = pxy(wasMoved ? dispA[name] : tA, Rg);
-
-    // Short tick at true degree outside R1
     el('line',{
-      x1: CX+Math.cos(tA)*(R1+1),  y1: CY+Math.sin(tA)*(R1+1),
-      x2: CX+Math.cos(tA)*(R1+10), y2: CY+Math.sin(tA)*(R1+10),
-      stroke: color, 'stroke-width': 1.5
-    }, svg);
+      x1:CX+Math.cos(tA)*(R1+1),y1:CY+Math.sin(tA)*(R1+1),
+      x2:CX+Math.cos(tA)*(R1+10),y2:CY+Math.sin(tA)*(R1+10),
+      stroke:color,'stroke-width':1.5
+    },svg);
     el('circle',{
-      cx: CX+Math.cos(tA)*(R1+1), cy: CY+Math.sin(tA)*(R1+1),
-      r: 2, fill: color
-    }, svg);
+      cx:CX+Math.cos(tA)*(R1+1),cy:CY+Math.sin(tA)*(R1+1),
+      r:2,fill:color
+    },svg);
 
-    // Dashed leader line only if glyph was moved
     if(wasMoved){
       el('line',{
-        x1: CX+Math.cos(tA)*(R1+11), y1: CY+Math.sin(tA)*(R1+11),
-        x2: gxy.x, y2: gxy.y,
-        stroke: color, 'stroke-width': 0.6, opacity: 0.5, 'stroke-dasharray': '2 2'
-      }, svg);
+        x1:CX+Math.cos(tA)*(R1+11),y1:CY+Math.sin(tA)*(R1+11),
+        x2:gxy.x,y2:gxy.y,
+        stroke:color,'stroke-width':0.6,opacity:0.5,'stroke-dasharray':'2 2'
+      },svg);
     }
 
-    // Planet symbol
-    txt(svg, info.sym, gxy.x, gxy.y, {
-      fill: color, 'font-size': 22, 'font-family': 'serif'
-    });
+    txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':22,'font-family':'serif'});
 
-    // Retrograde marker
     if(data.planets[name].retrograde){
-      txt(svg, '℞', gxy.x+14, gxy.y-12, {fill:'#f87171', 'font-size': 9});
+      txt(svg,'℞',gxy.x+14,gxy.y-12,{fill:'#f87171','font-size':9});
     }
   }
-  // ── ASC label — tight to left edge of circle ────────────────────────
-  const ascA = e2s(asc, asc); // always = π (left side)
+
+  const ascA=e2s(asc,asc);
   el('line',{
-    x1:CX+Math.cos(ascA)*(R1+1), y1:CY+Math.sin(ascA)*(R1+1),
-    x2:CX+Math.cos(ascA)*(R1+16), y2:CY+Math.sin(ascA)*(R1+16),
+    x1:CX+Math.cos(ascA)*(R1+1),y1:CY+Math.sin(ascA)*(R1+1),
+    x2:CX+Math.cos(ascA)*(R1+16),y2:CY+Math.sin(ascA)*(R1+16),
     stroke:'#c084fc','stroke-width':2
   },svg);
   txt(svg,'ASC',
@@ -472,35 +443,21 @@ function drawWheel(data){
     CY+Math.sin(ascA)*(R1+30),
     {fill:'#c084fc','font-size':12,'font-weight':'bold','font-family':'sans-serif'});
 
-  // ── MC — small circle outside with arrow line from main circle ─────────
-  const mcA = e2s(data.mc, asc);
-  // Find where MC hits the outer circle edge
-  const mcEdgeX = CX + Math.cos(mcA) * R1;
-  const mcEdgeY = CY + Math.sin(mcA) * R1;
-  // Small circle centre — 80px outside R1
-  const mcCircR = 20; // radius of small MC circle
-  const mcDist  = R1 + 46;
-  const mcCX = CX + Math.cos(mcA) * mcDist;
-  const mcCY = CY + Math.sin(mcA) * mcDist;
-
-  // Arrow line from R1 edge to small circle edge
-  const mcLineEndX = CX + Math.cos(mcA) * (mcDist - mcCircR - 2);
-  const mcLineEndY = CY + Math.sin(mcA) * (mcDist - mcCircR - 2);
+  const mcA=e2s(data.mc,asc);
+  const mcEdgeX=CX+Math.cos(mcA)*R1;
+  const mcEdgeY=CY+Math.sin(mcA)*R1;
+  const mcCircR=20;
+  const mcDist=R1+46;
+  const mcCX=CX+Math.cos(mcA)*mcDist;
+  const mcCY=CY+Math.sin(mcA)*mcDist;
+  const mcLineEndX=CX+Math.cos(mcA)*(mcDist-mcCircR-2);
+  const mcLineEndY=CY+Math.sin(mcA)*(mcDist-mcCircR-2);
   el('line',{
-    x1:mcEdgeX, y1:mcEdgeY,
-    x2:mcLineEndX, y2:mcLineEndY,
-    stroke:'#c084fc','stroke-width':1.2,
-    'marker-end':'url(#arr)'
+    x1:mcEdgeX,y1:mcEdgeY,x2:mcLineEndX,y2:mcLineEndY,
+    stroke:'#c084fc','stroke-width':1.2,'marker-end':'url(#arr)'
   },svg);
-
-  // Small circle background
-  el('circle',{cx:mcCX,cy:mcCY,r:mcCircR,
-    fill:'#0f0d2a',stroke:'#c084fc','stroke-width':1.2},svg);
-
-  // MC text inside small circle
-  txt(svg,'MC',mcCX,mcCY,{
-    fill:'#c084fc','font-size':12,'font-weight':'bold','font-family':'sans-serif'
-  });
+  el('circle',{cx:mcCX,cy:mcCY,r:mcCircR,fill:'#0f0d2a',stroke:'#c084fc','stroke-width':1.2},svg);
+  txt(svg,'MC',mcCX,mcCY,{fill:'#c084fc','font-size':12,'font-weight':'bold','font-family':'sans-serif'});
 }
 
 function drawPlanetTable(data){
