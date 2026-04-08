@@ -477,7 +477,7 @@ function drawMoonPath(moonStart, moonEnd){
     +` L${x1i},${y1i} A${R_inner},${R_inner} 0 ${la},1 ${x0i},${y0i} Z`;
   const p=document.createElementNS('http://www.w3.org/2000/svg','path');
   p.setAttribute('d', pathD);
-  p.setAttribute('fill', 'rgba(249,198,70,0.10)');
+  p.setAttribute('fill', 'rgba(249,198,70,0.90)');
   p.setAttribute('stroke', 'none');
   svg.appendChild(p);
 }
