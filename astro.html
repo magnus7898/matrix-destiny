@@ -365,57 +365,23 @@ function toggleTimeUnknown(){
   document.getElementById('time-fields').classList.toggle('time-disabled',unk);
 }
 
-// ── LUNAR DAY CALCULATION ──
-// Uses the Moon's actual ecliptic longitude from the backend chart response
-// Lunar day starts at each New Moon (Moon longitude == Sun longitude)
-// We use the moon_age from the elongation (angular distance Moon-Sun)
-// This is the most accurate approach using real swisseph data
-
-function calcLunarDayFromPositions(moonDeg, sunDeg){
-  // Elongation = angular distance from Sun to Moon (0=new, 180=full)
-  let elong = ((moonDeg - sunDeg) + 360) % 360;
-  // Each lunar day = 360/29.53058... ≈ 12.19° of elongation
-  const degPerLunarDay = 360 / 29.53058868;
-  const age = elong / degPerLunarDay; // 0..29.53
-  const lunarDay = Math.floor(age) + 1; // 1..30
-  // % through current lunar day (0=just started, 99=almost over)
-  const pct = Math.round((age % 1) * 100);
-  return {lunarDay, pct, age, elong};
-}
-
+// ── LUNAR BADGE — uses swisseph data from backend ──
 function displayLunarBadge(data){
   try{
-    const planets = data.planets;
-    if(!planets || !planets['მთვარე'] || !planets['მზე']) return;
-    const moonDeg = planets['მთვარე'].degree;
-    const sunDeg  = planets['მზე'].degree;
-    const {lunarDay, pct} = calcLunarDayFromPositions(moonDeg, sunDeg);
-    // pct% elapsed means (100-pct)% remaining till next lunar day
-    const remaining = 100 - pct;
-    document.getElementById('lunar-day').textContent = `მთვარის მე-${lunarDay} დღე`;
-    document.getElementById('lunar-pct').textContent  = `${remaining}% შემდეგ მთვარის დღემდე`;
+    const L = data.lunar;
+    if(!L) return;
+    const day = L.lunar_day;
+    const rem = L.pct_remaining;
+    const hrs = L.hours_to_next;
+    // Format time to next lunar day
+    let nextStr = '';
+    if(hrs < 1) nextStr = `${Math.round(hrs*60)} წთ-ში`;
+    else if(hrs < 24) nextStr = `${Math.floor(hrs)} სთ ${Math.round((hrs%1)*60)} წთ-ში`;
+    else nextStr = `${Math.floor(hrs/24)} დ ${Math.floor(hrs%24)} სთ-ში`;
+    document.getElementById('lunar-day').textContent = `მთვარის მე-${day} დღე`;
+    document.getElementById('lunar-pct').textContent  = `შემდ. მთვ. დღე ${nextStr}`;
     document.getElementById('lunar-badge').style.display = 'block';
-  }catch(e){console.log('lunar calc error',e);}
-}
-
-// ── MOON PATH for "time unknown" mode ──
-// Calculate moon degree at 00:00 and 23:59 of birth date
-// Returns {start_deg, end_deg} ecliptic longitude
-async function getMoonPathDegrees(year,month,day,lat,lon,tz_name){
-  // Fetch moon at midnight and end of day
-  const results=[];
-  for(const [h,mn,s] of [[0,0,0],[23,59,59]]){
-    try{
-      const r=await fetch(`${BACKEND}/chart`,{method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({year,month,day,hour:h,minute:mn,second:s,lat,lon,tz_name})});
-      const d=await r.json();
-      if(d.planets && d.planets['მთვარე']){
-        results.push(d.planets['მთვარე'].degree);
-      }
-    }catch(e){}
-  }
-  return results.length===2?results:null;
+  }catch(e){console.log('lunar badge error',e);}
 }
 
 // ── GEOCODE ──
@@ -460,7 +426,7 @@ async function generateChart(){
   try{
     const r=await fetch(`${BACKEND}/chart`,{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({year,month,day,hour,minute,second,lat:+lat,lon:+lon,tz_name})});
+      body:JSON.stringify({year,month,day,hour,minute,second,lat:+lat,lon:+lon,tz_name,time_unknown:timeUnknown})});
     const data=await r.json();
     data._timeUnknown=timeUnknown;
     document.getElementById('chart-area').style.display='block';
@@ -469,12 +435,18 @@ async function generateChart(){
     if(!timeUnknown){drawHouseTable(data);}
     else{document.getElementById('house-tbody').innerHTML='<tr><td colspan="3" style="color:rgba(120,100,180,.5);text-align:center;padding:12px;font-size:11px">დრო უცნობია — სახლები არ გამოითვლება</td></tr>';}
     drawAspectTable(data);
-    // Lunar badge
+    // Lunar badge from backend data
     displayLunarBadge(data);
-    // Moon path for time-unknown
+    // Moon path for time-unknown — call /lunar endpoint
     if(timeUnknown){
-      const moonPath=await getMoonPathDegrees(year,month,day,+lat,+lon,tz_name);
-      if(moonPath) drawMoonPath(moonPath[0],moonPath[1]);
+      try{
+        const lr=await fetch(`${BACKEND}/lunar`,{method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({year,month,day,hour:12,minute:0,second:0,
+            tz_name,time_unknown:true})});
+        const ld=await lr.json();
+        if(ld.moon_path) drawMoonPath(ld.moon_path.start, ld.moon_path.end);
+      }catch(e){console.log('moon path error',e);}
     }
     document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){alert('შეცდომა: '+e.message);}
@@ -485,45 +457,24 @@ async function generateChart(){
 // Draws a thin transparent white arc just inside R1 showing moon range for the day
 function drawMoonPath(moonStart, moonEnd){
   const svg = document.getElementById('wheel');
-  const asc = 0; // Aries rising for time-unknown
+  const asc = 0;
   const span = ((moonEnd - moonStart) + 360) % 360;
-  // Arc just inside R1 — thin band only 6px wide, no stroke, transparent white
-  const R_outer = R1 - 2;   // just inside the outer circle
-  const R_inner = R1 - 10;  // thin band
-  const steps = 40;
-  const pts_outer = [], pts_inner = [];
-  for(let i=0;i<=steps;i++){
-    const deg = moonStart + (span * i / steps);
-    const a = e2s(deg, asc);
-    pts_outer.push(`${CX+Math.cos(a)*R_outer},${CY+Math.sin(a)*R_outer}`);
-    pts_inner.unshift(`${CX+Math.cos(a)*R_inner},${CY+Math.sin(a)*R_inner}`);
-  }
-  // large-arc flag
+  const R_outer = R1 - 1;
+  const R_inner = R1 - 7;
   const la = span > 180 ? 1 : 0;
-  const a0 = e2s(moonStart, asc);
-  const a1e = e2s(moonEnd, asc);
-  const pathD = `M${CX+Math.cos(a0)*R_outer},${CY+Math.sin(a0)*R_outer}`
-    + ` A${R_outer},${R_outer} 0 ${la},0 ${CX+Math.cos(a1e)*R_outer},${CY+Math.sin(a1e)*R_outer}`
-    + ` L${CX+Math.cos(a1e)*R_inner},${CY+Math.sin(a1e)*R_inner}`
-    + ` A${R_inner},${R_inner} 0 ${la},1 ${CX+Math.cos(a0)*R_inner},${CY+Math.sin(a0)*R_inner}`
-    + ` Z`;
-  const moonPathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
-  moonPathEl.setAttribute('d', pathD);
-  moonPathEl.setAttribute('fill','rgba(220,220,255,0.12)');
-  moonPathEl.setAttribute('stroke','none');
-  svg.appendChild(moonPathEl);
-  // Small moon emoji at midpoint just outside the arc
-  const midDeg = moonStart + span/2;
-  const midA = e2s(midDeg, asc);
-  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x', CX+Math.cos(midA)*(R1+18));
-  t.setAttribute('y', CY+Math.sin(midA)*(R1+18));
-  t.setAttribute('text-anchor','middle');
-  t.setAttribute('dominant-baseline','central');
-  t.setAttribute('font-size','14');
-  t.setAttribute('fill','rgba(200,220,255,0.7)');
-  t.textContent='☽';
-  svg.appendChild(t);
+  const a0  = e2s(moonStart, asc);
+  const a1e = e2s(moonEnd,   asc);
+  const x0o=CX+Math.cos(a0)*R_outer,  y0o=CY+Math.sin(a0)*R_outer;
+  const x1o=CX+Math.cos(a1e)*R_outer, y1o=CY+Math.sin(a1e)*R_outer;
+  const x1i=CX+Math.cos(a1e)*R_inner, y1i=CY+Math.sin(a1e)*R_inner;
+  const x0i=CX+Math.cos(a0)*R_inner,  y0i=CY+Math.sin(a0)*R_inner;
+  const pathD=`M${x0o},${y0o} A${R_outer},${R_outer} 0 ${la},0 ${x1o},${y1o}`
+    +` L${x1i},${y1i} A${R_inner},${R_inner} 0 ${la},1 ${x0i},${y0i} Z`;
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',pathD);
+  p.setAttribute('fill','rgba(200,210,255,0.06)');
+  p.setAttribute('stroke','none');
+  svg.appendChild(p);
 }
 
 // ── SVG HELPERS ──
