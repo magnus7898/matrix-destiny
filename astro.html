@@ -158,16 +158,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
 
 /* ── TIME UNKNOWN ── */
 .time-disabled input{opacity:.3;pointer-events:none}
-.lunar-badge{
-  position:absolute;top:12px;right:12px;
-  background:rgba(8,6,22,.92);border:1px solid rgba(100,65,200,.5);
-  border-radius:10px;padding:8px 12px;text-align:center;
-  font-family:'Cinzel',serif;min-width:110px;
-}
-.lunar-badge .lb-day{font-size:13px;color:#c8d8f0;font-weight:600}
-.lunar-badge .lb-pct{font-size:10px;color:rgba(180,150,255,.7);margin-top:2px}
-.lunar-badge .lb-em{font-size:18px;line-height:1;margin-bottom:4px}
-#wheel-wrap{position:relative;width:100%;max-width:800px;margin:0 auto}
+#wheel-wrap{width:100%;max-width:800px;margin:0 auto}
 
 /* ── MOBILE ── */
 @media(max-width:480px){
@@ -244,13 +235,14 @@ tr:hover td{background:rgba(19,16,58,.6)}
 <!-- CHART -->
 <div id="chart-area" style="display:none">
   <div class="sec-title">ნატალური ბორბალი</div>
+  <div id="lunar-badge" style="display:none;text-align:center;margin-bottom:12px;padding:10px 20px;background:rgba(8,6,22,.8);border:1px solid rgba(100,70,200,.4);border-radius:12px;backdrop-filter:blur(8px)">
+    <span class="lb-em" style="font-size:20px;margin-right:8px">🌙</span>
+    <span class="lb-day" id="lunar-day" style="font-family:'Cinzel',serif;font-size:13px;color:#c8d8f0;font-weight:600"></span>
+    <span style="color:rgba(150,120,220,.5);margin:0 6px">·</span>
+    <span class="lb-pct" id="lunar-pct" style="font-size:11px;color:rgba(180,150,255,.65)"></span>
+  </div>
   <div id="wheel-wrap">
     <svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div class="lunar-badge" id="lunar-badge" style="display:none">
-      <div class="lb-em">🌙</div>
-      <div class="lb-day" id="lunar-day">—</div>
-      <div class="lb-pct" id="lunar-pct">—</div>
-    </div>
   </div>
 
   <div class="sec-title">პლანეტები და სახლები</div>
@@ -373,37 +365,36 @@ function toggleTimeUnknown(){
   document.getElementById('time-fields').classList.toggle('time-disabled',unk);
 }
 
-// ── LUNAR DAY CALCULATION (pure JS, no backend needed) ──
-// New moon reference: Jan 6, 2000 18:14 UTC (Julian Day 2451549.26)
-function calcLunarDay(year,month,day,hour,minute,tz_offset_hours){
-  // Convert to UTC Julian Day
-  const utcH = hour - tz_offset_hours;
-  const a = Math.floor((14-month)/12);
-  const y = year + 4800 - a;
-  const m = month + 12*a - 3;
-  let jd = day + Math.floor((153*m+2)/5) + 365*y + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400) - 32045;
-  jd += (utcH + minute/60) / 24 - 0.5;
-  // Known new moon: JD 2451549.26 (Jan 6, 2000 18:14 UTC)
-  const refNewMoon = 2451549.26;
-  const synodicMonth = 29.53058868;
-  const elapsed = (jd - refNewMoon) % synodicMonth;
-  const age = elapsed < 0 ? elapsed + synodicMonth : elapsed; // 0..29.53
+// ── LUNAR DAY CALCULATION ──
+// Uses the Moon's actual ecliptic longitude from the backend chart response
+// Lunar day starts at each New Moon (Moon longitude == Sun longitude)
+// We use the moon_age from the elongation (angular distance Moon-Sun)
+// This is the most accurate approach using real swisseph data
+
+function calcLunarDayFromPositions(moonDeg, sunDeg){
+  // Elongation = angular distance from Sun to Moon (0=new, 180=full)
+  let elong = ((moonDeg - sunDeg) + 360) % 360;
+  // Each lunar day = 360/29.53058... ≈ 12.19° of elongation
+  const degPerLunarDay = 360 / 29.53058868;
+  const age = elong / degPerLunarDay; // 0..29.53
   const lunarDay = Math.floor(age) + 1; // 1..30
-  const pct = Math.round(((age % 1)) * 100); // % through current day
-  return {lunarDay, pct, age};
+  // % through current lunar day (0=just started, 99=almost over)
+  const pct = Math.round((age % 1) * 100);
+  return {lunarDay, pct, age, elong};
 }
 
-function displayLunarBadge(year,month,day,hour,minute,tz_name){
+function displayLunarBadge(data){
   try{
-    // Estimate tz offset from tz_name (rough)
-    // We'll just use UTC for calculation since offset is small effect on lunar day
-    const {lunarDay,pct} = calcLunarDay(year,month,day,hour,minute,0);
-    const ordinals=['I','II','III','IV','V','VI','VII','VIII','IX','X',
-      'XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX',
-      'XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX'];
-    document.getElementById('lunar-day').textContent=`მთვარის მე-${lunarDay} დღე`;
-    document.getElementById('lunar-pct').textContent=`${100-pct}% შემდეგ დღემდე`;
-    document.getElementById('lunar-badge').style.display='block';
+    const planets = data.planets;
+    if(!planets || !planets['მთვარე'] || !planets['მზე']) return;
+    const moonDeg = planets['მთვარე'].degree;
+    const sunDeg  = planets['მზე'].degree;
+    const {lunarDay, pct} = calcLunarDayFromPositions(moonDeg, sunDeg);
+    // pct% elapsed means (100-pct)% remaining till next lunar day
+    const remaining = 100 - pct;
+    document.getElementById('lunar-day').textContent = `მთვარის მე-${lunarDay} დღე`;
+    document.getElementById('lunar-pct').textContent  = `${remaining}% შემდეგ მთვარის დღემდე`;
+    document.getElementById('lunar-badge').style.display = 'block';
   }catch(e){console.log('lunar calc error',e);}
 }
 
@@ -479,7 +470,7 @@ async function generateChart(){
     else{document.getElementById('house-tbody').innerHTML='<tr><td colspan="3" style="color:rgba(120,100,180,.5);text-align:center;padding:12px;font-size:11px">დრო უცნობია — სახლები არ გამოითვლება</td></tr>';}
     drawAspectTable(data);
     // Lunar badge
-    displayLunarBadge(year,month,day,hour,minute,tz_name);
+    displayLunarBadge(data);
     // Moon path for time-unknown
     if(timeUnknown){
       const moonPath=await getMoonPathDegrees(year,month,day,+lat,+lon,tz_name);
@@ -491,45 +482,46 @@ async function generateChart(){
 }
 
 // ── MOON PATH (time-unknown mode) ──
+// Draws a thin transparent white arc just inside R1 showing moon range for the day
 function drawMoonPath(moonStart, moonEnd){
   const svg = document.getElementById('wheel');
-  const asc = 0; // Aries rising = 0 for time-unknown
-  // Moon path is an arc band between moonStart and moonEnd degrees
-  // Draw as a filled arc sector between R3+5 and R3+20 (inside house band area)
-  const R_inner = R3 + 8;
-  const R_outer = R3 + 28;
-  const a1 = e2s(moonStart, asc);
-  const a2 = e2s(moonEnd, asc);
-  // Arc spans the moon movement (typically 12-14 degrees)
-  const steps = 30;
+  const asc = 0; // Aries rising for time-unknown
   const span = ((moonEnd - moonStart) + 360) % 360;
-  // Build arc path
+  // Arc just inside R1 — thin band only 6px wide, no stroke, transparent white
+  const R_outer = R1 - 2;   // just inside the outer circle
+  const R_inner = R1 - 10;  // thin band
+  const steps = 40;
   const pts_outer = [], pts_inner = [];
   for(let i=0;i<=steps;i++){
-    const deg = moonStart + (span * i/steps);
+    const deg = moonStart + (span * i / steps);
     const a = e2s(deg, asc);
     pts_outer.push(`${CX+Math.cos(a)*R_outer},${CY+Math.sin(a)*R_outer}`);
     pts_inner.unshift(`${CX+Math.cos(a)*R_inner},${CY+Math.sin(a)*R_inner}`);
   }
-  const pathD = `M${pts_outer[0]} A${R_outer},${R_outer} 0 0,0 ${pts_outer[steps]} L${pts_inner[0]} A${R_inner},${R_inner} 0 0,1 ${pts_inner[steps]} Z`;
+  // large-arc flag
+  const la = span > 180 ? 1 : 0;
+  const a0 = e2s(moonStart, asc);
+  const a1e = e2s(moonEnd, asc);
+  const pathD = `M${CX+Math.cos(a0)*R_outer},${CY+Math.sin(a0)*R_outer}`
+    + ` A${R_outer},${R_outer} 0 ${la},0 ${CX+Math.cos(a1e)*R_outer},${CY+Math.sin(a1e)*R_outer}`
+    + ` L${CX+Math.cos(a1e)*R_inner},${CY+Math.sin(a1e)*R_inner}`
+    + ` A${R_inner},${R_inner} 0 ${la},1 ${CX+Math.cos(a0)*R_inner},${CY+Math.sin(a0)*R_inner}`
+    + ` Z`;
   const moonPathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
-  moonPathEl.setAttribute('d',pathD);
-  moonPathEl.setAttribute('fill','rgba(120,80,220,0.18)');
-  moonPathEl.setAttribute('stroke','rgba(160,120,255,0.5)');
-  moonPathEl.setAttribute('stroke-width','0.8');
+  moonPathEl.setAttribute('d', pathD);
+  moonPathEl.setAttribute('fill','rgba(220,220,255,0.12)');
+  moonPathEl.setAttribute('stroke','none');
   svg.appendChild(moonPathEl);
-  // Midpoint label
+  // Small moon emoji at midpoint just outside the arc
   const midDeg = moonStart + span/2;
   const midA = e2s(midDeg, asc);
-  const midR = (R_inner+R_outer)/2;
-  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x', CX+Math.cos(midA)*midR);
-  t.setAttribute('y', CY+Math.sin(midA)*midR);
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x', CX+Math.cos(midA)*(R1+18));
+  t.setAttribute('y', CY+Math.sin(midA)*(R1+18));
   t.setAttribute('text-anchor','middle');
   t.setAttribute('dominant-baseline','central');
-  t.setAttribute('font-size','9');
-  t.setAttribute('fill','rgba(180,150,255,0.8)');
-  t.setAttribute('font-family','serif');
+  t.setAttribute('font-size','14');
+  t.setAttribute('fill','rgba(200,220,255,0.7)');
   t.textContent='☽';
   svg.appendChild(t);
 }
