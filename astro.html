@@ -291,7 +291,7 @@ const PI={
   'სატურნი':          {sym:'♄',   color:'#c8c840'},
   'ურანი':            {sym:'♅',   color:'#50c8d8'},
   'ნეპტუნი':          {sym:'♆',   color:'#6070d8'},
-  'პლუტონი':          {sym:'♇',   color:'#c050a0'},
+  'პლუტონი':          {sym:'⯓',   color:'#c050a0'},
   'ქირონი':           {sym:'⚷',   color:'#d08040'},
   'ლილიტი':           {sym:'⚸',   color:'#904060'},
   'ჩრდ. კვანძი':      {sym:'☊',   color:'#60c060'},
@@ -317,22 +317,16 @@ function fmtDeg(deg){
 }
 
 // ── SUN SVG (circle with dot + glow) ──
-function sunSVG(sz=24){
-  return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block">
+function sunSVG(sz=22){
+  const h=sz/2;
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block;overflow:visible">
     <defs>
-      <radialGradient id="sun_g" cx="40%" cy="38%" r="60%">
-        <stop offset="0%" stop-color="#fff7d0"/>
-        <stop offset="40%" stop-color="#f9c646"/>
-        <stop offset="100%" stop-color="#c87010"/>
-      </radialGradient>
-      <filter id="sun_glow">
-        <feGaussianBlur stdDeviation="2" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
+      <filter id="sg${sz}"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
-    <circle cx="12" cy="12" r="9" fill="url(#sun_g)" filter="url(#sun_glow)"/>
-    <circle cx="12" cy="12" r="2.5" fill="rgba(80,30,0,0.6)"/>
-    <circle cx="12" cy="12" r="1.2" fill="#1a0800"/>
+    <circle cx="11" cy="11" r="8" fill="none" stroke="#f9c646" stroke-width="1.5" filter="url(#sg${sz})" opacity="0.9"/>
+    <circle cx="11" cy="11" r="8" fill="none" stroke="#ffe090" stroke-width="0.5"/>
+    <circle cx="11" cy="11" r="1.8" fill="#f9c646" filter="url(#sg${sz})"/>
+    <circle cx="11" cy="11" r="1.0" fill="#fff7d0"/>
   </svg>`;
 }
 
@@ -416,6 +410,70 @@ function toRad(d){return d*Math.PI/180;}
 function e2s(ecl,asc){return toRad(-(ecl-asc))+Math.PI;}
 function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
 
+// ── ZODIAC SYMBOL DRAWING (SVG paths, element-colored) ──
+function drawZodiacSymbol(parent, idx, color){
+  const s=el('g',{'text-anchor':'middle','dominant-baseline':'central'},parent);
+  // Draw each sign as simple SVG path centered at 0,0
+  const paths=[
+    // 0 Aries ♈ - ram horns
+    ()=>{el('path',{d:'M-7,2 Q-4,-8 0,-2 Q4,-8 7,2',fill:'none',stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('line',{x1:0,y1:-2,x2:0,y2:6,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);},
+    // 1 Taurus ♉ - bull head
+    ()=>{el('circle',{cx:0,cy:2,r:6,fill:'none',stroke:color,'stroke-width':'1.8'},s);
+         el('path',{d:'M-6,-4 Q-6,-10 0,-10 Q6,-10 6,-4',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);},
+    // 2 Gemini ♊ - twins
+    ()=>{el('line',{x1:-5,y1:-8,x2:-5,y2:8,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('line',{x1:5,y1:-8,x2:5,y2:8,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('line',{x1:-6,y1:-8,x2:6,y2:-8,stroke:color,'stroke-width':'1.5','stroke-linecap':'round'},s);
+         el('line',{x1:-6,y1:8,x2:6,y2:8,stroke:color,'stroke-width':'1.5','stroke-linecap':'round'},s);},
+    // 3 Cancer ♋ - crab claws
+    ()=>{el('path',{d:'M-7,-2 Q-7,-9 0,-6 Q7,-9 7,-2',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M-7,2 Q-7,9 0,6 Q7,9 7,2',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);},
+    // 4 Leo ♌ - lion mane
+    ()=>{el('circle',{cx:0,cy:4,r:5,fill:'none',stroke:color,'stroke-width':'1.8'},s);
+         el('path',{d:'M0,-1 Q-8,-1 -8,-7 Q-8,-12 -3,-12 Q0,-12 0,-8',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('circle',{cx:5,cy:4,r:1.5,fill:color},s);},
+    // 5 Virgo ♍ - maiden
+    ()=>{el('line',{x1:-5,y1:-8,x2:-5,y2:4,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('path',{d:'M-5,-3 Q0,-8 5,-3 L5,4',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M3,4 Q5,9 3,9 Q-5,9 -5,4',fill:'none',stroke:color,'stroke-width':'1.6','stroke-linecap':'round'},s);},
+    // 6 Libra ♎ - scales
+    ()=>{el('line',{x1:-7,y1:2,x2:7,y2:2,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('line',{x1:0,y1:2,x2:0,y2:8,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('line',{x1:-6,y1:8,x2:6,y2:8,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('path',{d:'M-7,-6 Q0,-12 7,-6',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);},
+    // 7 Scorpio ♏ - scorpion tail
+    ()=>{el('line',{x1:-5,y1:-8,x2:-5,y2:4,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('path',{d:'M-5,-3 Q0,-8 5,-3 L5,4',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M5,4 Q8,4 8,7 Q8,10 5,10 L3,10',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M3,10 L5,8',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);},
+    // 8 Sagittarius ♐ - arrow
+    ()=>{el('line',{x1:-7,y1:7,x2:7,y2:-7,stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('path',{d:'M7,-7 L2,-7 M7,-7 L7,-2',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('line',{x1:-5,y1:-1,x2:1,y2:5,stroke:color,'stroke-width':'1.2','stroke-linecap':'round',opacity:'.5'},s);},
+    // 9 Capricorn ♑ - sea-goat
+    ()=>{el('path',{d:'M-6,-8 Q-6,2 0,2 Q6,2 6,-2',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M6,-2 Q8,4 4,8 Q-2,12 -6,8',fill:'none',stroke:color,'stroke-width':'1.6','stroke-linecap':'round'},s);},
+    // 10 Aquarius ♒ - waves
+    ()=>{el('path',{d:'M-7,-3 Q-3,-8 0,-3 Q3,2 7,-3',fill:'none',stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);
+         el('path',{d:'M-7,4 Q-3,-1 0,4 Q3,9 7,4',fill:'none',stroke:color,'stroke-width':'2','stroke-linecap':'round'},s);},
+    // 11 Pisces ♓ - fish
+    ()=>{el('path',{d:'M0,-8 Q-8,-4 -8,0 Q-8,4 0,8',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('path',{d:'M0,-8 Q8,-4 8,0 Q8,4 0,8',fill:'none',stroke:color,'stroke-width':'1.8','stroke-linecap':'round'},s);
+         el('line',{x1:-6,y1:0,x2:6,y2:0,stroke:color,'stroke-width':'1.5','stroke-linecap':'round'},s);},
+  ];
+  paths[idx]();
+}
+
+// ── SELENA SVG (white moon crescent) ──
+function selenaSVG(color='#d0e8f8', sz=18){
+  const h=sz/2;
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block">
+    <path d="M9,2 Q15,5 15,9 Q15,13 9,16 Q13,13 13,9 Q13,5 9,2 Z" fill="${color}" opacity="0.9"/>
+    <circle cx="7" cy="9" r="4.5" fill="none" stroke="${color}" stroke-width="1.2" opacity="0.5"/>
+  </svg>`;
+}
+
 // ── DRAW WHEEL ──
 function drawWheel(data){
   const svg=document.getElementById('wheel');
@@ -479,15 +537,16 @@ function drawWheel(data){
     },svg);
   }
 
-  // ── DEGREE TICKS ──
+  // ── DEGREE TICKS (all 360 visible) ──
   for(let deg=0;deg<360;deg++){
-    const a=e2s(deg,asc),c=Math.cos(a),s=Math.sin(a);
+    const a=e2s(deg,asc),co=Math.cos(a),si2=Math.sin(a);
     const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
-    const len=is30?22:is10?14:is5?9:4;
+    const len=is30?22:is10?15:is5?10:6;
+    const stroke=is30?'rgba(220,180,255,0.9)':is10?'rgba(160,100,220,0.8)':is5?'rgba(100,65,170,0.65)':'rgba(70,45,130,0.5)';
+    const sw=is30?1.8:is10?1.3:is5?0.8:0.5;
     el('line',{
-      x1:CX+c*R1,y1:CY+s*R1,x2:CX+c*(R1-len),y2:CY+s*(R1-len),
-      stroke:is30?'#d0b0ff':is10?'#9060d0':is5?'#6040a0':'#3d2060',
-      'stroke-width':is30?1.5:is10?1:is5?.6:.3
+      x1:CX+co*R1,y1:CY+si2*R1,x2:CX+co*(R1-len),y2:CY+si2*(R1-len),
+      stroke,'stroke-width':sw
     },svg);
   }
 
@@ -514,12 +573,14 @@ function drawWheel(data){
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(50,30,100,.5)','stroke-width':.8},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(6,5,16,.9)',stroke:'rgba(40,28,80,.6)','stroke-width':.8},svg);
 
-  // ── ZODIAC SYMBOLS ──
+  // ── ZODIAC SYMBOLS (SVG path-based, no emoji) ──
   const Rzs=(R1+R2)/2;
   for(let i=0;i<12;i++){
     const a=e2s(i*30+15,asc);
-    txt(svg,ZSYM[i],CX+Math.cos(a)*Rzs,CY+Math.sin(a)*Rzs,
-      {fill:ZCOL[i],'font-size':20,'font-family':'serif','font-weight':'bold'});
+    const zx=CX+Math.cos(a)*Rzs, zy=CY+Math.sin(a)*Rzs;
+    const rot=(a*180/Math.PI)+90;
+    const g=el('g',{transform:`translate(${zx},${zy}) rotate(${rot})`},svg);
+    drawZodiacSymbol(g,i,ZCOL[i]);
   }
 
   // ── HOUSE LINES + NUMBERS ──
@@ -632,17 +693,29 @@ function drawWheel(data){
     }
 
     if(name==='მზე'){
-      // Sun: outer circle + inner dot + glow
-      const g=el('g',{filter:'url(#sunF)'},svg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:10,fill:'url(#sunG)'},g);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:3,fill:'rgba(80,20,0,.7)'},g);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:1.5,fill:'#1a0800'},g);
+      // Sun: circle + center dot + glow (astrological symbol ☉)
+      const sg2=el('g',{},svg);
+      // outer glow
+      el('circle',{cx:gxy.x,cy:gxy.y,r:12,fill:'rgba(249,198,70,0.12)'},sg2);
+      // main circle
+      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#f9c646','stroke-width':'2',filter:'url(#sunF)'},sg2);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#ffe8a0','stroke-width':'0.8'},sg2);
+      // center dot
+      el('circle',{cx:gxy.x,cy:gxy.y,r:2.5,fill:'#f9c646',filter:'url(#sunF)'},sg2);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:1.2,fill:'#fff7d0'},sg2);
+    } else if(name==='თეთრი მთვარე'){
+      // Selena: crescent with star
+      const sg3=el('g',{},svg);
+      el('path',{d:`M${gxy.x+5},${gxy.y-7} Q${gxy.x+11},${gxy.y} ${gxy.x+5},${gxy.y+7} Q${gxy.x+9},${gxy.y} ${gxy.x+9},${gxy.y} Q${gxy.x+9},${gxy.y} ${gxy.x+5},${gxy.y-7}`,fill:'none',stroke:color,'stroke-width':'0'},sg3);
+      el('path',{d:`M${gxy.x+3},${gxy.y-8} A8,8 0 1,0 ${gxy.x+3},${gxy.y+8} A5,5 0 1,1 ${gxy.x+3},${gxy.y-8}`,fill:color,opacity:'0.9'},sg3);
+      el('circle',{cx:gxy.x-2,cy:gxy.y,r:1.5,fill:color,opacity:'0.6'},sg3);
     } else {
-      txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':20,'font-family':'serif'});
+      const fsz=name==='⯓'?18:20;
+      txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':fsz,'font-family':'serif'});
     }
 
     if(data.planets[name].retrograde){
-      txt(svg,'℞',gxy.x+13,gxy.y-11,{fill:'#f87171','font-size':8});
+      txt(svg,'℞',gxy.x+11,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
     }
   }
 
