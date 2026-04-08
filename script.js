@@ -1,4 +1,4 @@
-fetch("https://YOUR_URL.up.railway.app/chart", {
+fetch("https://astrology-production-b165.up.railway.app", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
