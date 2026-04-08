@@ -156,6 +156,19 @@ tr:hover td{background:rgba(19,16,58,.6)}
 /* Water */
 .sign-water{color:#5b8ec4}
 
+/* ── TIME UNKNOWN ── */
+.time-disabled input{opacity:.3;pointer-events:none}
+.lunar-badge{
+  position:absolute;top:12px;right:12px;
+  background:rgba(8,6,22,.92);border:1px solid rgba(100,65,200,.5);
+  border-radius:10px;padding:8px 12px;text-align:center;
+  font-family:'Cinzel',serif;min-width:110px;
+}
+.lunar-badge .lb-day{font-size:13px;color:#c8d8f0;font-weight:600}
+.lunar-badge .lb-pct{font-size:10px;color:rgba(180,150,255,.7);margin-top:2px}
+.lunar-badge .lb-em{font-size:18px;line-height:1;margin-bottom:4px}
+#wheel-wrap{position:relative;width:100%;max-width:800px;margin:0 auto}
+
 /* ── MOBILE ── */
 @media(max-width:480px){
   .form-grid{grid-template-columns:1fr 1fr 1fr}
@@ -203,10 +216,16 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="field"><label>თვე</label><input type="number" id="month" value="1" min="1" max="12"></div>
     <div class="field"><label>წელი</label><input type="number" id="year" value="1990"></div>
   </div>
-  <div class="form-grid">
+  <div class="form-grid" id="time-fields">
     <div class="field"><label>საათი</label><input type="number" id="hour" value="12" min="0" max="23"></div>
     <div class="field"><label>წუთი</label><input type="number" id="minute" value="0" min="0" max="59"></div>
     <div class="field"><label>წამი</label><input type="number" id="second" value="0" min="0" max="59"></div>
+  </div>
+  <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(167,139,250,0.7);letter-spacing:1px;text-transform:none">
+      <input type="checkbox" id="time-unknown" onchange="toggleTimeUnknown()" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer">
+      დრო უცნობია (time unknown)
+    </label>
   </div>
   <div class="field wide" style="margin-bottom:8px">
     <label>ქალაქი</label>
@@ -225,7 +244,14 @@ tr:hover td{background:rgba(19,16,58,.6)}
 <!-- CHART -->
 <div id="chart-area" style="display:none">
   <div class="sec-title">ნატალური ბორბალი</div>
-  <svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="wheel-wrap">
+    <svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="lunar-badge" id="lunar-badge" style="display:none">
+      <div class="lb-em">🌙</div>
+      <div class="lb-day" id="lunar-day">—</div>
+      <div class="lb-pct" id="lunar-pct">—</div>
+    </div>
+  </div>
 
   <div class="sec-title">პლანეტები და სახლები</div>
   <div class="tables-wrap">
@@ -341,6 +367,66 @@ function signClass(si){
   return el==='F'?'sign-fire':el==='E'?'sign-earth':el==='A'?'sign-air':'sign-water';
 }
 
+// ── TIME UNKNOWN TOGGLE ──
+function toggleTimeUnknown(){
+  const unk=document.getElementById('time-unknown').checked;
+  document.getElementById('time-fields').classList.toggle('time-disabled',unk);
+}
+
+// ── LUNAR DAY CALCULATION (pure JS, no backend needed) ──
+// New moon reference: Jan 6, 2000 18:14 UTC (Julian Day 2451549.26)
+function calcLunarDay(year,month,day,hour,minute,tz_offset_hours){
+  // Convert to UTC Julian Day
+  const utcH = hour - tz_offset_hours;
+  const a = Math.floor((14-month)/12);
+  const y = year + 4800 - a;
+  const m = month + 12*a - 3;
+  let jd = day + Math.floor((153*m+2)/5) + 365*y + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400) - 32045;
+  jd += (utcH + minute/60) / 24 - 0.5;
+  // Known new moon: JD 2451549.26 (Jan 6, 2000 18:14 UTC)
+  const refNewMoon = 2451549.26;
+  const synodicMonth = 29.53058868;
+  const elapsed = (jd - refNewMoon) % synodicMonth;
+  const age = elapsed < 0 ? elapsed + synodicMonth : elapsed; // 0..29.53
+  const lunarDay = Math.floor(age) + 1; // 1..30
+  const pct = Math.round(((age % 1)) * 100); // % through current day
+  return {lunarDay, pct, age};
+}
+
+function displayLunarBadge(year,month,day,hour,minute,tz_name){
+  try{
+    // Estimate tz offset from tz_name (rough)
+    // We'll just use UTC for calculation since offset is small effect on lunar day
+    const {lunarDay,pct} = calcLunarDay(year,month,day,hour,minute,0);
+    const ordinals=['I','II','III','IV','V','VI','VII','VIII','IX','X',
+      'XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX',
+      'XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX'];
+    document.getElementById('lunar-day').textContent=`მთვარის მე-${lunarDay} დღე`;
+    document.getElementById('lunar-pct').textContent=`${100-pct}% შემდეგ დღემდე`;
+    document.getElementById('lunar-badge').style.display='block';
+  }catch(e){console.log('lunar calc error',e);}
+}
+
+// ── MOON PATH for "time unknown" mode ──
+// Calculate moon degree at 00:00 and 23:59 of birth date
+// Returns {start_deg, end_deg} ecliptic longitude
+async function getMoonPathDegrees(year,month,day,lat,lon,tz_name){
+  // Fetch moon at midnight and end of day
+  const results=[];
+  for(const [h,mn,s] of [[0,0,0],[23,59,59]]){
+    try{
+      const r=await fetch(`${BACKEND}/chart`,{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({year,month,day,hour:h,minute:mn,second:s,lat,lon,tz_name})});
+      const d=await r.json();
+      if(d.planets && d.planets['მთვარე']){
+        results.push(d.planets['მთვარე'].degree);
+      }
+    }catch(e){}
+  }
+  return results.length===2?results:null;
+}
+
 // ── GEOCODE ──
 let cityTimer=null;
 function searchCity(){
@@ -371,28 +457,81 @@ async function generateChart(){
   if(!lat||!lon){alert('პირველ შეიყვანეთ ქალაქი');return;}
   const btn=document.querySelector('.gen-btn');
   btn.textContent='⏳ გთხოვთ დაელოდოთ...';btn.disabled=true;
+  const timeUnknown=document.getElementById('time-unknown').checked;
+  const year=+document.getElementById('year').value;
+  const month=+document.getElementById('month').value;
+  const day=+document.getElementById('day').value;
+  const tz_name=document.getElementById('tz_name').value;
+  // Use noon for time-unknown
+  const hour=timeUnknown?12:+document.getElementById('hour').value;
+  const minute=timeUnknown?0:+document.getElementById('minute').value;
+  const second=timeUnknown?0:+document.getElementById('second').value;
   try{
     const r=await fetch(`${BACKEND}/chart`,{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        year:+document.getElementById('year').value,
-        month:+document.getElementById('month').value,
-        day:+document.getElementById('day').value,
-        hour:+document.getElementById('hour').value,
-        minute:+document.getElementById('minute').value,
-        second:+document.getElementById('second').value,
-        lat:+lat,lon:+lon,
-        tz_name:document.getElementById('tz_name').value
-      })});
+      body:JSON.stringify({year,month,day,hour,minute,second,lat:+lat,lon:+lon,tz_name})});
     const data=await r.json();
+    data._timeUnknown=timeUnknown;
     document.getElementById('chart-area').style.display='block';
     drawWheel(data);
     drawPlanetTable(data);
-    drawHouseTable(data);
+    if(!timeUnknown){drawHouseTable(data);}
+    else{document.getElementById('house-tbody').innerHTML='<tr><td colspan="3" style="color:rgba(120,100,180,.5);text-align:center;padding:12px;font-size:11px">დრო უცნობია — სახლები არ გამოითვლება</td></tr>';}
     drawAspectTable(data);
+    // Lunar badge
+    displayLunarBadge(year,month,day,hour,minute,tz_name);
+    // Moon path for time-unknown
+    if(timeUnknown){
+      const moonPath=await getMoonPathDegrees(year,month,day,+lat,+lon,tz_name);
+      if(moonPath) drawMoonPath(moonPath[0],moonPath[1]);
+    }
     document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){alert('შეცდომა: '+e.message);}
   finally{btn.textContent='✦ რუქის გენერაცია ✦';btn.disabled=false;}
+}
+
+// ── MOON PATH (time-unknown mode) ──
+function drawMoonPath(moonStart, moonEnd){
+  const svg = document.getElementById('wheel');
+  const asc = 0; // Aries rising = 0 for time-unknown
+  // Moon path is an arc band between moonStart and moonEnd degrees
+  // Draw as a filled arc sector between R3+5 and R3+20 (inside house band area)
+  const R_inner = R3 + 8;
+  const R_outer = R3 + 28;
+  const a1 = e2s(moonStart, asc);
+  const a2 = e2s(moonEnd, asc);
+  // Arc spans the moon movement (typically 12-14 degrees)
+  const steps = 30;
+  const span = ((moonEnd - moonStart) + 360) % 360;
+  // Build arc path
+  const pts_outer = [], pts_inner = [];
+  for(let i=0;i<=steps;i++){
+    const deg = moonStart + (span * i/steps);
+    const a = e2s(deg, asc);
+    pts_outer.push(`${CX+Math.cos(a)*R_outer},${CY+Math.sin(a)*R_outer}`);
+    pts_inner.unshift(`${CX+Math.cos(a)*R_inner},${CY+Math.sin(a)*R_inner}`);
+  }
+  const pathD = `M${pts_outer[0]} A${R_outer},${R_outer} 0 0,0 ${pts_outer[steps]} L${pts_inner[0]} A${R_inner},${R_inner} 0 0,1 ${pts_inner[steps]} Z`;
+  const moonPathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
+  moonPathEl.setAttribute('d',pathD);
+  moonPathEl.setAttribute('fill','rgba(120,80,220,0.18)');
+  moonPathEl.setAttribute('stroke','rgba(160,120,255,0.5)');
+  moonPathEl.setAttribute('stroke-width','0.8');
+  svg.appendChild(moonPathEl);
+  // Midpoint label
+  const midDeg = moonStart + span/2;
+  const midA = e2s(midDeg, asc);
+  const midR = (R_inner+R_outer)/2;
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x', CX+Math.cos(midA)*midR);
+  t.setAttribute('y', CY+Math.sin(midA)*midR);
+  t.setAttribute('text-anchor','middle');
+  t.setAttribute('dominant-baseline','central');
+  t.setAttribute('font-size','9');
+  t.setAttribute('fill','rgba(180,150,255,0.8)');
+  t.setAttribute('font-family','serif');
+  t.textContent='☽';
+  svg.appendChild(t);
 }
 
 // ── SVG HELPERS ──
@@ -479,7 +618,7 @@ function selenaSVG(color='#d0e8f8', sz=18){
 function drawWheel(data){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
-  const asc=data.asc;
+  const asc=data._timeUnknown?0:data.asc;
 
   // ── DEFS ──
   const defs=el('defs',{},svg);
@@ -592,7 +731,7 @@ function drawWheel(data){
   }
 
   // ── CIRCLES — bright solid strokes ──
-  el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(160,100,255,0.9)','stroke-width':2},svg);
+  el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(140,90,230,0.85)','stroke-width':1.8},svg);
   el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(100,65,200,0.8)','stroke-width':1.5},svg);
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(70,45,160,0.75)','stroke-width':1.2},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,0.7)','stroke-width':1},svg);
@@ -609,21 +748,23 @@ function drawWheel(data){
     zt.textContent=ZSYM[i];
   }
 
-  // ── HOUSE LINES + NUMBERS ──
-  const Rhn=(R2+R3)/2;
-  for(let i=0;i<12;i++){
-    const a=e2s(data.houses[i],asc);
-    const isAngle=[0,3,6,9].includes(i);
-    el('line',{x1:CX+Math.cos(a)*R2,y1:CY+Math.sin(a)*R2,
-      x2:CX+Math.cos(a)*R3,y2:CY+Math.sin(a)*R3,
-      stroke:isAngle?'#e8c06e':'rgba(100,65,200,.6)',
-      'stroke-width':isAngle?2:.8},svg);
-    const next=data.houses[(i+1)%12];
-    let mid=data.houses[i]+((next-data.houses[i]+360)%360)/2;
-    if(mid>=360) mid-=360;
-    const ma=e2s(mid,asc);
-    txt(svg,String(i+1),CX+Math.cos(ma)*Rhn,CY+Math.sin(ma)*Rhn,
-      {fill:'rgba(180,150,255,0.85)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
+  // ── HOUSE LINES + NUMBERS (hidden for time-unknown) ──
+  if(!data._timeUnknown){
+    const Rhn=(R2+R3)/2;
+    for(let i=0;i<12;i++){
+      const a=e2s(data.houses[i],asc);
+      const isAngle=[0,3,6,9].includes(i);
+      el('line',{x1:CX+Math.cos(a)*R2,y1:CY+Math.sin(a)*R2,
+        x2:CX+Math.cos(a)*R3,y2:CY+Math.sin(a)*R3,
+        stroke:isAngle?'#e8c06e':'rgba(100,65,200,.6)',
+        'stroke-width':isAngle?2:.8},svg);
+      const next=data.houses[(i+1)%12];
+      let mid=data.houses[i]+((next-data.houses[i]+360)%360)/2;
+      if(mid>=360) mid-=360;
+      const ma=e2s(mid,asc);
+      txt(svg,String(i+1),CX+Math.cos(ma)*Rhn,CY+Math.sin(ma)*Rhn,
+        {fill:'rgba(180,150,255,0.85)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
+    }
   }
 
   // ── ASPECT LINES ──
@@ -743,26 +884,24 @@ function drawWheel(data){
     }
   }
 
-    // ── ASC / MC — gold, outside circle only ──
-  const angCol='#e8c06e';
-
-  // ASC line — outside R1 only
-  const ascA=e2s(asc,asc);
-  el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,
-    x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),
-    stroke:angCol,'stroke-width':2.5},svg);
-  txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),
-    {fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-
-  // MC circle — outside R1 only
-  const mcA=e2s(data.mc,asc);
-  const mcDist=R1+52,mcR=19;
-  const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
-  el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,
-    x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),
-    stroke:angCol,'stroke-width':2.5},svg);
-  el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
-  txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+    // ── ASC / MC — only shown when time is known ──
+  if(!data._timeUnknown){
+    const angCol='#e8c06e';
+    const ascA=e2s(asc,asc);
+    el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,
+      x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),
+      stroke:angCol,'stroke-width':2.5},svg);
+    txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),
+      {fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const mcA=e2s(data.mc,asc);
+    const mcDist=R1+52,mcR=19;
+    const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
+    el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,
+      x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),
+      stroke:angCol,'stroke-width':2.5},svg);
+    el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
+    txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+  }
 
 }
 
