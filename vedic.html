@@ -7,9 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400&family=Cinzel:wght@300;400;600&family=IM+Fell+English:ital@0;1&family=Noto+Sans+Georgian:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#04030a;--gold:#c9a84c;--gold-l:#f0d080;
-  --orange:#e8742a;--orange-l:#f5a060;
-  --purple:#a78bfa;--txt:#e0d8ff;--dim:rgba(155,168,184,0.6);
+  --void:#04030a;--deep:#07071a;--surface:rgba(15,13,42,0.85);
+  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a20;
+  --purple:#a78bfa;--purple-d:#2d1f6e;
+  --txt:#e0d8ff;--dim:rgba(155,168,184,0.6);
+  --brd:rgba(45,31,110,0.8);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -22,127 +24,110 @@ body{
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.5) 0,transparent 100%),
-    radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.4) 0,transparent 100%),
-    radial-gradient(1px 1px at 60% 25%,rgba(255,255,255,.25) 0,transparent 100%),
-    radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.45) 0,transparent 100%),
-    radial-gradient(1px 1px at 88% 44%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1px 1px at 15% 68%,rgba(255,255,255,.25) 0,transparent 100%),
-    radial-gradient(1px 1px at 50% 75%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1.5px 1.5px at 34% 51%,rgba(232,116,42,.2) 0,transparent 100%),
-    radial-gradient(1.5px 1.5px at 66% 44%,rgba(201,168,76,.15) 0,transparent 100%);
+    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.55) 0,transparent 100%),
+    radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.45) 0,transparent 100%),
+    radial-gradient(1px 1px at 60% 25%,rgba(255,255,255,.3) 0,transparent 100%),
+    radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.5) 0,transparent 100%),
+    radial-gradient(1px 1px at 88% 44%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1px 1px at 15% 68%,rgba(255,255,255,.3) 0,transparent 100%),
+    radial-gradient(1px 1px at 50% 75%,rgba(255,255,255,.4) 0,transparent 100%),
+    radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1px 1px at 33% 90%,rgba(255,255,255,.25) 0,transparent 100%),
+    radial-gradient(1px 1px at 67% 58%,rgba(255,255,255,.3) 0,transparent 100%),
+    radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%),
+    radial-gradient(1.5px 1.5px at 66% 44%,rgba(201,168,76,.18) 0,transparent 100%);
 }
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(200,100,30,.06) 0,transparent 70%),
-    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(150,80,20,.05) 0,transparent 70%),
-    radial-gradient(ellipse 400px 300px at 50% 90%,rgba(180,120,40,.04) 0,transparent 70%);
+    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(100,40,200,.08) 0,transparent 70%),
+    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(40,80,200,.06) 0,transparent 70%),
+    radial-gradient(ellipse 400px 300px at 50% 90%,rgba(120,50,180,.05) 0,transparent 70%);
 }
-
-/* ── HERO ── */
-.hero{position:relative;z-index:1;text-align:center;padding:48px 24px 36px;width:100%}
-.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--orange);opacity:.6;margin-bottom:12px;font-family:'Cinzel',serif}
+.hero{position:relative;z-index:1;text-align:center;padding:56px 24px 40px;width:100%}
+.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:12px;font-weight:300;font-family:'Cinzel',serif}
 .hero-title{
-  font-family:'Cinzel Decorative',serif;font-size:clamp(20px,4vw,40px);
-  font-weight:400;letter-spacing:3px;
-  background:linear-gradient(160deg,#f5e0ba 0%,var(--orange-l) 30%,var(--gold) 55%,#e8c090 80%,var(--orange) 100%);
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(22px,4vw,42px);font-weight:400;letter-spacing:3px;line-height:1.2;
+  background:linear-gradient(160deg,#f5e8ba 0%,var(--gold) 35%,#9a7028 60%,#e8d5a0 80%,#c09040 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 24px rgba(232,116,42,.25));
+  filter:drop-shadow(0 0 28px rgba(201,168,76,.25));
 }
-.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:12px;color:var(--dim);margin-top:8px}
-.hero-divider{display:flex;align-items:center;gap:14px;margin:20px auto 0;max-width:280px}
-.hero-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(232,116,42,.35),transparent)}
-.hero-gem{width:5px;height:5px;background:var(--orange);transform:rotate(45deg);opacity:.5;flex-shrink:0}
-
-/* ── FORM ── */
+.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:13px;color:var(--dim);margin-top:10px}
+.hero-divider{display:flex;align-items:center;gap:14px;margin:24px auto 0;max-width:300px}
+.hero-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent)}
+.hero-gem{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:.5;flex-shrink:0}
 .form-card{
-  position:relative;z-index:1;background:rgba(12,8,4,.8);
-  border:1px solid rgba(180,90,30,.35);border-radius:16px;padding:24px;
-  width:100%;max-width:620px;margin:28px auto;backdrop-filter:blur(12px);
-  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(232,116,42,.06);
+  position:relative;z-index:1;
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
+  border-radius:16px;padding:24px;width:100%;max-width:620px;
+  margin:32px auto;backdrop-filter:blur(12px);
+  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(167,139,250,.08);
 }
-.form-card::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(232,116,42,.4),transparent)}
+.form-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);
+}
 .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
 .field{display:flex;flex-direction:column;gap:5px}
 .field.wide{grid-column:span 3}
-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);opacity:.8;font-family:'Cinzel',serif}
+label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;font-family:'Cinzel',serif}
 input{
-  background:rgba(18,10,4,.7);border:1px solid rgba(140,70,20,.5);
+  background:rgba(10,8,30,.7);border:1px solid rgba(61,42,138,.6);
   border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px;
-  font-family:'Noto Sans Georgian',sans-serif;width:100%;transition:border-color .2s;
+  font-family:'Noto Sans Georgian',sans-serif;width:100%;transition:border-color .2s,box-shadow .2s;
 }
-input:focus{outline:none;border-color:var(--orange)}
-input::placeholder{color:rgba(155,168,184,.3)}
+input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+input::placeholder{color:rgba(155,168,184,.35)}
 .coords-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.coords input{background:rgba(8,5,2,.7);color:rgba(155,168,184,.6)}
-#city-hint{font-size:11px;color:var(--orange-l);margin-top:3px;min-height:15px}
-#tz-display{font-size:11px;color:var(--gold);margin-bottom:16px;background:rgba(8,5,2,.5);border-radius:6px;padding:6px 10px;border-left:2px solid rgba(201,168,76,.3)}
+.coords input{background:rgba(6,5,18,.7);color:rgba(155,168,184,.6)}
+#city-hint{font-size:11px;color:var(--purple);margin-top:3px;min-height:15px;padding-left:2px}
+#tz-display{font-size:11px;color:var(--gold);margin-bottom:16px;background:rgba(6,5,18,.5);border-radius:6px;padding:6px 10px;border-left:2px solid rgba(201,168,76,.3)}
 .gen-btn{
-  width:100%;background:linear-gradient(135deg,rgba(180,90,20,.8),rgba(140,60,10,.8));
-  color:#fff;border:1px solid rgba(220,130,50,.4);border-radius:10px;
+  width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);
+  color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;
   padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;
-  font-family:'Cinzel',serif;transition:all .3s;box-shadow:0 4px 20px rgba(180,80,20,.25);
+  font-family:'Cinzel',serif;transition:all .3s;box-shadow:0 4px 20px rgba(109,40,217,.3);
 }
-.gen-btn:hover{background:linear-gradient(135deg,rgba(220,110,30,.9),rgba(180,80,20,.9));transform:translateY(-1px)}
-
-/* ── CHART AREA ── */
+.gen-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);transform:translateY(-1px)}
 #chart-area{position:relative;z-index:1;width:100%;max-width:800px;padding:0 16px}
-svg#wheel{width:100%;height:auto;display:block}
+svg#wheel{width:100%;height:auto;display:block;overflow:visible}
 .sec-title{
   font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;
   color:var(--gold);text-transform:uppercase;text-align:center;
-  margin:28px 0 14px;display:flex;align-items:center;gap:14px;
+  margin:32px 0 16px;display:flex;align-items:center;gap:14px;
 }
-.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
-
-/* ── DATA CARDS ── */
-.tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
+.tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
 @media(max-width:600px){.tables-wrap{grid-template-columns:1fr}}
-.data-card{background:rgba(12,8,4,.8);border:1px solid rgba(140,70,20,.35);border-radius:12px;overflow:hidden;backdrop-filter:blur(8px)}
-.data-card-title{background:rgba(180,90,30,.08);padding:10px 16px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--orange-l);text-transform:uppercase;border-bottom:1px solid rgba(140,70,20,.3)}
+.data-card{background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;backdrop-filter:blur(8px)}
+.data-card-title{background:rgba(167,139,250,.07);padding:10px 16px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;border-bottom:1px solid rgba(45,31,110,.5)}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{color:rgba(155,168,184,.5);padding:7px 10px;text-align:left;font-weight:400;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(100,50,10,.4)}
-td{padding:6px 10px;border-bottom:1px solid rgba(20,12,4,.8);vertical-align:middle;font-size:11px}
+th{color:rgba(155,168,184,.5);padding:7px 12px;text-align:left;font-weight:400;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(45,31,110,.4)}
+td{padding:6px 12px;border-bottom:1px solid rgba(15,13,40,.8);vertical-align:middle;font-size:12px}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(30,15,5,.6)}
-.retro{color:#f87171;font-size:9px;margin-left:3px}
-.house-badge{display:inline-block;background:rgba(20,10,4,.8);border:1px solid rgba(140,70,20,.5);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--orange-l);font-family:'Cinzel',serif}
-.deg-val{font-family:'Cinzel',serif;font-size:11px;color:#d4c8b0;white-space:nowrap}
-
-/* ── NAKSHATRA TABLE ── */
-.nak-table td{padding:8px 10px;font-size:11px}
+tr:hover td{background:rgba(19,16,58,.6)}
+.retro{color:#f87171;font-size:9px;margin-left:2px}
+.house-badge{display:inline-block;background:rgba(26,21,69,.8);border:1px solid rgba(61,42,138,.6);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--purple);font-family:'Cinzel',serif}
+.deg-val{font-family:'Cinzel',serif;font-size:11px;color:#c8d8f0;white-space:nowrap}
 .nak-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold-l)}
-.nak-ruler{color:var(--orange-l);font-size:10px}
-.pada-badge{display:inline-block;background:rgba(180,90,20,.2);border:1px solid rgba(180,90,20,.4);border-radius:10px;padding:2px 8px;font-size:9px;color:var(--orange);font-family:'Cinzel',serif;letter-spacing:1px}
-.pct-bar{display:inline-block;width:50px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;vertical-align:middle;margin-left:4px;position:relative}
-.pct-fill{position:absolute;left:0;top:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--orange),var(--gold))}
-
-/* ── PLANET COLORS ── */
-.p-sun{color:#f9c646}.p-moon{color:#c8d8f0}.p-mars{color:#e84040}
-.p-mercury{color:#50d890}.p-jupiter{color:#e89040}.p-venus{color:#e878a8}
-.p-saturn{color:#90a8c8}.p-rahu{color:#9060d0}.p-ketu{color:#c06060}
-
-/* ── MOBILE ── */
-@media(max-width:480px){
-  td{padding:5px 8px;font-size:10px}
-  .form-grid{grid-template-columns:1fr 1fr 1fr}
-}
+.pada-badge{display:inline-block;background:rgba(45,31,110,.5);border:1px solid rgba(100,70,200,.4);border-radius:10px;padding:2px 8px;font-size:9px;color:var(--purple);font-family:'Cinzel',serif;letter-spacing:1px}
+.pct-bar{display:inline-block;width:48px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;vertical-align:middle;margin-left:5px;position:relative}
+.pct-fill{position:absolute;left:0;top:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--gold))}
+.moon-sym{color:#b8d8ff;text-shadow:0 0 8px rgba(100,160,255,.9),0 0 16px rgba(80,130,255,.5);font-size:20px;font-family:serif}
+.p-sym{font-family:serif;font-size:18px;line-height:1;display:inline-block}
+@media(max-width:480px){td{padding:5px 8px;font-size:10px}th{font-size:9px;padding:5px 8px}}
 </style>
 </head>
 <body>
-
 <div class="hero">
-  <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="margin:0 auto 18px;display:block;opacity:.7">
-    <circle cx="26" cy="26" r="24.5" stroke="rgba(232,116,42,.3)" stroke-width=".8"/>
-    <circle cx="26" cy="26" r="16" stroke="rgba(201,168,76,.2)" stroke-width=".6"/>
-    <path d="M26 4 L46 40 L6 40 Z" stroke="rgba(232,116,42,.5)" stroke-width=".6" fill="none"/>
-    <path d="M26 48 L6 12 L46 12 Z" stroke="rgba(232,116,42,.5)" stroke-width=".6" fill="none"/>
-    <circle cx="26" cy="26" r="2.5" fill="rgba(201,168,76,.8)"/>
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="margin:0 auto 20px;display:block;opacity:.7">
+    <circle cx="28" cy="28" r="26.5" stroke="rgba(201,168,76,.25)" stroke-width=".5"/>
+    <circle cx="28" cy="28" r="17" stroke="rgba(201,168,76,.18)" stroke-width=".5"/>
+    <polygon points="28,3 51,43 5,43" stroke="rgba(201,168,76,.38)" stroke-width=".5" fill="none"/>
+    <polygon points="28,53 5,13 51,13" stroke="rgba(201,168,76,.38)" stroke-width=".5" fill="none"/>
+    <circle cx="28" cy="28" r="2.5" fill="rgba(201,168,76,.7)"/>
   </svg>
   <div class="hero-eyebrow">ვედური ასტროლოგია · ლაჰირი აიანამსა</div>
   <h1 class="hero-title">ჯიოტიში · ნატალური რუქა</h1>
@@ -180,77 +165,94 @@ tr:hover td{background:rgba(30,15,5,.6)}
 </div>
 
 <div id="chart-area" style="display:none">
-  <div id="ayanamsa-info" style="text-align:center;font-size:11px;color:rgba(200,160,80,.6);margin-bottom:8px;font-family:'Cinzel',serif;letter-spacing:1px"></div>
+  <div id="ayanamsa-bar" style="text-align:center;font-size:11px;color:rgba(201,168,76,.5);margin-bottom:6px;font-family:'Cinzel',serif;letter-spacing:1px"></div>
   <div class="sec-title">ვედური ბორბალი · Rashi Chakra</div>
   <svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
 
   <div class="sec-title">გრჰები · Grahas</div>
   <div class="tables-wrap">
     <div class="data-card">
-      <div class="data-card-title">🪐 პლანეტები (Grahas)</div>
-      <table>
-        <thead><tr><th></th><th>გრჰა</th><th>გრადუსი</th><th>რაში</th><th>სახ.</th><th>℞</th></tr></thead>
-        <tbody id="planet-tbody"></tbody>
-      </table>
+      <div class="data-card-title">🪐 პლანეტები · Grahas</div>
+      <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>რაში</th><th>სახ.</th><th>℞</th></tr></thead>
+      <tbody id="planet-tbody"></tbody></table>
     </div>
     <div class="data-card">
-      <div class="data-card-title">🏠 სახლები · Bhavas (Whole Sign)</div>
-      <table>
-        <thead><tr><th>ბჰავა</th><th>რაში</th><th>ლაგნა°</th></tr></thead>
-        <tbody id="house-tbody"></tbody>
-      </table>
+      <div class="data-card-title">🏠 ბჰავები · Whole Sign</div>
+      <table><thead><tr><th>ბჰავა</th><th>რაში</th></tr></thead>
+      <tbody id="house-tbody"></tbody></table>
     </div>
   </div>
 
-  <div class="sec-title">ნაქშატრები · Nakshatras & Padas</div>
-  <div class="data-card" style="margin-bottom:16px">
-    <div class="data-card-title">⭐ ნაქშატრა · Pada · Ruler</div>
-    <table class="nak-table">
-      <thead><tr><th>გრჰა</th><th>ნაქშატრა</th><th>პადა</th><th>ნ. მმართველი</th><th>პ. მმართველი</th><th>%</th></tr></thead>
-      <tbody id="nak-tbody"></tbody>
-    </table>
+  <div class="sec-title">ნაქშატრები · Nakshatras</div>
+  <div class="data-card" style="margin-bottom:8px">
+    <div class="data-card-title">⭐ ნაქშატრა · პადა · მმართველი</div>
+    <table><thead><tr><th>გრჰა</th><th>ნაქშატრა</th><th>პადა</th><th>ნ. მმართ.</th><th>პ. მმართ.</th><th>%</th></tr></thead>
+    <tbody id="nak-tbody"></tbody></table>
   </div>
 </div>
 
 <script>
-const BACKEND = 'https://astrology-production-b165.up.railway.app';
-const CX=350,CY=350,R1=270,R2=145,R3=60;
+const BACKEND='https://astrology-production-b165.up.railway.app';
+const CX=350,CY=350,R1=270,R2=202,R3=135,R4=105;
 
-// Vedic sign names (Sanskrit)
-const RASHI=['Mesha','Vrishabha','Mithuna','Karka','Simha','Kanya',
-             'Tula','Vrischika','Dhanu','Makara','Kumbha','Mina'];
-const RASHI_KA=['მეშა','ვრიშაბჰა','მითჰუნა','კარკატა',
-                'სიმჰა','კანია','თულა','ვრიშჩიკა',
-                'დჰანუ','მაკარა','კუმბჰა','მინა'];
-const RASHI_SYM=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const ZSYM=['\u2648\ufe0e','\u2649\ufe0e','\u264a\ufe0e','\u264b\ufe0e','\u264c\ufe0e','\u264d\ufe0e','\u264e\ufe0e','\u264f\ufe0e','\u2650\ufe0e','\u2651\ufe0e','\u2652\ufe0e','\u2653\ufe0e'];
+const RASHI_KA=['მეშა','ვრიშ.','მით.','კარკ.','სიმჰა','კანია','თულა','ვრიშჩ.','დჰანუ','მაკ.','კუმბ.','მინა'];
+// Element colors matching astro.html
+const RCOL=['#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4'];
+// Element fills matching astro.html
+const EFILL=['#1a0808','#081008','#08101a','#08101a','#1a0808','#081008','#08101a','#081018','#1a0808','#081008','#08101a','#081018'];
 
-// Element colors (same logic but warmer palette for Vedic)
-const RCOL=[
-  '#e05252','#a89060','#80b0d0','#5090c0', // Aries-Cancer
-  '#d06030','#90a860','#70b8d0','#5060c0', // Leo-Scorpio
-  '#c04030','#8090a0','#60b0e0','#6870c0'  // Sag-Pisces
-];
-
-// Planet data
 const PI={
-  'Sun':    {sym:'☉', color:'#f9c646', cls:'p-sun'},
-  'Moon':   {sym:'☽', color:'#c8d8f0', cls:'p-moon'},
-  'Mars':   {sym:'♂', color:'#e84040', cls:'p-mars'},
-  'Mercury':{sym:'☿', color:'#50d890', cls:'p-mercury'},
-  'Jupiter':{sym:'♃', color:'#e89040', cls:'p-jupiter'},
-  'Venus':  {sym:'♀', color:'#e878a8', cls:'p-venus'},
-  'Saturn': {sym:'♄', color:'#90a8c8', cls:'p-saturn'},
-  'Rahu':   {sym:'☊', color:'#9060d0', cls:'p-rahu'},
-  'Ketu':   {sym:'☋', color:'#c06060', cls:'p-ketu'},
+  'Sun':    {sym:'sun',  color:'#f9c646'},
+  'Moon':   {sym:'\u263d',color:'#c8d8f0'},
+  'Mars':   {sym:'\u2642',color:'#e84040'},
+  'Mercury':{sym:'\u263f',color:'#50d890'},
+  'Jupiter':{sym:'\u2643',color:'#e89040'},
+  'Venus':  {sym:'\u2640',color:'#e878a8'},
+  'Saturn': {sym:'\u2644',color:'#90a8c8'},
+  'Uranus': {sym:'\u26e2',color:'#7ec8c8'},
+  'Neptune':{sym:'\u2646',color:'#6080e0'},
+  'Rahu':   {sym:'\u260a',color:'#9060d0'},
+  'Ketu':   {sym:'\u260b',color:'#c06060'},
 };
-const PORDER=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
+const PORDER=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Uranus','Neptune','Rahu','Ketu'];
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 
-function fmtDeg(deg){
-  const inSign=((deg%30)+30)%30;
-  const d=Math.floor(inSign);
-  const m=Math.floor((inSign-d)*60);
-  return `${d}°${String(m).padStart(2,'0')}'`;
+function sunSVG(sz=22){
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block;overflow:visible">
+    <defs><filter id="svf${sz}" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter></defs>
+    <circle cx="11" cy="11" r="9" fill="#c87010" filter="url(#svf${sz})"/>
+    <circle cx="11" cy="11" r="9" fill="#f9c646"/>
+    <circle cx="11" cy="11" r="2.8" fill="#1a0500"/>
+    <circle cx="11" cy="11" r="1.1" fill="rgba(255,230,140,0.5)"/>
+  </svg>`;
 }
+
+function fmtDeg(sid){
+  const d=Math.floor(sid%30), m=Math.floor((sid%30-d)*60);
+  return `${d}\u00b0${String(m).padStart(2,'0')}'`;
+}
+
+// ── SVG HELPERS ──
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+  if(parent) parent.appendChild(e);return e;
+}
+function txt(parent,s,x,y,attrs={}){
+  const t=el('text',{'text-anchor':'middle','dominant-baseline':'central',x,y,...attrs},parent);
+  t.textContent=s;return t;
+}
+function toRad(d){return d*Math.PI/180;}
+// Sidereal wheel: lagna at left (π), signs go counterclockwise
+function v2a(sid_deg, lagna_start){
+  return toRad(-(sid_deg - lagna_start)) + Math.PI;
+}
+function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
 
 // ── GEOCODE ──
 let cityTimer=null;
@@ -295,13 +297,13 @@ async function generateChart(){
         lat:+lat,lon:+lon,
         tz_name:document.getElementById('tz_name').value
       })});
-    const txt=await r.text();
+    const raw=await r.text();
     let data;
-    try{data=JSON.parse(txt);}
-    catch(e){throw new Error('Backend error ('+r.status+'): '+txt.slice(0,120));}
-    if(data.error) throw new Error(data.error);
+    try{data=JSON.parse(raw);}
+    catch(e){throw new Error('Backend error ('+r.status+'): '+raw.slice(0,200));}
+    if(data.error) throw new Error(data.error+(data.trace?'\n'+data.trace.slice(0,300):''));
     document.getElementById('chart-area').style.display='block';
-    document.getElementById('ayanamsa-info').textContent=
+    document.getElementById('ayanamsa-bar').textContent=
       `Lahiri Ayanamsa: ${data.ayanamsa.toFixed(4)}° · Lagna: ${data.asc_sign} ${fmtDeg(data.asc)}`;
     drawWheel(data);
     drawPlanetTable(data);
@@ -312,137 +314,101 @@ async function generateChart(){
   finally{btn.textContent='✦ ვედური რუქის გენერაცია ✦';btn.disabled=false;}
 }
 
-// ── SVG HELPERS ──
-const NS='http://www.w3.org/2000/svg';
-function el(tag,attrs,parent){
-  const e=document.createElementNS(NS,tag);
-  for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
-  if(parent) parent.appendChild(e);
-  return e;
-}
-function txt(parent,s,x,y,attrs={}){
-  const t=el('text',{'text-anchor':'middle','dominant-baseline':'central',x,y,...attrs},parent);
-  t.textContent=s;return t;
-}
-function toRad(d){return d*Math.PI/180;}
-// Vedic: Aries starts at left (9 o'clock = 180°), goes counterclockwise
-function v2s(sid_deg, lagna_sid){
-  // Rotate so lagna sign cusp is at left (π)
-  const lagna_sign_start = Math.floor(lagna_sid/30)*30;
-  return toRad(-(sid_deg - lagna_sign_start)) + Math.PI;
-}
-function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
-
+// ── DRAW WHEEL ──
 function drawWheel(data){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
-  const asc_sid=data.asc;
-  const lagna_sign=Math.floor(asc_sid/30); // 0-11
+  const lagna_si=data.asc_sign_idx;         // 0..11
+  const lagna_start=lagna_si*30;            // ecliptic deg of lagna sign start
 
   // ── DEFS ──
   const defs=el('defs',{},svg);
   const bgG=el('radialGradient',{id:'bgG',cx:'50%',cy:'50%',r:'50%'},defs);
-  el('stop',{offset:'0%','stop-color':'#120a04'},bgG);
-  el('stop',{offset:'100%','stop-color':'#04020a'},bgG);
+  el('stop',{offset:'0%','stop-color':'#120e2a'},bgG);
+  el('stop',{offset:'60%','stop-color':'#0a0820'},bgG);
+  el('stop',{offset:'100%','stop-color':'#04030e'},bgG);
 
-  // Sun glow
-  const sf=el('filter',{id:'sunF',x:'-80%',y:'-80%',width:'260%',height:'260%'},defs);
-  const sfb=el('feGaussianBlur',{stdDeviation:'3',result:'blur'},sf);
+  const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
+  el('feGaussianBlur',{stdDeviation:'3',result:'blur'},sf);
   const sfm=el('feMerge',{},sf);
-  el('feMergeNode',{in:'blur'},sfm);
-  el('feMergeNode',{in:'SourceGraphic'},sfm);
+  el('feMergeNode',{in:'blur'},sfm);el('feMergeNode',{in:'SourceGraphic'},sfm);
 
-  // Moon glow
   const mf=el('filter',{id:'moonF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
-  const mfb=el('feGaussianBlur',{stdDeviation:'2.5',result:'blur'},mf);
-  const mfc=el('feFlood',{'flood-color':'#4090ff','flood-opacity':'0.4','result':'color'},mf);
-  const mfm2=el('feComposite',{in:'color',in2:'blur',operator:'in','result':'cb'},mf);
+  el('feGaussianBlur',{stdDeviation:'2.5',result:'blur'},mf);
+  const mfc=el('feFlood',{'flood-color':'#4090ff','flood-opacity':'0.45','result':'color'},mf);
+  el('feComposite',{in:'color',in2:'blur',operator:'in','result':'cb'},mf);
   const mfmg=el('feMerge',{},mf);
-  el('feMergeNode',{in:'cb'},mfmg);
-  el('feMergeNode',{in:'SourceGraphic'},mfmg);
+  el('feMergeNode',{in:'cb'},mfmg);el('feMergeNode',{in:'SourceGraphic'},mfmg);
 
   el('rect',{width:700,height:700,fill:'url(#bgG)'},svg);
 
-  // ── 12 RASHI SEGMENTS ──
-  // Each sign = 30°, draw from lagna sign at left
+  // ── ZODIAC BAND — same solid fills as astro.html ──
   for(let i=0;i<12;i++){
-    const sign_idx=(lagna_sign+i)%12;
-    const a_start=v2s(lagna_sign*30+i*30, asc_sid);
-    const a_end  =v2s(lagna_sign*30+(i+1)*30, asc_sid);
-
-    // Wedge from center to R1
-    const x1=CX+Math.cos(a_start)*R1, y1=CY+Math.sin(a_start)*R1;
-    const x2=CX+Math.cos(a_end)*R1,   y2=CY+Math.sin(a_end)*R1;
-    const xc1=CX+Math.cos(a_start)*R2, yc1=CY+Math.sin(a_start)*R2;
-    const xc2=CX+Math.cos(a_end)*R2,   yc2=CY+Math.sin(a_end)*R2;
-
-    // Outer ring (rashi band) R2→R1
-    const fills=['rgba(30,10,4,.95)','rgba(22,8,3,.95)'];
+    const si=(lagna_si+i)%12;
+    const a0=v2a(lagna_start+i*30,     lagna_start);
+    const a1=v2a(lagna_start+(i+1)*30, lagna_start);
+    const p=(a,r)=>`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;
+    // Outer zodiac ring R2→R1
     el('path',{
-      d:`M${xc1},${yc1} L${x1},${y1} A${R1},${R1} 0 0,0 ${x2},${y2} L${xc2},${yc2} A${R2},${R2} 0 0,1 ${xc1},${yc1} Z`,
-      fill:fills[i%2]
+      d:`M${p(a0,R2)} L${p(a0,R1)} A${R1},${R1} 0 0,0 ${p(a1,R1)} L${p(a1,R2)} A${R2},${R2} 0 0,1 ${p(a0,R2)} Z`,
+      fill:EFILL[si]
     },svg);
-
-    // Inner house R3→R2
-    const xi1=CX+Math.cos(a_start)*R3, yi1=CY+Math.sin(a_start)*R3;
-    const xi2=CX+Math.cos(a_end)*R3,   yi2=CY+Math.sin(a_end)*R3;
+    // Colored inner edge
     el('path',{
-      d:`M${xi1},${yi1} L${xc1},${yc1} A${R2},${R2} 0 0,0 ${xc2},${yc2} L${xi2},${yi2} A${R3},${R3} 0 0,1 ${xi1},${yi1} Z`,
-      fill:i%2?'rgba(15,6,2,.95)':'rgba(20,8,3,.95)'
+      d:`M${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)}`,
+      fill:'none',stroke:RCOL[si],'stroke-width':2,opacity:.6
     },svg);
-
+    // House band R3→R2
+    el('path',{
+      d:`M${p(a0,R3)} L${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)} L${p(a1,R3)} A${R3},${R3} 0 0,1 ${p(a0,R3)} Z`,
+      fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'
+    },svg);
     // Divider lines
-    el('line',{x1:CX+Math.cos(a_start)*R3,y1:CY+Math.sin(a_start)*R3,
-      x2:CX+Math.cos(a_start)*R1,y2:CY+Math.sin(a_start)*R1,
-      stroke:RCOL[sign_idx],'stroke-width':0.8,opacity:0.7},svg);
-
-    // Rashi symbol at midpoint of outer ring
-    const a_mid=v2s(lagna_sign*30+i*30+15,asc_sid);
+    el('line',{x1:CX+Math.cos(a0)*R1,y1:CY+Math.sin(a0)*R1,
+      x2:CX+Math.cos(a0)*R2,y2:CY+Math.sin(a0)*R2,
+      stroke:RCOL[si],'stroke-width':1.2,opacity:.85},svg);
+    // Zodiac symbol — upright, element colored
+    const amid=v2a(lagna_start+i*30+15,lagna_start);
     const Rzs=(R1+R2)/2;
-    const zx=CX+Math.cos(a_mid)*Rzs, zy=CY+Math.sin(a_mid)*Rzs;
     const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',
-      x:zx,y:zy,fill:RCOL[sign_idx],'font-size':18,'font-family':'serif','font-weight':'bold'},svg);
-    zt.textContent=RASHI_SYM[sign_idx];
-
-    // House number at midpoint of inner ring
+      x:CX+Math.cos(amid)*Rzs,y:CY+Math.sin(amid)*Rzs,
+      fill:RCOL[si],'font-size':20,'font-family':'serif','font-weight':'bold'},svg);
+    zt.textContent=ZSYM[si];
+    // House number
     const Rhn=(R2+R3)/2;
-    const hx=CX+Math.cos(a_mid)*Rhn, hy=CY+Math.sin(a_mid)*Rhn;
-    txt(svg,['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][i],hx,hy,
-      {fill:'rgba(200,140,60,.7)','font-size':9,'font-family':'Cinzel,serif','font-weight':'bold'});
+    txt(svg,ROMAN[i],CX+Math.cos(amid)*Rhn,CY+Math.sin(amid)*Rhn,
+      {fill:'rgba(180,150,255,0.75)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
   }
 
-  // ── DEGREE TICKS on outer ring ──
+  // ── INNERMOST FILL ──
+  el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
+
+  // ── DEGREE TICKS ──
   for(let deg=0;deg<360;deg++){
-    const a=v2s(lagna_sign*30+deg,asc_sid);
-    const c=Math.cos(a),s=Math.sin(a);
+    const a=v2a(lagna_start+deg,lagna_start);
+    const c2=Math.cos(a),s2=Math.sin(a);
     const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
-    const len=is30?18:is10?12:is5?7:4;
-    const stroke=is30?'rgba(240,200,120,.9)':is10?'rgba(180,130,60,.8)':is5?'rgba(120,80,30,.6)':'rgba(70,40,15,.45)';
-    const sw=is30?1.8:is10?1.2:is5?.8:.4;
-    el('line',{x1:CX+c*R1,y1:CY+s*R1,x2:CX+c*(R1-len),y2:CY+s*(R1-len),stroke,'stroke-width':sw},svg);
+    const len=is30?20:is10?13:is5?8:5;
+    const stroke=is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,.95)':is5?'rgba(120,80,200,.8)':'rgba(80,55,150,.65)';
+    const sw=is30?2:is10?1.4:is5?.9:.5;
+    el('line',{x1:CX+c2*R1,y1:CY+s2*R1,x2:CX+c2*(R1-len),y2:CY+s2*(R1-len),stroke,'stroke-width':sw},svg);
   }
 
   // ── CIRCLES ──
-  el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(200,130,50,.7)','stroke-width':2},svg);
-  el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(150,90,30,.6)','stroke-width':1.5},svg);
-  el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(100,60,20,.5)','stroke-width':1},svg);
-  el('circle',{cx:CX,cy:CY,r:R3-1,fill:'rgba(8,4,2,.95)'},svg);
+  el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(140,90,230,.85)','stroke-width':1.8},svg);
+  el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(100,65,200,.8)','stroke-width':1.5},svg);
+  el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(70,45,160,.75)','stroke-width':1.2},svg);
+  el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.7)','stroke-width':1},svg);
 
-  // ── LAGNA marker ──
-  const lagnaA=v2s(lagna_sign*30,asc_sid);
-  const lx1=CX+Math.cos(lagnaA)*R2, ly1=CY+Math.sin(lagnaA)*R2;
-  const lx2=CX+Math.cos(lagnaA)*R1, ly2=CY+Math.sin(lagnaA)*R1;
-  el('line',{x1:lx1,y1:ly1,x2:lx2,y2:ly2,stroke:'#e8c06e','stroke-width':2.5},svg);
-  // Lagna exact degree line
-  const lagnaExactA=v2s(asc_sid,asc_sid);
-  el('line',{x1:CX+Math.cos(lagnaExactA)*R2,y1:CY+Math.sin(lagnaExactA)*R2,
-    x2:CX+Math.cos(lagnaExactA)*(R1+24),y2:CY+Math.sin(lagnaExactA)*(R1+24),
-    stroke:'#e8c06e','stroke-width':2},svg);
-  txt(svg,'Lg',CX+Math.cos(lagnaExactA)*(R1+38),CY+Math.sin(lagnaExactA)*(R1+38),
-    {fill:'#e8c06e','font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+  // ── LAGNA marker — gold line outside ──
+  const lagnaA=v2a(data.asc,lagna_start);
+  el('line',{x1:CX+Math.cos(lagnaA)*R1,y1:CY+Math.sin(lagnaA)*R1,
+    x2:CX+Math.cos(lagnaA)*(R1+26),y2:CY+Math.sin(lagnaA)*(R1+26),
+    stroke:'#e8c06e','stroke-width':2.5},svg);
+  txt(svg,'Lg',CX+Math.cos(lagnaA)*(R1+40),CY+Math.sin(lagnaA)*(R1+40),
+    {fill:'#e8c06e','font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
 
-  // ── PLANETS ──
-  // Group planets by sign for stacking
+  // ── PLANETS — cluster by sign, spread within ──
   const bySign={};
   for(const name of PORDER){
     if(!data.planets[name]) continue;
@@ -450,51 +416,40 @@ function drawWheel(data){
     if(!bySign[si]) bySign[si]=[];
     bySign[si].push(name);
   }
-
-  for(const si in bySign){
-    const names=bySign[si];
+  for(const si_str in bySign){
+    const si=parseInt(si_str);
+    const names=bySign[si_str];
     const count=names.length;
-    const sign_start=lagna_sign*30+(parseInt(si)-lagna_sign+12)%12*30;
-
+    // house index in wheel (0=lagna house)
+    const hi=(si-lagna_si+12)%12;
     names.forEach((name,idx)=>{
       const info=PI[name]||{sym:'?',color:'#fff'};
       const p=data.planets[name];
-      // Spread planets within their sign
-      const spread_deg=sign_start+(idx+1)*30/(count+1);
-      const tA=v2s(p.sidereal,asc_sid); // true position
-      const gA=v2s(sign_start+15,asc_sid); // center of sign
-      // Place at spread position within sign for readability
-      const plA=v2s(spread_deg,asc_sid);
-      const Rp=(R2+R3)/2+10;
+      // Spread evenly within the sign's 30° arc
+      const sign_start_deg=lagna_start+hi*30;
+      const spread=sign_start_deg+5+(idx*(20/(Math.max(count-1,1)||1)));
+      const plA=v2a(spread,lagna_start);
+      const trueA=v2a(p.sidereal,lagna_start);
+      const Rp=(R3+R4)/2+20;
       const gxy=pxy(plA,Rp);
-      const txy=pxy(tA,(R2+R3)/2);
-
-      // Tick at true position on R2
-      el('circle',{cx:CX+Math.cos(tA)*R2,cy:CY+Math.sin(tA)*R2,r:2.5,fill:info.color},svg);
-
-      // Leader line if moved
-      const dx=gxy.x-txy.x, dy=gxy.y-txy.y;
-      if(Math.sqrt(dx*dx+dy*dy)>8){
-        el('line',{x1:txy.x,y1:txy.y,x2:gxy.x,y2:gxy.y,
-          stroke:info.color,'stroke-width':.5,opacity:.4,'stroke-dasharray':'2 2'},svg);
-      }
-
-      // Symbol
+      // Dot at true position on R3
+      el('circle',{cx:CX+Math.cos(trueA)*R3,cy:CY+Math.sin(trueA)*R3,r:2,fill:info.color,opacity:.8},svg);
+      // Draw symbol
       if(name==='Sun'){
-        const sg=el('g',{filter:'url(#sunF)'},svg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'#e8a020'},sg);
+        const sg=el('g',{},svg);
+        el('circle',{cx:gxy.x,cy:gxy.y,r:13,fill:'rgba(249,198,70,.12)'},sg);
+        el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'#e8a020',filter:'url(#sunF)'},sg);
         el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'#f9c646'},sg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:2.5,fill:'#1a0500'},sg);
+        el('circle',{cx:gxy.x,cy:gxy.y,r:2.8,fill:'#1a0500'},sg);
       } else if(name==='Moon'){
         const mg=el('g',{filter:'url(#moonF)'},svg);
-        txt(mg,'☽',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':18,'font-family':'serif'});
+        txt(mg,'\u263d',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':22,'font-family':'serif'});
       } else {
-        txt(svg,info.sym,gxy.x,gxy.y,{fill:info.color,'font-size':18,'font-family':'serif'});
+        const fsz=name==='Rahu'||name==='Ketu'?18:20;
+        txt(svg,info.sym,gxy.x,gxy.y,{fill:info.color,'font-size':fsz,'font-family':'serif'});
       }
-
-      // Retrograde
       if(p.retrograde){
-        txt(svg,'℞',gxy.x+10,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
+        txt(svg,'\u211e',gxy.x+11,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
       }
     });
   }
@@ -506,19 +461,20 @@ function drawPlanetTable(data){
   tbody.innerHTML='';
   for(const name of PORDER){
     if(!data.planets[name]) continue;
-    const info=PI[name]||{sym:'?',color:'#aaa'};
+    const info=PI[name];
     const p=data.planets[name];
     const si=p.sign_idx;
+    let symCell=name==='Sun'?sunSVG(20)
+      :name==='Moon'?'<span class="moon-sym">\u263d</span>'
+      :`<span class="p-sym" style="color:${info.color}">${info.sym}</span>`;
     const tr=document.createElement('tr');
-    let symCell=`<span style="color:${info.color};font-size:18px;font-family:serif">${info.sym}</span>`;
-    if(name==='Sun') symCell=`<svg width="18" height="18" viewBox="0 0 22 22" style="vertical-align:middle"><circle cx="11" cy="11" r="8" fill="#f9c646"/><circle cx="11" cy="11" r="2.5" fill="#1a0500"/></svg>`;
     tr.innerHTML=`
       <td>${symCell}</td>
       <td style="color:${info.color};font-size:11px">${name}</td>
       <td class="deg-val">${p.dms}</td>
-      <td><span style="font-size:13px;font-family:serif;color:${RCOL[si]}">${RASHI_SYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${p.sign}</span></td>
-      <td><span class="house-badge">${p.house}</span></td>
-      <td>${p.retrograde?'<span class="retro">℞</span>':''}</td>`;
+      <td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI_KA[si]}</span></td>
+      <td><span class="house-badge">${p.house||'?'}</span></td>
+      <td>${p.retrograde?'<span class="retro">\u211e</span>':''}</td>`;
     tbody.appendChild(tr);
   }
 }
@@ -527,16 +483,13 @@ function drawPlanetTable(data){
 function drawHouseTable(data){
   const tbody=document.getElementById('house-tbody');
   tbody.innerHTML='';
-  const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
-  const lagna_si=data.asc_sign_idx;
+  const lsi=data.asc_sign_idx;
   for(let i=0;i<12;i++){
-    const si=(lagna_si+i)%12;
-    const asc_in_sign=data.asc%30;
+    const si=(lsi+i)%12;
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td style="font-family:'Cinzel',serif;font-size:11px;color:${i===0?'#e8c06e':'rgba(200,140,60,.7)'};font-weight:${i===0?'600':'400'}">${ROMAN[i]}${i===0?' (Lg)':''}</td>
-      <td><span style="font-size:13px;font-family:serif;color:${RCOL[si]}">${RASHI_SYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI_KA[si]}</span></td>
-      <td class="deg-val">${i===0?fmtDeg(data.asc):'0°00\''}</td>`;
+      <td style="font-family:'Cinzel',serif;font-size:11px;color:${i===0?'#e8c06e':'rgba(180,150,255,.7)'};font-weight:${i===0?600:400}">${ROMAN[i]}${i===0?' · Lg':''}</td>
+      <td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI_KA[si]}</span></td>`;
     tbody.appendChild(tr);
   }
 }
@@ -545,41 +498,34 @@ function drawHouseTable(data){
 function drawNakTable(data){
   const tbody=document.getElementById('nak-tbody');
   tbody.innerHTML='';
-  for(const name of PORDER){
-    if(!data.planets[name]) continue;
-    const info=PI[name]||{sym:'?',color:'#aaa'};
-    const p=data.planets[name];
-    const nak=p.nakshatra;
+  const rows=[...PORDER.filter(n=>data.planets[n]),'Lagna'];
+  rows.forEach(name=>{
+    const isLagna=name==='Lagna';
+    const info=isLagna?{sym:'Lg',color:'#e8c06e'}:PI[name];
+    const nak=isLagna?data.lagna_nak:data.planets[name].nakshatra;
+    if(!nak) return;
     const pct=nak.pct;
     const tr=document.createElement('tr');
+    const symCell=isLagna
+      ?`<span style="color:#e8c06e;font-family:'Cinzel',serif;font-size:10px">Lagna</span>`
+      :name==='Sun'?sunSVG(16)
+      :name==='Moon'?'<span class="moon-sym" style="font-size:16px">\u263d</span>'
+      :`<span style="color:${info.color};font-family:serif;font-size:15px">${info.sym}</span>`;
     tr.innerHTML=`
-      <td><span style="color:${info.color};font-family:serif;font-size:15px">${info.sym}</span> <span style="font-size:10px;color:${info.color}">${name}</span></td>
+      <td>${symCell} <span style="font-size:10px;color:${info.color}">${name}</span></td>
       <td>
         <div class="nak-name">${nak.nakshatra}</div>
         <div style="font-size:9px;color:var(--dim);margin-top:1px">${nak.deity}</div>
       </td>
       <td><span class="pada-badge">Pada ${nak.pada}</span><br><span style="font-size:9px;color:var(--dim)">${nak.pada_sign}</span></td>
-      <td class="nak-ruler">${nak.nakshatra_ruler}</td>
-      <td class="nak-ruler">${nak.pada_ruler}</td>
+      <td style="color:rgba(180,150,255,.8);font-size:11px">${nak.nakshatra_ruler}</td>
+      <td style="color:rgba(180,150,255,.8);font-size:11px">${nak.pada_ruler}</td>
       <td>
         <span style="font-size:10px;color:var(--gold)">${pct}%</span>
         <span class="pct-bar"><span class="pct-fill" style="width:${pct}%"></span></span>
       </td>`;
     tbody.appendChild(tr);
-  }
-  // Also add Lagna
-  if(data.lagna_nak){
-    const nak=data.lagna_nak;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><span style="color:#e8c06e;font-family:'Cinzel',serif;font-size:11px">Lagna</span></td>
-      <td><div class="nak-name">${nak.nakshatra}</div><div style="font-size:9px;color:var(--dim)">${nak.deity}</div></td>
-      <td><span class="pada-badge">Pada ${nak.pada}</span><br><span style="font-size:9px;color:var(--dim)">${nak.pada_sign}</span></td>
-      <td class="nak-ruler">${nak.nakshatra_ruler}</td>
-      <td class="nak-ruler">${nak.pada_ruler}</td>
-      <td><span style="font-size:10px;color:var(--gold)">${nak.pct}%</span><span class="pct-bar"><span class="pct-fill" style="width:${nak.pct}%"></span></span></td>`;
-    tbody.appendChild(tr);
-  }
+  });
 }
 </script>
 </body>
