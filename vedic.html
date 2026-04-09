@@ -91,6 +91,7 @@ input::placeholder{color:rgba(155,168,184,.35)}
   font-family:'Cinzel',serif;transition:all .3s;box-shadow:0 4px 20px rgba(109,40,217,.3);
 }
 .gen-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);transform:translateY(-1px)}
+.time-disabled input{opacity:.3;pointer-events:none}
 #chart-area{position:relative;z-index:1;width:100%;max-width:800px;padding:0 16px}
 svg#wheel{width:100%;height:auto;display:block;overflow:visible}
 .sec-title{
@@ -145,10 +146,16 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="field"><label>თვე</label><input type="number" id="month" value="1" min="1" max="12"></div>
     <div class="field"><label>წელი</label><input type="number" id="year" value="1990"></div>
   </div>
-  <div class="form-grid">
+  <div class="form-grid" id="time-fields">
     <div class="field"><label>საათი</label><input type="number" id="hour" value="12" min="0" max="23"></div>
     <div class="field"><label>წუთი</label><input type="number" id="minute" value="0" min="0" max="59"></div>
     <div class="field"><label>წამი</label><input type="number" id="second" value="0" min="0" max="59"></div>
+  </div>
+  <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(167,139,250,0.7);letter-spacing:1px;text-transform:none">
+      <input type="checkbox" id="time-unknown" onchange="toggleTimeUnknown()" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer">
+      დრო უცნობია (time unknown)
+    </label>
   </div>
   <div class="field wide" style="margin-bottom:8px">
     <label>ქალაქი</label>
@@ -210,7 +217,7 @@ const PI={
   'Jupiter':{sym:'\u2643',color:'#e89040'},
   'Venus':  {sym:'\u2640',color:'#e878a8'},
   'Saturn': {sym:'\u2644',color:'#90a8c8'},
-  'Uranus': {sym:'\u26e2',color:'#7ec8c8'},
+  'Uranus': {sym:'\u2645',color:'#7ec8c8'},
   'Neptune':{sym:'\u2646',color:'#6080e0'},
   'Rahu':   {sym:'\u260a',color:'#9060d0'},
   'Ketu':   {sym:'\u260b',color:'#c06060'},
@@ -224,10 +231,10 @@ function sunSVG(sz=22){
       <feGaussianBlur stdDeviation="2.5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter></defs>
-    <circle cx="11" cy="11" r="9" fill="#c87010" filter="url(#svf${sz})"/>
-    <circle cx="11" cy="11" r="9" fill="#f9c646"/>
-    <circle cx="11" cy="11" r="2.8" fill="#1a0500"/>
-    <circle cx="11" cy="11" r="1.1" fill="rgba(255,230,140,0.5)"/>
+    <circle cx="11" cy="11" r="9" fill="none" stroke="#f9c646" stroke-width="1.8" filter="url(#svf${sz})"/>
+    <circle cx="11" cy="11" r="9" fill="none" stroke="#ffe8a0" stroke-width="0.7"/>
+    <circle cx="11" cy="11" r="2.5" fill="#f9c646" filter="url(#svf${sz})"/>
+    <circle cx="11" cy="11" r="1.2" fill="#fff7d0"/>
   </svg>`;
 }
 
@@ -284,24 +291,34 @@ async function generateChart(){
   if(!lat||!lon){alert('პირველ შეიყვანეთ ქალაქი');return;}
   const btn=document.querySelector('.gen-btn');
   btn.textContent='⏳ გთხოვთ დაელოდოთ...';btn.disabled=true;
+  const timeUnknown=document.getElementById('time-unknown').checked;
+  const year=+document.getElementById('year').value;
+  const month=+document.getElementById('month').value;
+  const day=+document.getElementById('day').value;
+  const tz_name=document.getElementById('tz_name').value;
+  const hour=timeUnknown?12:+document.getElementById('hour').value;
+  const minute=timeUnknown?0:+document.getElementById('minute').value;
+  const second=timeUnknown?0:+document.getElementById('second').value;
   try{
     const r=await fetch(`${BACKEND}/vedic`,{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        year:+document.getElementById('year').value,
-        month:+document.getElementById('month').value,
-        day:+document.getElementById('day').value,
-        hour:+document.getElementById('hour').value,
-        minute:+document.getElementById('minute').value,
-        second:+document.getElementById('second').value,
-        lat:+lat,lon:+lon,
-        tz_name:document.getElementById('tz_name').value
-      })});
+      body:JSON.stringify({year,month,day,hour,minute,second,lat:+lat,lon:+lon,tz_name})});
     const raw=await r.text();
     let data;
     try{data=JSON.parse(raw);}
     catch(e){throw new Error('Backend error ('+r.status+'): '+raw.slice(0,200));}
     if(data.error) throw new Error(data.error+(data.trace?'\n'+data.trace.slice(0,300):''));
+    data._timeUnknown=timeUnknown;
+    // Moon path for time-unknown
+    if(timeUnknown){
+      try{
+        const lr=await fetch(`${BACKEND}/lunar`,{method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({year,month,day,hour:12,minute:0,second:0,tz_name,time_unknown:true})});
+        const ld=await lr.json();
+        if(ld.moon_path) data._moonPath=ld.moon_path;
+      }catch(e){console.log('moon path error',e);}
+    }
     document.getElementById('chart-area').style.display='block';
     document.getElementById('ayanamsa-bar').textContent=
       `Lahiri Ayanamsa: ${data.ayanamsa.toFixed(4)}° · Lagna: ${data.asc_sign} ${fmtDeg(data.asc)}`;
@@ -311,15 +328,23 @@ async function generateChart(){
     drawNakTable(data);
     document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){alert('შეცდომა: '+e.message);}
-  finally{btn.textContent='✦ ვედური რუქის გენერაცია ✦';btn.disabled=false;}
+  finally{btn.textContent='✶ ვედური რუქის გენერაცია ✶';btn.disabled=false;}
+}
+
+// ── TIME UNKNOWN TOGGLE ──
+function toggleTimeUnknown(){
+  const unk=document.getElementById('time-unknown').checked;
+  document.getElementById('time-fields').classList.toggle('time-disabled',unk);
 }
 
 // ── DRAW WHEEL ──
 function drawWheel(data){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
-  const lagna_si=data.asc_sign_idx;         // 0..11
-  const lagna_start=lagna_si*30;            // ecliptic deg of lagna sign start
+  const lagna_si  = data.asc_sign_idx;
+  const lagna_start = lagna_si * 30;       // sidereal deg of lagna sign start
+  // For time-unknown: lagna_si=0 (Aries rising), set from server always for Vedic
+  const timeUnknown = data._timeUnknown;
 
   // ── DEFS ──
   const defs=el('defs',{},svg);
@@ -328,11 +353,13 @@ function drawWheel(data){
   el('stop',{offset:'60%','stop-color':'#0a0820'},bgG);
   el('stop',{offset:'100%','stop-color':'#04030e'},bgG);
 
+  // Sun glow filter
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
   el('feGaussianBlur',{stdDeviation:'3',result:'blur'},sf);
   const sfm=el('feMerge',{},sf);
   el('feMergeNode',{in:'blur'},sfm);el('feMergeNode',{in:'SourceGraphic'},sfm);
 
+  // Moon glow filter
   const mf=el('filter',{id:'moonF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
   el('feGaussianBlur',{stdDeviation:'2.5',result:'blur'},mf);
   const mfc=el('feFlood',{'flood-color':'#4090ff','flood-opacity':'0.45','result':'color'},mf);
@@ -342,42 +369,45 @@ function drawWheel(data){
 
   el('rect',{width:700,height:700,fill:'url(#bgG)'},svg);
 
-  // ── ZODIAC BAND — same solid fills as astro.html ──
+  // ── ZODIAC BAND ──
   for(let i=0;i<12;i++){
     const si=(lagna_si+i)%12;
     const a0=v2a(lagna_start+i*30,     lagna_start);
     const a1=v2a(lagna_start+(i+1)*30, lagna_start);
     const p=(a,r)=>`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;
-    // Outer zodiac ring R2→R1
     el('path',{
       d:`M${p(a0,R2)} L${p(a0,R1)} A${R1},${R1} 0 0,0 ${p(a1,R1)} L${p(a1,R2)} A${R2},${R2} 0 0,1 ${p(a0,R2)} Z`,
-      fill:EFILL[si]
-    },svg);
-    // Colored inner edge
-    el('path',{
-      d:`M${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)}`,
-      fill:'none',stroke:RCOL[si],'stroke-width':2,opacity:.6
-    },svg);
-    // House band R3→R2
+      fill:EFILL[si]},svg);
+    el('path',{d:`M${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)}`,
+      fill:'none',stroke:RCOL[si],'stroke-width':2,opacity:.6},svg);
     el('path',{
       d:`M${p(a0,R3)} L${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)} L${p(a1,R3)} A${R3},${R3} 0 0,1 ${p(a0,R3)} Z`,
-      fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'
-    },svg);
-    // Divider lines
+      fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'},svg);
     el('line',{x1:CX+Math.cos(a0)*R1,y1:CY+Math.sin(a0)*R1,
       x2:CX+Math.cos(a0)*R2,y2:CY+Math.sin(a0)*R2,
       stroke:RCOL[si],'stroke-width':1.2,opacity:.85},svg);
-    // Zodiac symbol — upright, element colored
     const amid=v2a(lagna_start+i*30+15,lagna_start);
     const Rzs=(R1+R2)/2;
     const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',
       x:CX+Math.cos(amid)*Rzs,y:CY+Math.sin(amid)*Rzs,
       fill:RCOL[si],'font-size':20,'font-family':'serif','font-weight':'bold'},svg);
     zt.textContent=ZSYM[si];
-    // House number
-    const Rhn=(R2+R3)/2;
-    txt(svg,ROMAN[i],CX+Math.cos(amid)*Rhn,CY+Math.sin(amid)*Rhn,
-      {fill:'rgba(180,150,255,0.75)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
+  }
+
+  // ── MOON PATH (time-unknown) — just inside R1, blue 35% ──
+  if(timeUnknown && data._moonPath){
+    const mp=data._moonPath;
+    const R_outer=R1-1, R_inner=R1-8;
+    const span=((mp.end-mp.start)+360)%360;
+    const la=span>180?1:0;
+    const a0=v2a(mp.start,lagna_start), a1e=v2a(mp.end,lagna_start);
+    const x0o=CX+Math.cos(a0)*R_outer,  y0o=CY+Math.sin(a0)*R_outer;
+    const x1o=CX+Math.cos(a1e)*R_outer, y1o=CY+Math.sin(a1e)*R_outer;
+    const x1i=CX+Math.cos(a1e)*R_inner, y1i=CY+Math.sin(a1e)*R_inner;
+    const x0i=CX+Math.cos(a0)*R_inner,  y0i=CY+Math.sin(a0)*R_inner;
+    el('path',{
+      d:`M${x0o},${y0o} A${R_outer},${R_outer} 0 ${la},0 ${x1o},${y1o} L${x1i},${y1i} A${R_inner},${R_inner} 0 ${la},1 ${x0i},${y0i} Z`,
+      fill:'rgba(100,160,255,0.35)',stroke:'none'},svg);
   }
 
   // ── INNERMOST FILL ──
@@ -390,8 +420,8 @@ function drawWheel(data){
     const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
     const len=is30?20:is10?13:is5?8:5;
     const stroke=is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,.95)':is5?'rgba(120,80,200,.8)':'rgba(80,55,150,.65)';
-    const sw=is30?2:is10?1.4:is5?.9:.5;
-    el('line',{x1:CX+c2*R1,y1:CY+s2*R1,x2:CX+c2*(R1-len),y2:CY+s2*(R1-len),stroke,'stroke-width':sw},svg);
+    el('line',{x1:CX+c2*R1,y1:CY+s2*R1,x2:CX+c2*(R1-len),y2:CY+s2*(R1-len),
+      stroke,'stroke-width':is30?2:is10?1.4:is5?.9:.5},svg);
   }
 
   // ── CIRCLES ──
@@ -400,58 +430,93 @@ function drawWheel(data){
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(70,45,160,.75)','stroke-width':1.2},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.7)','stroke-width':1},svg);
 
-  // ── LAGNA marker — gold line outside ──
-  const lagnaA=v2a(data.asc,lagna_start);
-  el('line',{x1:CX+Math.cos(lagnaA)*R1,y1:CY+Math.sin(lagnaA)*R1,
-    x2:CX+Math.cos(lagnaA)*(R1+26),y2:CY+Math.sin(lagnaA)*(R1+26),
-    stroke:'#e8c06e','stroke-width':2.5},svg);
-  txt(svg,'Lg',CX+Math.cos(lagnaA)*(R1+40),CY+Math.sin(lagnaA)*(R1+40),
-    {fill:'#e8c06e','font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-
-  // ── PLANETS — cluster by sign, spread within ──
-  const bySign={};
-  for(const name of PORDER){
-    if(!data.planets[name]) continue;
-    const si=data.planets[name].sign_idx;
-    if(!bySign[si]) bySign[si]=[];
-    bySign[si].push(name);
+  // ── HOUSE NUMBERS (inside R3-R4 band) ──
+  for(let i=0;i<12;i++){
+    const amid=v2a(lagna_start+i*30+15,lagna_start);
+    const Rhn=(R2+R3)/2;
+    txt(svg,ROMAN[i],CX+Math.cos(amid)*Rhn,CY+Math.sin(amid)*Rhn,
+      {fill:'rgba(180,150,255,0.75)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
   }
-  for(const si_str in bySign){
-    const si=parseInt(si_str);
-    const names=bySign[si_str];
-    const count=names.length;
-    // house index in wheel (0=lagna house)
-    const hi=(si-lagna_si+12)%12;
-    names.forEach((name,idx)=>{
-      const info=PI[name]||{sym:'?',color:'#fff'};
-      const p=data.planets[name];
-      // Spread evenly within the sign's 30° arc
-      const sign_start_deg=lagna_start+hi*30;
-      const spread=sign_start_deg+5+(idx*(20/(Math.max(count-1,1)||1)));
-      const plA=v2a(spread,lagna_start);
-      const trueA=v2a(p.sidereal,lagna_start);
-      const Rp=(R3+R4)/2+20;
-      const gxy=pxy(plA,Rp);
-      // Dot at true position on R3
-      el('circle',{cx:CX+Math.cos(trueA)*R3,cy:CY+Math.sin(trueA)*R3,r:2,fill:info.color,opacity:.8},svg);
-      // Draw symbol
-      if(name==='Sun'){
-        const sg=el('g',{},svg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:13,fill:'rgba(249,198,70,.12)'},sg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'#e8a020',filter:'url(#sunF)'},sg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'#f9c646'},sg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:2.8,fill:'#1a0500'},sg);
-      } else if(name==='Moon'){
-        const mg=el('g',{filter:'url(#moonF)'},svg);
-        txt(mg,'\u263d',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':22,'font-family':'serif'});
-      } else {
-        const fsz=name==='Rahu'||name==='Ketu'?18:20;
-        txt(svg,info.sym,gxy.x,gxy.y,{fill:info.color,'font-size':fsz,'font-family':'serif'});
+
+  // ── LAGNA marker ──
+  if(!timeUnknown){
+    const lagnaA=v2a(data.asc,lagna_start);
+    el('line',{x1:CX+Math.cos(lagnaA)*R1,y1:CY+Math.sin(lagnaA)*R1,
+      x2:CX+Math.cos(lagnaA)*(R1+28),y2:CY+Math.sin(lagnaA)*(R1+28),
+      stroke:'#e8c06e','stroke-width':2.5},svg);
+    txt(svg,'Lg',CX+Math.cos(lagnaA)*(R1+42),CY+Math.sin(lagnaA)*(R1+42),
+      {fill:'#e8c06e','font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
+  }
+
+  // ── PLANETS — outside wheel, same system as astro.html ──
+  const present=PORDER.filter(n=>data.planets[n]);
+  const trueA={};
+  for(const n of present) trueA[n]=v2a(data.planets[n].sidereal,lagna_start);
+  const sorted=[...present].sort((a,b)=>trueA[a]-trueA[b]);
+  const dispA={};
+  for(const n of present) dispA[n]=trueA[n];
+  const Rg=R1+30;
+  const MINGAP=24/Rg;
+
+  // Push apart overlapping planets
+  for(let it=0;it<600;it++){
+    let moved=false;
+    for(let i=0;i<sorted.length;i++){
+      for(let j=i+1;j<sorted.length;j++){
+        const a=sorted[i],b=sorted[j];
+        let d=dispA[b]-dispA[a];
+        while(d>Math.PI) d-=2*Math.PI;
+        while(d<-Math.PI) d+=2*Math.PI;
+        if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){
+          const push=(MINGAP-Math.abs(d))/2;
+          const dir=d>0?1:-1;
+          dispA[a]-=push*dir;dispA[b]+=push*dir;moved=true;
+        }
       }
-      if(p.retrograde){
-        txt(svg,'\u211e',gxy.x+11,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
-      }
-    });
+    }
+    if(!moved) break;
+  }
+
+  for(const name of present){
+    const info=PI[name]||{sym:'?',color:'#fff'};
+    const p=data.planets[name];
+    const tA=trueA[name],color=info.color;
+    let diff=dispA[name]-tA;
+    while(diff>Math.PI) diff-=2*Math.PI;
+    while(diff<-Math.PI) diff+=2*Math.PI;
+    const wasMoved=Math.abs(diff)>0.015;
+    const gxy=pxy(wasMoved?dispA[name]:tA,Rg);
+
+    // True position tick on outer edge
+    el('line',{x1:CX+Math.cos(tA)*(R1+1),y1:CY+Math.sin(tA)*(R1+1),
+      x2:CX+Math.cos(tA)*(R1+9),y2:CY+Math.sin(tA)*(R1+9),
+      stroke:color,'stroke-width':1.5},svg);
+    el('circle',{cx:CX+Math.cos(tA)*(R1+1),cy:CY+Math.sin(tA)*(R1+1),r:1.8,fill:color},svg);
+
+    // Leader line if moved
+    if(wasMoved){
+      el('line',{x1:CX+Math.cos(tA)*(R1+10),y1:CY+Math.sin(tA)*(R1+10),
+        x2:gxy.x,y2:gxy.y,stroke:color,'stroke-width':.5,opacity:.45,'stroke-dasharray':'2 2'},svg);
+    }
+
+    // Symbol
+    if(name==='Sun'){
+      const sg=el('g',{},svg);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:12,fill:'rgba(249,198,70,.12)'},sg);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#f9c646','stroke-width':'2',filter:'url(#sunF)'},sg);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#ffe8a0','stroke-width':'.8'},sg);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:2.5,fill:'#f9c646',filter:'url(#sunF)'},sg);
+      el('circle',{cx:gxy.x,cy:gxy.y,r:1.2,fill:'#fff7d0'},sg);
+    } else if(name==='Moon'){
+      const mg=el('g',{filter:'url(#moonF)'},svg);
+      txt(mg,'☽',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':22,'font-family':'serif'});
+    } else {
+      txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':20,'font-family':'serif'});
+    }
+
+    if(p.retrograde){
+      txt(svg,'℞',gxy.x+11,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
+    }
   }
 }
 
