@@ -383,7 +383,7 @@ function displayLunarBadge(data){
       const m = Math.round((hrs-h)*60);
       nextStr = m>0 ? `${h} სთ ${m} წთ-ში` : `${h} სთ-ში`;
     }
-    document.getElementById('lunar-day').textContent = `🌙 მთვარის მე-${day} დღე`;
+    document.getElementById('lunar-day').textContent = `მთვარის მე-${day} დღე`;
     document.getElementById('lunar-pct').textContent  = `შემდეგი ${nextStr} · ${pct}% გასული`;
     document.getElementById('lunar-badge').style.display = 'block';
   }catch(e){console.log('lunar badge error',e);}
