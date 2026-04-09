@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ბიორიტმი — სასიცოცხლო ციკლების ვიზუალიზატორი</title>
+<title>ბიორიტმი — სასიცოცხლო ციკლების ვიზუალიზაცია</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -19,159 +20,678 @@
     --muted: #6b7fa3;
     --accent: #00e5ff;
     --glow-p: 0 0 24px rgba(0,229,255,0.3);
+    --glow-e: 0 0 24px rgba(255,77,141,0.3);
+    --glow-i: 0 0 24px rgba(167,139,250,0.3);
+    --glow-t: 0 0 24px rgba(52,211,153,0.3);
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+position: relative;
+}
 
-  /* Starfield background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
-      radial-gradient(1px 1px at 35% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
-      radial-gradient(1.5px 1.5px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
-      radial-gradient(1px 1px at 75% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
-      radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* Starfield background */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+radial-gradient(1px 1px at 35% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1.5px 1.5px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+radial-gradient(1px 1px at 75% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+radial-gradient(1px 1px at 5% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1.5px 1.5px at 65% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+radial-gradient(1px 1px at 45% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+radial-gradient(1px 1px at 82% 25%, rgba(255,255,255,0.4) 0%, transparent 100%),
+radial-gradient(1px 1px at 22% 88%, rgba(255,255,255,0.3) 0%, transparent 100%);
+pointer-events: none;
+z-index: 0;
+}
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px 80px;
-    position: relative;
-    z-index: 1;
-  }
+/* Nebula glow */
+body::after {
+content: ‘’;
+position: fixed;
+width: 700px; height: 700px;
+top: -200px; left: -200px;
+background: radial-gradient(circle, rgba(0,100,200,0.08) 0%, transparent 70%);
+pointer-events: none;
+z-index: 0;
+animation: nebulaDrift 20s ease-in-out infinite alternate;
+}
 
-  header {
-    text-align: center;
-    padding: 56px 0 40px;
-  }
+@keyframes nebulaDrift {
+from { transform: translate(0,0) scale(1); }
+to { transform: translate(100px, 80px) scale(1.1); }
+}
 
-  .header-eyebrow {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 24px 80px;
+position: relative;
+z-index: 1;
+}
 
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(36px, 6vw, 72px);
-    font-weight: 700;
-    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, #a78bfa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 12px;
-  }
+/* ── HEADER ── */
+header {
+text-align: center;
+padding: 56px 0 40px;
+position: relative;
+}
 
-  .header-subtitle {
-    font-size: 15px;
-    color: var(--muted);
-    font-weight: 300;
-  }
+.header-eyebrow {
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.3em;
+color: var(–accent);
+text-transform: uppercase;
+margin-bottom: 16px;
+opacity: 0;
+animation: fadeUp 0.8s 0.1s forwards;
+}
 
-  .input-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 36px 40px;
-    margin-bottom: 40px;
-  }
+header h1 {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(36px, 6vw, 72px);
+font-weight: 700;
+letter-spacing: -0.02em;
+line-height: 1;
+background: linear-gradient(135deg, #ffffff 0%, var(–accent) 50%, #a78bfa 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 12px;
+opacity: 0;
+animation: fadeUp 0.8s 0.2s forwards;
+}
 
-  .panel-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 28px;
-  }
+.header-subtitle {
+font-size: 15px;
+color: var(–muted);
+font-weight: 300;
+opacity: 0;
+animation: fadeUp 0.8s 0.3s forwards;
+}
 
-  .input-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 20px;
-    align-items: end;
-  }
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
 
-  @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 480px) { .input-grid { grid-template-columns: 1fr; } }
+/* ── INPUT PANEL ── */
+.input-panel {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 36px 40px;
+margin-bottom: 40px;
+position: relative;
+overflow: hidden;
+opacity: 0;
+animation: fadeUp 0.8s 0.4s forwards;
+}
 
-  .field { display: flex; flex-direction: column; gap: 8px; }
-  .field label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-  .field input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; outline: none; }
+.input-panel::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(–accent), transparent);
+}
 
-  .period-toggle { display: flex; gap: 8px; background: var(--surface2); border-radius: 10px; padding: 4px; border: 1px solid var(--border); }
-  .period-btn { flex: 1; padding: 9px 14px; border-radius: 7px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
-  .period-btn.active { background: var(--accent); color: #000; font-weight: 700; }
+.panel-title {
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.25em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 28px;
+}
 
-  .btn-calculate { background: linear-gradient(135deg, var(--accent), #0070ff); color: #000; font-weight: 700; border: none; border-radius: 10px; padding: 14px 28px; cursor: pointer; transition: 0.2s; }
-  .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,255,0.4); }
+.input-grid {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr auto;
+gap: 20px;
+align-items: end;
+}
 
-  .legend { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 20px 28px; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); }
-  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-  .legend-dot { width: 36px; height: 3px; border-radius: 2px; position: relative; }
-  .legend-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 8px; height: 8px; border-radius: 50%; background: inherit; }
-  .legend-sub { color: var(--muted); font-size: 11px; }
+@media (max-width: 768px) {
+.input-grid { grid-template-columns: 1fr 1fr; }
+.input-panel { padding: 24px; }
+}
+@media (max-width: 480px) {
+.input-grid { grid-template-columns: 1fr; }
+}
 
-  .chart-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 40px; }
-  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
- 
-  .today-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
-  @media (max-width: 768px) { .today-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 400px) { .today-grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 8px; }
 
-  .cycle-card { background: var(--surface); border-radius: 16px; padding: 24px 20px; border: 1px solid var(--border); text-align: center; position: relative; }
-  .card-name { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .card-value { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: var(--card-color); margin-bottom: 8px; }
-  .cycle-bar-bg { height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; margin-top: 10px; }
-  .cycle-bar-fill { height: 100%; border-radius: 3px; background: var(--card-color); transition: 1s; }
+.field label {
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–muted);
+text-transform: uppercase;
+}
 
-  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { background: var(--surface2); }
-  thead th { padding: 14px 16px; text-align: left; font-size: 10px; color: var(--muted); text-transform: uppercase; }
-  tbody td { padding: 12px 16px; border-bottom: 1px solid rgba(100,180,255,0.05); }
-  .today-row { background: rgba(0,229,255,0.06) !important; }
+.field input, .field select {
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 10px;
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+padding: 12px 16px;
+outline: none;
+transition: border-color 0.2s, box-shadow 0.2s;
+-webkit-appearance: none;
+}
 
-  .phase-badge { padding: 3px 9px; border-radius: 20px; font-size: 10px; text-transform: uppercase; border: 1px solid; }
-  .phase-high { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.07); }
-  .phase-low { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.07); }
-  .phase-critical { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.07); }
+.field input:focus, .field select:focus {
+border-color: var(–accent);
+box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+}
 
-  footer { text-align: center; padding: 32px 0; color: var(--muted); font-size: 11px; margin-top: 40px; border-top: 1px solid var(--border); }
+.field select option { background: var(–surface2); }
+
+/* Period toggle buttons */
+.period-toggle {
+display: flex;
+gap: 8px;
+background: var(–surface2);
+border-radius: 10px;
+padding: 4px;
+border: 1px solid var(–border);
+}
+
+.period-btn {
+flex: 1;
+padding: 9px 14px;
+border-radius: 7px;
+border: none;
+background: transparent;
+color: var(–muted);
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.1em;
+cursor: pointer;
+transition: all 0.25s;
+text-transform: uppercase;
+white-space: nowrap;
+}
+
+.period-btn.active {
+background: var(–accent);
+color: #000;
+font-weight: 700;
+box-shadow: var(–glow-p);
+}
+
+.btn-calculate {
+background: linear-gradient(135deg, var(–accent), #0070ff);
+color: #000;
+font-family: ‘Space Mono’, monospace;
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+border: none;
+border-radius: 10px;
+padding: 14px 28px;
+cursor: pointer;
+transition: all 0.25s;
+white-space: nowrap;
+}
+
+.btn-calculate:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 32px rgba(0,229,255,0.4);
+}
+
+.btn-calculate:active { transform: translateY(0); }
+
+/* ── LEGEND ── */
+.legend {
+display: flex;
+gap: 24px;
+flex-wrap: wrap;
+margin-bottom: 32px;
+padding: 20px 28px;
+background: var(–surface);
+border-radius: 14px;
+border: 1px solid var(–border);
+opacity: 0;
+animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 13px;
+}
+
+.legend-dot {
+width: 36px; height: 3px;
+border-radius: 2px;
+position: relative;
+}
+
+.legend-dot::after {
+content: ‘’;
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%,-50%);
+width: 8px; height: 8px;
+border-radius: 50%;
+background: inherit;
+box-shadow: 0 0 8px currentColor;
+}
+
+.legend-label { color: var(–text); }
+.legend-sub { color: var(–muted); font-size: 11px; font-family: ‘Space Mono’, monospace; }
+
+/* ── CHART AREA ── */
+.chart-wrapper {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 32px;
+margin-bottom: 40px;
+position: relative;
+overflow: hidden;
+opacity: 0;
+animation: fadeUp 0.8s 0.6s forwards;
+}
+
+.chart-wrapper::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(167,139,250,0.5), transparent);
+}
+
+.chart-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 24px;
+flex-wrap: wrap;
+gap: 12px;
+}
+
+.chart-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 20px;
+color: var(–text);
+}
+
+.chart-period-label {
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+color: var(–accent);
+letter-spacing: 0.15em;
+}
+
+canvas#bioChart {
+width: 100% !important;
+max-height: 200px !important;
+border-radius: 10px;
+}
+
+/* ── TODAY CARD ── */
+.today-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 16px;
+margin-bottom: 40px;
+opacity: 0;
+animation: fadeUp 0.8s 0.7s forwards;
+}
+
+@media (max-width: 768px) { .today-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .today-grid { grid-template-columns: 1fr; } }
+
+.cycle-card {
+background: var(–surface);
+border-radius: 16px;
+padding: 24px 20px;
+border: 1px solid var(–border);
+text-align: center;
+position: relative;
+overflow: hidden;
+transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cycle-card:hover {
+transform: translateY(-4px);
+}
+
+.cycle-card::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+opacity: 0.07;
+background: radial-gradient(circle at 50% 0%, var(–card-color), transparent 70%);
+}
+
+.cycle-card .card-icon {
+font-size: 28px;
+margin-bottom: 10px;
+}
+
+.cycle-card .card-name {
+font-family: ‘Space Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 12px;
+}
+
+.cycle-card .card-value {
+font-family: ‘Playfair Display’, serif;
+font-size: 38px;
+font-weight: 700;
+color: var(–card-color);
+line-height: 1;
+margin-bottom: 8px;
+text-shadow: 0 0 20px var(–card-color);
+}
+
+.cycle-card .card-label {
+font-size: 12px;
+color: var(–muted);
+margin-bottom: 14px;
+}
+
+.cycle-bar-bg {
+height: 5px;
+background: rgba(255,255,255,0.07);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.cycle-bar-fill {
+height: 100%;
+border-radius: 3px;
+background: var(–card-color);
+box-shadow: 0 0 8px var(–card-color);
+transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.cycle-card .cycle-days {
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+margin-top: 8px;
+}
+
+/* ── TABLE ── */
+.table-section {
+opacity: 0;
+animation: fadeUp 0.8s 0.8s forwards;
+}
+
+.table-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+flex-wrap: wrap;
+gap: 12px;
+}
+
+.table-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 22px;
+}
+
+.table-controls {
+display: flex;
+gap: 8px;
+}
+
+.tab-btn {
+padding: 7px 16px;
+border-radius: 8px;
+border: 1px solid var(–border);
+background: transparent;
+color: var(–muted);
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tab-btn.active {
+background: var(–surface2);
+color: var(–text);
+border-color: rgba(100,180,255,0.3);
+}
+
+.table-wrap {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+font-size: 13px;
+}
+
+thead tr {
+background: var(–surface2);
+border-bottom: 1px solid var(–border);
+}
+
+thead th {
+padding: 14px 16px;
+text-align: left;
+font-family: ‘Space Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–muted);
+font-weight: 400;
+}
+
+tbody tr {
+border-bottom: 1px solid rgba(100,180,255,0.05);
+transition: background 0.15s;
+}
+
+tbody tr:hover { background: rgba(0,229,255,0.03); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr.today-row { background: rgba(0,229,255,0.06) !important; }
+
+tbody td {
+padding: 12px 16px;
+color: var(–text);
+}
+
+tbody td:first-child {
+font-family: ‘Space Mono’, monospace;
+font-size: 12px;
+color: var(–muted);
+}
+
+.value-cell {
+font-family: ‘Space Mono’, monospace;
+font-size: 12px;
+font-weight: 700;
+}
+
+.bar-cell { min-width: 80px; }
+
+.mini-bar {
+height: 4px;
+border-radius: 2px;
+position: relative;
+background: rgba(255,255,255,0.05);
+overflow: hidden;
+}
+
+.mini-bar-fill {
+position: absolute;
+top: 0; left: 50%;
+height: 100%;
+border-radius: 2px;
+transform-origin: left;
+}
+
+.phase-badge {
+display: inline-block;
+padding: 3px 9px;
+border-radius: 20px;
+font-family: ‘Space Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+border: 1px solid;
+}
+
+.phase-high { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.07); }
+.phase-low { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.07); }
+.phase-critical { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.07); }
+.phase-rising { color: #60a5fa; border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.07); }
+.phase-falling { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.07); }
+
+/* ── MINI SPARKLINES ── */
+.sparkline-row {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 16px;
+margin-bottom: 40px;
+opacity: 0;
+animation: fadeUp 0.8s 0.75s forwards;
+}
+
+@media (max-width: 600px) { .sparkline-row { grid-template-columns: 1fr; } }
+
+.spark-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 20px;
+position: relative;
+overflow: hidden;
+}
+
+.spark-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 16px;
+}
+
+.spark-name {
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+.spark-val {
+font-family: ‘Playfair Display’, serif;
+font-size: 24px;
+font-weight: 700;
+color: var(–spark-color);
+}
+
+.spark-canvas { width: 100% !important; }
+
+/* ── FOOTER ── */
+footer {
+text-align: center;
+padding: 32px 0 0;
+color: var(–muted);
+font-size: 12px;
+font-family: ‘Space Mono’, monospace;
+letter-spacing: 0.1em;
+border-top: 1px solid var(–border);
+margin-top: 40px;
+opacity: 0;
+animation: fadeUp 0.8s 1s forwards;
+}
+
+.today-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background: rgba(0,229,255,0.1);
+border: 1px solid rgba(0,229,255,0.3);
+border-radius: 20px;
+padding: 4px 12px 4px 8px;
+font-family: ‘Space Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.15em;
+color: var(–accent);
+text-transform: uppercase;
+}
+
+.today-dot {
+width: 6px; height: 6px;
+border-radius: 50%;
+background: var(–accent);
+box-shadow: 0 0 6px var(–accent);
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0%,100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* scroll for table on mobile */
+.table-scroll { overflow-x: auto; }
+
+.no-data {
+text-align: center;
+padding: 60px;
+color: var(–muted);
+font-family: ‘Space Mono’, monospace;
+font-size: 12px;
+letter-spacing: 0.1em;
+}
 </style>
+
 </head>
 <body>
 
 <div class="container">
+
+  <!-- HEADER -->
+
   <header>
-    <div class="header-eyebrow">✦ ბიოლოგიური რითმების ანალიზი</div>
+    <div class="header-eyebrow">✦ ბიოლოგიური რიტმის ანალიზი</div>
     <h1>ბიორიტმი</h1>
-    <p class="header-subtitle">თქვენი სასიცოცხლო ციკლების ვიზუალიზაცია — ფიზიკური · ემოციური · ინტელექტუალური · ინტუიციური</p>
+    <p class="header-subtitle">თქვენი სასიცოცხლო ციკლები — ფიზიკური · ემოციური · ინტელექტუალური · ინტუიციური</p>
   </header>
 
+  <!-- INPUT PANEL -->
+
   <div class="input-panel">
-    <div class="panel-title">⬡ მონაცემების შეყვანა</div>
+    <div class="panel-title">⬡ შეიყვანეთ მონაცემები</div>
     <div class="input-grid">
       <div class="field">
         <label>დაბადების თარიღი</label>
-        <input type="date" id="dob" value="1995-01-01">
+        <input type="date" id="dob" value="1990-06-15">
       </div>
       <div class="field">
         <label>საწყისი თარიღი</label>
@@ -182,191 +702,526 @@
         <div class="period-toggle">
           <button class="period-btn" data-period="7">კვირა</button>
           <button class="period-btn active" data-period="30">თვე</button>
-          <button class="period-btn" data-period="90">კვარტალი</button>
+          <button class="period-btn" data-period="90">კვარტ.</button>
+          <button class="period-btn" data-period="365">წელი</button>
         </div>
       </div>
       <div class="field">
+        <label>&nbsp;</label>
         <button class="btn-calculate" id="calcBtn">გამოთვლა →</button>
       </div>
     </div>
   </div>
 
+  <!-- LEGEND -->
+
   <div class="legend">
     <div class="legend-item">
-      <div class="legend-dot" style="background:var(--physical)"></div>
-      <div><div>ფიზიკური</div><div class="legend-sub">23-დღიანი ციკლი</div></div>
+      <div class="legend-dot" style="background:var(--physical);color:var(--physical)"></div>
+      <div><div class="legend-label">ფიზიკური</div><div class="legend-sub">23-დღიანი ციკლი</div></div>
     </div>
     <div class="legend-item">
-      <div class="legend-dot" style="background:var(--emotional)"></div>
-      <div><div>ემოციური</div><div class="legend-sub">28-დღიანი ციკლი</div></div>
+      <div class="legend-dot" style="background:var(--emotional);color:var(--emotional)"></div>
+      <div><div class="legend-label">ემოციური</div><div class="legend-sub">28-დღიანი ციკლი</div></div>
     </div>
     <div class="legend-item">
-      <div class="legend-dot" style="background:var(--intellectual)"></div>
-      <div><div>ინტელექტუალური</div><div class="legend-sub">33-დღიანი ციკლი</div></div>
+      <div class="legend-dot" style="background:var(--intellectual);color:var(--intellectual)"></div>
+      <div><div class="legend-label">ინტელექტუალური</div><div class="legend-sub">33-დღიანი ციკლი</div></div>
     </div>
     <div class="legend-item">
-      <div class="legend-dot" style="background:var(--intuitive)"></div>
-      <div><div>ინტუიციური</div><div class="legend-sub">38-დღიანი ციკლი</div></div>
+      <div class="legend-dot" style="background:var(--intuitive);color:var(--intuitive)"></div>
+      <div><div class="legend-label">ინტუიციური</div><div class="legend-sub">38-დღიანი ციკლი</div></div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;">
+      <div class="today-badge"><div class="today-dot"></div><span id="todayLabel">—</span></div>
     </div>
   </div>
+
+  <!-- MAIN CHART -->
 
   <div class="chart-wrapper">
     <div class="chart-header">
-      <h3 style="font-family:serif">ციკლების ტალღები</h3>
-      <div id="chartPeriodLabel" style="color:var(--accent); font-size:12px">30-დღიანი ხედი</div>
+      <div class="chart-title">ციკლური ტალღები</div>
+      <div class="chart-period-label" id="chartPeriodLabel">30-Day View</div>
     </div>
-    <canvas id="bioChart" height="340"></canvas>
+    <canvas id="bioChart" height="180"></canvas>
   </div>
 
-  <div class="today-grid" id="todayCards"></div>
+  <!-- TODAY CARDS -->
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>თარიღი</th>
-          <th>დღე</th>
-          <th>ფიზიკური</th>
-          <th>ემოციური</th>
-          <th>ინტელექტუალური</th>
-          <th>მდგომარეობა</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <div class="today-grid" id="todayCards">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- SPARKLINES -->
+
+  <div class="sparkline-row" id="sparklineRow">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- TABLE -->
+
+  <div class="table-section">
+    <div class="table-header">
+      <div class="table-title">ყოველდღიური პროგნოზი</div>
+      <div class="table-controls">
+        <button class="tab-btn active" data-table="all">ყველა</button>
+        <button class="tab-btn" data-table="physical">ფიზიკური</button>
+        <button class="tab-btn" data-table="emotional">ემოციური</button>
+        <button class="tab-btn" data-table="intellectual">ინტელექტ.</button>
+      </div>
+    </div>
+    <div class="table-wrap table-scroll">
+      <table id="bioTable">
+        <thead>
+          <tr>
+            <th>თარიღი</th>
+            <th>დღე</th>
+            <th>ფიზიკური</th>
+            <th>ემოციური</th>
+            <th>ინტელექტ.</th>
+            <th>ინტუიციური</th>
+            <th>ფაზა</th>
+            <th>ტენდენცია</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="8" class="no-data">შეიყვანეთ დაბადების თარიღი და დააჭირეთ გამოთვლას</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <footer>
-    <p>ბიორიტმების ვიზუალიზატორი · ეფუძნება ფლის-სვობოდა-ტელჩერის თეორიას · მნიშვნელობები: -100-დან +100-მდე</p>
+    <p>ბიორიტმის ვიზუალიზატორი · დაფუძნებულია ფლის–სვობოდა–ტელჩერის თეორიაზე · მნიშვნელობები −100-დან +100-მდე</p>
   </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-const GEO_MONTHS = ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"];
-const GEO_DAYS = ["კვი", "ორშ", "სამ", "ოთხ", "ხუთ", "პარ", "შაბ"];
 
+<script>
+// ── BIORHYTHM MATH ──────────────────────────────────────────────
 const CYCLES = {
-  physical:     { period: 23, color: '#00e5ff', label: 'ფიზიკური' },
-  emotional:    { period: 28, color: '#ff4d8d', label: 'ემოციური' },
-  intellectual: { period: 33, color: '#a78bfa', label: 'ინტელექტუალური' },
-  intuitive:    { period: 38, color: '#34d399', label: 'ინტუიციური' },
+  physical:     { period: 23, color: '#00e5ff', label: 'ფიზიკური',        icon: '⚡', glow: 'rgba(0,229,255,0.5)'   },
+  emotional:    { period: 28, color: '#ff4d8d', label: 'ემოციური',         icon: '❤', glow: 'rgba(255,77,141,0.5)'  },
+  intellectual: { period: 33, color: '#a78bfa', label: 'ინტელექტუალური',  icon: '🧠', glow: 'rgba(167,139,250,0.5)' },
+  intuitive:    { period: 38, color: '#34d399', label: 'ინტუიციური',       icon: '✨', glow: 'rgba(52,211,153,0.5)'  },
 };
+
+function calcValue(daysSinceBirth, period) {
+  return Math.sin((2 * Math.PI * daysSinceBirth) / period);
+}
+
+function daysBetween(d1, d2) {
+  return Math.round((d2 - d1) / 86400000);
+}
+
+const GEO_MONTHS = ['იანვ','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'];
+const GEO_DAYS   = ['კვი','ორშ','სამ','ოთხ','ხუთ','პარ','შაბ'];
+
+function fmtDate(d) {
+  return GEO_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function fmtShort(d) {
+  return GEO_MONTHS[d.getMonth()] + ' ' + d.getDate();
+}
+
+function weekday(d) {
+  return GEO_DAYS[d.getDay()];
+}
 
 function pct(v) { return Math.round(v * 100); }
 
-function getPhase(v) {
+function getPhase(v, prev) {
   const p = pct(v);
-  if (Math.abs(p) < 10) return { label: 'კრიტიკული', cls: 'phase-critical' };
-  return p > 0 ? { label: 'პოზიტიური', cls: 'phase-high' } : { label: 'ნეგატიური', cls: 'phase-low' };
+  const diff = v - prev;
+  if (Math.abs(p) < 8) return { label: 'კრიტიკული', cls: 'phase-critical' };
+  if (p > 0 && diff > 0) return { label: 'მზარდი',    cls: 'phase-rising'   };
+  if (p > 0 && diff < 0) return { label: 'მაღალი',    cls: 'phase-high'     };
+  if (p < 0 && diff < 0) return { label: 'კლებადი',   cls: 'phase-falling'  };
+  return { label: 'დაბალი', cls: 'phase-low' };
 }
 
+// ── STATE ──────────────────────────────────────────────────────
 let period = 30;
 let chartInst = null;
+let sparkCharts = {};
+let tableMode = 'all';
+let lastData = null;
+
+// ── INIT ───────────────────────────────────────────────────────
 const today = new Date();
 today.setHours(0,0,0,0);
-document.getElementById('startDate').valueAsDate = today;
 
+document.getElementById('startDate').valueAsDate = today;
+document.getElementById('todayLabel').textContent = fmtDate(today);
+
+// ── PERIOD BUTTONS ─────────────────────────────────────────────
 document.querySelectorAll('.period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     period = parseInt(btn.dataset.period);
-    calculate();
+    if (lastData) calculate();
   });
 });
 
+// ── TABLE TABS ─────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tableMode = btn.dataset.table;
+    if (lastData) renderTable(lastData.rows, lastData.dob);
+  });
+});
+
+// ── CALCULATE ─────────────────────────────────────────────────
 document.getElementById('calcBtn').addEventListener('click', calculate);
-calculate();
+calculate(); // auto-run on load
 
 function calculate() {
   const dobInput = document.getElementById('dob').value;
   const startInput = document.getElementById('startDate').value;
   if (!dobInput) return;
 
-  const dob = new Date(dobInput);
+  const dob   = new Date(dobInput);  dob.setHours(0,0,0,0);
   const start = startInput ? new Date(startInput) : today;
- 
+  start.setHours(0,0,0,0);
+
   const rows = [];
   for (let i = 0; i < period; i++) {
     const d = new Date(start);
     d.setDate(d.getDate() + i);
-    const diff = Math.round((d - dob) / 86400000);
-   
-    rows.push({
+    const days = daysBetween(dob, d);
+    const row = {
       date: d,
-      physical: Math.sin((2 * Math.PI * diff) / 23),
-      emotional: Math.sin((2 * Math.PI * diff) / 28),
-      intellectual: Math.sin((2 * Math.PI * diff) / 33),
-      intuitive: Math.sin((2 * Math.PI * diff) / 38),
-      diff
-    });
+      days,
+      physical:     calcValue(days, 23),
+      emotional:    calcValue(days, 28),
+      intellectual: calcValue(days, 33),
+      intuitive:    calcValue(days, 38),
+    };
+    // prev day for phase detection
+    const pd = days - 1;
+    row.phasePhy  = getPhase(row.physical,     calcValue(pd, 23));
+    row.phaseEmo  = getPhase(row.emotional,    calcValue(pd, 28));
+    row.phaseInt  = getPhase(row.intellectual, calcValue(pd, 33));
+    row.composite = (row.physical + row.emotional + row.intellectual + row.intuitive) / 4;
+    rows.push(row);
   }
 
+  lastData = { rows, dob, start };
+
+  const labelP = { 7: '7-დღიანი ხედი', 30: '30-დღიანი ხედი', 90: '90-დღიანი ხედი', 365: '365-დღიანი ხედი' }[period];
+  document.getElementById('chartPeriodLabel').textContent = labelP;
+
   renderChart(rows);
-  renderCards(rows[0], rows[0].diff);
-  renderTable(rows);
+  renderTodayCards(rows, dob);
+  renderSparklines(rows);
+  renderTable(rows, dob);
 }
 
+// ── CHART ─────────────────────────────────────────────────────
 function renderChart(rows) {
-  const ctx = document.getElementById('bioChart').getContext('2d');
-  if (chartInst) chartInst.destroy();
+  const canvas = document.getElementById('bioChart');
+  const ctx = canvas.getContext('2d');
+
+  if (chartInst) { chartInst.destroy(); }
+
+  const labels = rows.map(r =>
+    period <= 30 ? fmtShort(r.date) :
+    period <= 90 ? fmtShort(r.date) :
+    r.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  );
+
+  // Zero line color
+  const todayIdx = rows.findIndex(r => r.date.getTime() === today.getTime());
+
+  function makeGrad(ctx, color, canvas) {
+    const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    g.addColorStop(0, color + '40');
+    g.addColorStop(0.5, color + '08');
+    g.addColorStop(1, 'transparent');
+    return g;
+  }
 
   chartInst = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: rows.map(r => `${r.date.getDate()} ${GEO_MONTHS[r.date.getMonth()]}`),
-      datasets: Object.keys(CYCLES).map(key => ({
-        label: CYCLES[key].label,
-        data: rows.map(r => pct(r[key])),
-        borderColor: CYCLES[key].color,
-        borderWidth: 2,
-        tension: 0.4,
-        pointRadius: 0
-      }))
+      labels,
+      datasets: [
+        {
+          label: 'Physical',
+          data: rows.map(r => pct(r.physical)),
+          borderColor: CYCLES.physical.color,
+          backgroundColor: makeGrad(ctx, CYCLES.physical.color, canvas),
+          borderWidth: period <= 30 ? 2.5 : 1.5,
+          tension: 0.4,
+          pointRadius: period <= 30 ? 3 : period <= 90 ? 1 : 0,
+          pointBackgroundColor: CYCLES.physical.color,
+          pointHoverRadius: 6,
+          fill: true,
+        },
+        {
+          label: 'Emotional',
+          data: rows.map(r => pct(r.emotional)),
+          borderColor: CYCLES.emotional.color,
+          backgroundColor: 'transparent',
+          borderWidth: period <= 30 ? 2.5 : 1.5,
+          tension: 0.4,
+          pointRadius: period <= 30 ? 3 : period <= 90 ? 1 : 0,
+          pointBackgroundColor: CYCLES.emotional.color,
+          pointHoverRadius: 6,
+          fill: false,
+        },
+        {
+          label: 'Intellectual',
+          data: rows.map(r => pct(r.intellectual)),
+          borderColor: CYCLES.intellectual.color,
+          backgroundColor: 'transparent',
+          borderWidth: period <= 30 ? 2.5 : 1.5,
+          tension: 0.4,
+          pointRadius: period <= 30 ? 3 : period <= 90 ? 1 : 0,
+          pointBackgroundColor: CYCLES.intellectual.color,
+          pointHoverRadius: 6,
+          fill: false,
+        },
+        {
+          label: 'Intuitive',
+          data: rows.map(r => pct(r.intuitive)),
+          borderColor: CYCLES.intuitive.color,
+          backgroundColor: 'transparent',
+          borderWidth: period <= 30 ? 2.5 : 1.5,
+          tension: 0.4,
+          pointRadius: period <= 30 ? 3 : period <= 90 ? 1 : 0,
+          pointBackgroundColor: CYCLES.intuitive.color,
+          pointHoverRadius: 6,
+          fill: false,
+          borderDash: [4, 3],
+        },
+      ]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(12,21,37,0.95)',
+          borderColor: 'rgba(100,180,255,0.2)',
+          borderWidth: 1,
+          padding: 14,
+          titleFont: { family: 'Space Mono', size: 10 },
+          bodyFont: { family: 'Space Mono', size: 11 },
+          callbacks: {
+            title: items => {
+              const d = rows[items[0].dataIndex].date;
+              return fmtDate(d);
+            },
+            label: item => {
+              const v = item.raw;
+              const sign = v >= 0 ? '+' : '';
+              return ` ${item.dataset.label}: ${sign}${v}%`;
+            }
+          }
+        },
+      },
       scales: {
-        y: { min: -110, max: 110, ticks: { callback: v => v + '%' } }
+        x: {
+          grid: { color: 'rgba(100,180,255,0.05)', drawTicks: false },
+          border: { display: false },
+          ticks: {
+            color: '#4a5d7a',
+            font: { family: 'Space Mono', size: 9 },
+            maxRotation: 45,
+            maxTicksLimit: period <= 30 ? 30 : period <= 90 ? 15 : 24,
+          }
+        },
+        y: {
+          min: -110, max: 110,
+          grid: {
+            color: ctx => ctx.tick.value === 0 ? 'rgba(100,180,255,0.25)' : 'rgba(100,180,255,0.04)',
+            lineWidth: ctx => ctx.tick.value === 0 ? 1.5 : 1,
+            drawTicks: false,
+          },
+          border: { display: false },
+          ticks: {
+            color: '#4a5d7a',
+            font: { family: 'Space Mono', size: 9 },
+            callback: v => v + '%',
+            stepSize: 25,
+          }
+        }
       }
     }
   });
+
+  // today vertical line via annotation-style afterDraw plugin
+  if (todayIdx >= 0) {
+    const originalDraw = chartInst.draw.bind(chartInst);
+    chartInst.draw = function() {
+      originalDraw();
+      const meta = chartInst.getDatasetMeta(0);
+      if (!meta.data[todayIdx]) return;
+      const x = meta.data[todayIdx].x;
+      const chartArea = chartInst.chartArea;
+      const ctx2 = chartInst.ctx;
+      ctx2.save();
+      ctx2.strokeStyle = 'rgba(0,229,255,0.4)';
+      ctx2.lineWidth = 1.5;
+      ctx2.setLineDash([4, 4]);
+      ctx2.beginPath();
+      ctx2.moveTo(x, chartArea.top);
+      ctx2.lineTo(x, chartArea.bottom);
+      ctx2.stroke();
+      ctx2.fillStyle = 'rgba(0,229,255,0.9)';
+      ctx2.font = '9px Space Mono';
+      ctx2.textAlign = 'center';
+      ctx2.fillText('დღეს', x, chartArea.top - 5);
+      ctx2.restore();
+    };
+  }
 }
 
-function renderCards(row, diff) {
+// ── TODAY CARDS ────────────────────────────────────────────────
+function renderTodayCards(rows, dob) {
+  const row = rows.find(r => r.date.getTime() === today.getTime()) || rows[0];
+  const days = row.days;
   const container = document.getElementById('todayCards');
-  container.innerHTML = Object.keys(CYCLES).map(key => {
-    const val = pct(row[key]);
-    const cycleDay = ((diff % CYCLES[key].period) + CYCLES[key].period) % CYCLES[key].period + 1;
+
+  const cards = [
+    { key: 'ფიზიკური',        period: 23, color: '#00e5ff', val: pct(row.physical),     icon: '⚡' },
+    { key: 'ემოციური',         period: 28, color: '#ff4d8d', val: pct(row.emotional),    icon: '❤' },
+    { key: 'ინტელექტუალური',  period: 33, color: '#a78bfa', val: pct(row.intellectual), icon: '🧠' },
+    { key: 'ინტუიციური',       period: 38, color: '#34d399', val: pct(row.intuitive),    icon: '✨' },
+  ];
+
+  container.innerHTML = cards.map(c => {
+    const barPct = ((c.val + 100) / 200 * 100).toFixed(1);
+    const label = c.val >= 60 ? 'პიკი' : c.val >= 20 ? 'მაღალი' : c.val >= -20 ? 'ნეიტრალი' : c.val >= -60 ? 'დაბალი' : 'ღრმა';
+    const cycleDay = ((row.days % c.period) + c.period) % c.period + 1;
     return `
-      <div class="cycle-card" style="--card-color:${CYCLES[key].color}">
-        <div class="card-name">${CYCLES[key].label}</div>
-        <div class="card-value">${val > 0 ? '+' : ''}${val}%</div>
-        <div class="cycle-bar-bg"><div class="cycle-bar-fill" style="width:${(val+100)/2}%;background:${CYCLES[key].color}"></div></div>
-        <div style="font-size:10px; margin-top:8px; color:var(--muted)">დღე: ${cycleDay} / ${CYCLES[key].period}</div>
+      <div class="cycle-card" style="--card-color:${c.color}; box-shadow: 0 4px 24px ${c.color}18">
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-name">${c.key}</div>
+        <div class="card-value">${c.val > 0 ? '+' : ''}${c.val}%</div>
+        <div class="card-label">${label}</div>
+        <div class="cycle-bar-bg">
+          <div class="cycle-bar-fill" style="width:${barPct}%;background:${c.color};box-shadow:0 0 8px ${c.color}"></div>
+        </div>
+        <div class="cycle-days">${cycleDay}-ე დღე ${c.period}-დან</div>
       </div>
     `;
   }).join('');
 }
 
-function renderTable(rows) {
+// ── SPARKLINES ─────────────────────────────────────────────────
+function renderSparklines(rows) {
+  const container = document.getElementById('sparklineRow');
+  // destroy old
+  Object.values(sparkCharts).forEach(c => c.destroy());
+  sparkCharts = {};
+
+  const sparks = [
+    { key: 'physical', label: 'ფიზიკური ტენდ.', color: '#00e5ff' },
+    { key: 'emotional', label: 'ემოციური ტენდ.', color: '#ff4d8d' },
+    { key: 'intellectual', label: 'ინტელ. ტენდ.', color: '#a78bfa' },
+  ];
+
+  container.innerHTML = sparks.map(s => `
+    <div class="spark-card">
+      <div class="spark-header">
+        <div class="spark-name">${s.label}</div>
+        <div class="spark-val" style="--spark-color:${s.color}" id="sval-${s.key}"></div>
+      </div>
+      <canvas class="spark-canvas" id="spark-${s.key}" height="60"></canvas>
+    </div>
+  `).join('');
+
+  sparks.forEach(s => {
+    const row = rows.find(r => r.date.getTime() === today.getTime()) || rows[0];
+    document.getElementById(`sval-${s.key}`).textContent =
+      (pct(row[s.key]) > 0 ? '+' : '') + pct(row[s.key]) + '%';
+
+    const ctx = document.getElementById(`spark-${s.key}`).getContext('2d');
+    const data = rows.map(r => pct(r[s.key]));
+
+    sparkCharts[s.key] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: rows.map(r => ''),
+        datasets: [{
+          data,
+          borderColor: s.color,
+          borderWidth: 1.5,
+          tension: 0.4,
+          pointRadius: 0,
+          fill: {
+            target: 'origin',
+            above: s.color + '22',
+            below: '#ff4d8d11',
+          }
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: {
+          x: { display: false },
+          y: { display: false, min: -110, max: 110 }
+        },
+        animation: { duration: 800 }
+      }
+    });
+  });
+}
+
+// ── TABLE ─────────────────────────────────────────────────────
+function renderTable(rows, dob) {
   const tbody = document.getElementById('tableBody');
+
+  // Update column visibility
+  const table = document.getElementById('bioTable');
+  const allCols = table.querySelectorAll('th, td');
+
+  const display = tableMode;
+
+  const colIdx = { physical: 2, emotional: 3, intellectual: 4, intuitive: 5 };
+
   tbody.innerHTML = rows.map(r => {
-    const ph = getPhase(r.physical);
-    return `
-      <tr>
-        <td>${r.date.getDate()} ${GEO_MONTHS[r.date.getMonth()]}</td>
-        <td>${GEO_DAYS[r.date.getDay()]}</td>
-        <td style="color:${CYCLES.physical.color}">${pct(r.physical)}%</td>
-        <td style="color:${CYCLES.emotional.color}">${pct(r.emotional)}%</td>
-        <td style="color:${CYCLES.intellectual.color}">${pct(r.intellectual)}%</td>
-        <td><span class="phase-badge ${ph.cls}">${ph.label}</span></td>
-      </tr>
-    `;
+    const isToday = r.date.getTime() === today.getTime();
+    const phase = r.phasePhy;
+    const trend = r.composite >= 0.3 ? '↑ ძლიერი' : r.composite >= 0 ? '↗ ზომიერი+' : r.composite >= -0.3 ? '↘ ზომიერი−' : '↓ სუსტი';
+    const trendColor = r.composite >= 0.3 ? '#34d399' : r.composite >= 0 ? '#60a5fa' : r.composite >= -0.3 ? '#c084fc' : '#f87171';
+
+    function valCell(v, color) {
+      const p = pct(v);
+      const barW = Math.abs(p) / 2;
+      const dir = p >= 0 ? 'right' : 'left';
+      const offset = p >= 0 ? '50%' : `${50 - barW}%`;
+      return `<td>
+        <span class="value-cell" style="color:${color}">${p > 0 ? '+' : ''}${p}%</span>
+        <div class="mini-bar">
+          <div class="mini-bar-fill" style="width:${barW}%;left:${offset};background:${color}80"></div>
+        </div>
+      </td>`;
+    }
+
+    return `<tr class="${isToday ? 'today-row' : ''}">
+      <td>${fmtShort(r.date)}${isToday ? ' <span class="today-badge" style="font-size:8px;padding:2px 6px"><span class="today-dot"></span>დღეს</span>' : ''}</td>
+      <td style="color:#6b7fa3;font-family:'Space Mono',monospace;font-size:11px">${weekday(r.date)}</td>
+      ${valCell(r.physical, CYCLES.physical.color)}
+      ${valCell(r.emotional, CYCLES.emotional.color)}
+      ${valCell(r.intellectual, CYCLES.intellectual.color)}
+      ${valCell(r.intuitive, CYCLES.intuitive.color)}
+      <td><span class="phase-badge ${r.phasePhy.cls}">${r.phasePhy.label}</span></td>
+      <td style="color:${trendColor};font-family:'Space Mono',monospace;font-size:11px">${trend}</td>
+    </tr>`;
   }).join('');
 }
 </script>
+
 </body>
 </html>
