@@ -155,7 +155,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
       <tbody id="planet-tbody"></tbody></table>
     </div>
     <div class="data-card">
-      <div class="data-card-title">🏠 სახლები (Placidus)</div>
+      <div class="data-card-title">🏠 სახლები · Placidus Houses</div>
       <table><thead><tr><th>სახლი</th><th>კონსტელაცია</th><th>გრადუსი</th></tr></thead>
       <tbody id="house-tbody"></tbody></table>
     </div>
@@ -477,15 +477,33 @@ function drawWheel(data){
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(70,45,160,.75)','stroke-width':1.2},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.7)','stroke-width':1},svg);
 
-  // ── ASC / MC ──
+  // ── PLACIDUS HOUSE LINES + NUMBERS + ASC/MC ──
   if(!data._timeUnknown){
     const angCol='#e8c06e';
+    const Rhn=(R2+R3)/2;
+    const ROMAN12=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+    for(let i=0;i<12;i++){
+      const ha=t2a(data.houses[i],ascRef);
+      const isAngle=[0,3,6,9].includes(i);
+      el('line',{x1:CX+Math.cos(ha)*R2,y1:CY+Math.sin(ha)*R2,
+        x2:CX+Math.cos(ha)*R3,y2:CY+Math.sin(ha)*R3,
+        stroke:isAngle?angCol:'rgba(100,65,200,.55)',
+        'stroke-width':isAngle?2:.7},svg);
+      const next=data.houses[(i+1)%12];
+      let mid=data.houses[i]+((next-data.houses[i]+360)%360)/2;
+      if(mid>=360) mid-=360;
+      const ma=t2a(mid,ascRef);
+      txt(svg,ROMAN12[i],CX+Math.cos(ma)*Rhn,CY+Math.sin(ma)*Rhn,
+        {fill:'rgba(180,150,255,0.8)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
+    }
+    // ASC line
     const ascA=t2a(data.asc,ascRef);
     el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,
       x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),
       stroke:angCol,'stroke-width':2.5},svg);
     txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),
       {fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
+    // MC circle
     const mcA=t2a(data.mc,ascRef);
     const mcDist=R1+52,mcR=19;
     const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
