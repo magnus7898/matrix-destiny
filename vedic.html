@@ -316,7 +316,8 @@ async function generateChart(){
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({year,month,day,hour:12,minute:0,second:0,tz_name,time_unknown:true})});
         const ld=await lr.json();
-        if(ld.moon_path) data._moonPath=ld.moon_path;
+        if(ld.moon_path_sid) data._moonPath=ld.moon_path_sid;
+        else if(ld.moon_path) data._moonPath=ld.moon_path;
       }catch(e){console.log('moon path error',e);}
     }
     document.getElementById('chart-area').style.display='block';
