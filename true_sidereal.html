@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ka">
 <head>
@@ -162,6 +161,13 @@ tr:hover td{background:rgba(19,16,58,.6)}
     </div>
   </div>
 
+  <div class="sec-title">ასპექტები · Aspects</div>
+  <div class="data-card" style="margin-bottom:8px">
+    <div class="data-card-title">⚡ მთავარი ასპექტები</div>
+    <table><thead><tr><th>პლანეტა 1</th><th>ასპ.</th><th>პლანეტა 2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
+    <tbody id="aspect-tbody"></tbody></table>
+  </div>
+
   <div class="sec-title">კონსტელაციების განაწილება</div>
   <div class="data-card" style="margin-bottom:8px">
     <div class="data-card-title">📐 IAU კონსტელაციები · ეკლიპტიკაზე</div>
@@ -313,6 +319,7 @@ async function generateChart(){
     drawWheel(data);
     drawPlanetTable(data);
     drawHouseTable(data);
+    drawAspectTable(data);
     drawConTable(data);
     displayLunarBadge(data);
     document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
@@ -335,16 +342,33 @@ function toRad(d){return d*Math.PI/180;}
 // True sidereal: 0° = Aries start (29° tropical), wheel starts at left
 // Tropical degree → angle on wheel
 // Aries starts at 29° tropical = left (π)
-const ARIES_START=29.0; // tropical
-function t2a(trop_deg){
-  // Normalize relative to Aries start, place at left
-  return toRad(-((trop_deg - ARIES_START + 360) % 360)) + Math.PI;
+const ARIES_START=29.0; // tropical (Aries IAU start)
+function t2a(trop_deg, ref=ARIES_START){
+  // Place ref degree at left (π), everything else rotates accordingly
+  return toRad(-((trop_deg - ref + 360) % 360)) + Math.PI;
+}
+function ascConStart(asc_trop){
+  // Find the IAU constellation containing asc, return its start degree
+  // Use hardcoded boundaries (same as backend)
+  const BOUNDS=[
+    [29.0,53.5],[53.5,90.0],[90.0,118.5],[118.5,138.5],[138.5,174.0],
+    [174.0,217.5],[217.5,241.0],[241.0,247.5],[247.5,266.5],[266.5,302.0],
+    [302.0,327.0],[327.0,351.5],[351.5,389.0]
+  ];
+  const d=((asc_trop%360)+360)%360;
+  for(const [s,e] of BOUNDS){
+    const ss=s%360, ee=e%360;
+    if(ss<ee?ss<=d&&d<ee:d>=ss||d<ee) return ss;
+  }
+  return ARIES_START;
 }
 function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
 
 function drawWheel(data){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
+  // Rising constellation start at left
+  const ascRef=data._timeUnknown?ARIES_START:ascConStart(data.asc);
   // ── DEFS ──
   const defs=el('defs',{},svg);
   const bgG=el('radialGradient',{id:'bgG',cx:'50%',cy:'50%',r:'50%'},defs);
@@ -365,7 +389,7 @@ function drawWheel(data){
   for(const con of CONS){
     const color=CON_COLORS[con.name]||'#8888aa';
     const fill=CON_FILLS[con.name]||'#08081a';
-    const a0=t2a(con.start), a1=t2a(con.end%360);
+    const a0=t2a(con.start,ascRef), a1=t2a(con.end%360,ascRef);
     // span > 180 needs large arc flag
     const span=con.span;
     const la=span>180?1:0;
@@ -395,7 +419,7 @@ function drawWheel(data){
     // Handle Pisces wrap
     let mt=midTrop;
     if(con.name==='Pisces') mt=(con.start+29+360)/2;  // mid between 351.5 and 389(=29)
-    const amid=t2a(mt%360);
+    const amid=t2a(mt%360,ascRef);
     const Rzs=(R1+R2)/2;
     const symText=el('text',{'text-anchor':'middle','dominant-baseline':'central',
       x:CX+Math.cos(amid)*Rzs,y:CY+Math.sin(amid)*Rzs,
@@ -423,7 +447,7 @@ function drawWheel(data){
     const R_outer=R1-1, R_inner=R1-8;
     const span=((mp.end-mp.start)+360)%360;
     const la=span>180?1:0;
-    const a0=t2a(mp.start), a1e=t2a(mp.end);
+    const a0=t2a(mp.start,ascRef), a1e=t2a(mp.end,ascRef);
     const x0o=CX+Math.cos(a0)*R_outer, y0o=CY+Math.sin(a0)*R_outer;
     const x1o=CX+Math.cos(a1e)*R_outer,y1o=CY+Math.sin(a1e)*R_outer;
     const x1i=CX+Math.cos(a1e)*R_inner,y1i=CY+Math.sin(a1e)*R_inner;
@@ -436,16 +460,15 @@ function drawWheel(data){
   // ── INNERMOST FILL ──
   el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
 
-  // ── DEGREE TICKS ──
+  // ── DEGREE TICKS — all same size, 30° slightly brighter ──
   for(let deg=0;deg<360;deg++){
     const trop=(ARIES_START+deg)%360;
-    const a=t2a(trop);
-    const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
-    const len=is30?20:is10?13:is5?8:5;
-    const stroke=is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,.95)':is5?'rgba(120,80,200,.8)':'rgba(80,55,150,.65)';
+    const a=t2a(trop,ascRef);
+    const is30=deg%30===0;
     el('line',{x1:CX+Math.cos(a)*R1,y1:CY+Math.sin(a)*R1,
-      x2:CX+Math.cos(a)*(R1-len),y2:CY+Math.sin(a)*(R1-len),
-      stroke,'stroke-width':is30?2:is10?1.4:is5?.9:.5},svg);
+      x2:CX+Math.cos(a)*(R1-7),y2:CY+Math.sin(a)*(R1-7),
+      stroke:is30?'rgba(220,190,255,0.92)':'rgba(90,60,155,0.55)',
+      'stroke-width':is30?1.6:0.55},svg);
   }
 
   // ── CIRCLES ──
@@ -457,13 +480,13 @@ function drawWheel(data){
   // ── ASC / MC ──
   if(!data._timeUnknown){
     const angCol='#e8c06e';
-    const ascA=t2a(data.asc);
+    const ascA=t2a(data.asc,ascRef);
     el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,
       x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),
       stroke:angCol,'stroke-width':2.5},svg);
     txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),
       {fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-    const mcA=t2a(data.mc);
+    const mcA=t2a(data.mc,ascRef);
     const mcDist=R1+52,mcR=19;
     const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
     el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,
@@ -473,10 +496,24 @@ function drawWheel(data){
     txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
   }
 
+  // ── ASPECT LINES — inside center circle ──
+  if(data.aspects){
+    for(const asp of data.aspects){
+      if(!data.planets[asp.p1]||!data.planets[asp.p2]) continue;
+      const a1=t2a(data.planets[asp.p1].tropical,ascRef);
+      const a2=t2a(data.planets[asp.p2].tropical,ascRef);
+      const p1=pxy(a1,R4-4),p2=pxy(a2,R4-4);
+      const isDash=asp.angle===90||asp.angle===180;
+      el('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,
+        stroke:asp.color,'stroke-width':isDash?0.7:0.9,
+        opacity:isDash?.4:.6,'stroke-dasharray':isDash?'3 3':''},svg);
+    }
+  }
+
   // ── PLANETS outside wheel ──
   const present=PORDER.filter(n=>data.planets[n]);
   const trueA={};
-  for(const n of present) trueA[n]=t2a(data.planets[n].tropical);
+  for(const n of present) trueA[n]=t2a(data.planets[n].tropical,ascRef);
   const sorted=[...present].sort((a,b)=>trueA[a]-trueA[b]);
   const dispA={};
   for(const n of present) dispA[n]=trueA[n];
@@ -539,6 +576,7 @@ function drawPlanetTable(data){
     const color=CON_COLORS[p.constellation]||'#8888aa';
     let symCell=name==='Sun'?sunSVG(20)
       :name==='Moon'?'<span class="moon-sym">\u263d</span>'
+      :name==='Selena'?`<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle"><path d="M11,2 A7,7 0 1,0 11,16 A5,5 0 1,1 11,2 Z" fill="${info.color}" opacity="0.9"/></svg>`
       :`<span class="p-sym" style="color:${info.color}">${info.sym}</span>`;
     const tr=document.createElement('tr');
     tr.innerHTML=`
@@ -574,6 +612,30 @@ function drawHouseTable(data){
       <td style="color:${ang?'#e8c06e':'rgba(180,150,255,.7)'};font-family:'Cinzel',serif;font-size:11px;font-weight:${ang?600:400}">${ROMAN[i]}${ang?` <span style="font-size:9px">${ang}</span>`:''}</td>
       <td><span style="font-size:14px;font-family:serif;color:${conColor}">${conSym}\ufe0e</span> <span style="font-size:10px;color:${conColor}">${conKa}</span></td>
       <td class="deg-val">${Math.floor(deg%30)}°${String(Math.floor((deg%30-Math.floor(deg%30))*60)).padStart(2,'0')}'</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// ── ASPECT TABLE ──
+function drawAspectTable(data){
+  const tbody=document.getElementById('aspect-tbody');
+  tbody.innerHTML='';
+  if(!data.aspects||!data.aspects.length){
+    tbody.innerHTML='<tr><td colspan="5" style="color:rgba(100,80,150,.5);text-align:center;padding:16px">ასპექტები არ მოიძებნა</td></tr>';
+    return;
+  }
+  for(const asp of data.aspects){
+    const i1=PI[asp.p1]||{sym:'?',color:'#aaa'};
+    const i2=PI[asp.p2]||{sym:'?',color:'#aaa'};
+    const s1=asp.p1==='Sun'?sunSVG(16):`<span style="color:${i1.color};font-size:15px;font-family:serif">${i1.sym}</span>`;
+    const s2=asp.p2==='Sun'?sunSVG(16):`<span style="color:${i2.color};font-size:15px;font-family:serif">${i2.sym}</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${s1} <span style="font-size:10px;color:${i1.color}">${asp.p1}</span></td>
+      <td><span style="font-size:16px;font-family:serif;color:${asp.color}">${asp.sym}</span></td>
+      <td>${s2} <span style="font-size:10px;color:${i2.color}">${asp.p2}</span></td>
+      <td style="color:${asp.color};font-size:10px;white-space:nowrap">${asp.type}</td>
+      <td style="color:rgba(140,100,200,.7);font-size:10px">${asp.orb}°</td>`;
     tbody.appendChild(tr);
   }
 }
