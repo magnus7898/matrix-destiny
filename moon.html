@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>მთვარის კალკულატორი · Lunar Calculator</title>
+<link rel="preconnect" href="[https://fonts.googleapis.com"/]https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=BPG+Nino+Mtavruli&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #c8b870;
+    --gold-light: #f0e8c0;
+    --pale: #c8c0f0;
+    --muted: #5a5a8a;
+    --dim: #3a3a6a;
+    --bg0: #05050f;
+    --bg1: #0a0a1e;
+    --bg2: #0d0d22;
+    --bg3: #12122a;
+    --border: #2a2a4a;
+    --border2: #1e1e3a;
+    --moon-lit: #d4c9a0;
+    --moon-dark: #1a1a2e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg0);
+    color: var(--pale);
+    font-family: 'BPG Nino Mtavruli', 'Sylfaen', Georgia, serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+  /* Star background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, #ffffff33 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 40%, #ffffff22 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 8%, #ffffff2a 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 25%, #ffffff1a 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 55%, #ffffff2f 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 10%, #ffffff22 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 70%, #ffffff1f 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 80%, #ffffff28 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 33% 88%, #ffffff18 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, #ffffff20 0%, transparent 100%);
+    pointer-events: none; z-index: 0;
+  }
+
+header {
+background: linear-gradient(180deg, #0c0c22 0%, var(–bg0) 100%);
+border-bottom: 1px solid var(–border2);
+padding: 36px 24px 28px;
+text-align: center;
+position: relative; z-index: 1;
+}
+header .eyebrow {
+font-size: 10px; letter-spacing: 0.35em; color: var(–dim);
+text-transform: uppercase; margin-bottom: 10px;
+font-family: ‘Cinzel’, serif;
+}
+header h1 {
+font-family: ‘Cinzel’, serif;
+font-size: clamp(20px, 5vw, 38px);
+font-weight: 600;
+background: linear-gradient(135deg, #d4c9a0, #f0e8c0, #c8b870);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+letter-spacing: 0.04em;
+margin-bottom: 6px;
+}
+header .ka-subtitle {
+font-size: clamp(14px, 3vw, 20px);
+color: var(–muted);
+letter-spacing: 0.08em;
+}
+header .tagline {
+font-size: 12px; color: #3a3a60; margin-top: 8px; font-style: italic;
+font-family: Georgia, serif;
+}
+
+.container { max-width: 740px; margin: 0 auto; padding: 28px 16px; position: relative; z-index: 1; }
+
+.card {
+background: var(–bg2);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 22px;
+margin-bottom: 22px;
+}
+.card-title {
+font-size: 10px; letter-spacing: 0.25em; color: var(–muted);
+text-transform: uppercase; margin-bottom: 14px;
+font-family: ‘Cinzel’, serif;
+}
+
+/* Inputs */
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+label { font-size: 11px; color: var(–muted); letter-spacing: 0.1em; display: block; margin-bottom: 5px; text-transform: uppercase; }
+input[type=“date”], input[type=“time”] {
+width: 100%; padding: 10px 12px;
+background: var(–bg3); border: 1px solid var(–border);
+border-radius: 7px; color: var(–pale);
+font-size: 15px; outline: none;
+font-family: monospace;
+transition: border-color 0.2s;
+}
+input[type=“date”]:focus, input[type=“time”]:focus { border-color: var(–gold); }
+
+.tz-wrap { margin-bottom: 16px; position: relative; }
+.tz-btn {
+width: 100%; padding: 10px 14px;
+background: var(–bg3); border: 1px solid var(–border);
+border-radius: 7px; color: var(–pale); cursor: pointer;
+display: flex; justify-content: space-between; align-items: center;
+font-size: 13px; font-family: monospace; transition: border-color 0.2s;
+}
+.tz-btn:hover { border-color: var(–gold); }
+.tz-dropdown {
+position: absolute; z-index: 200; top: calc(100% + 4px); left: 0; right: 0;
+background: var(–bg3); border: 1px solid var(–border);
+border-radius: 8px; overflow: hidden; display: none;
+flex-direction: column; max-height: 260px;
+}
+.tz-dropdown.open { display: flex; }
+.tz-search {
+padding: 9px 13px; background: var(–bg1); border: none;
+border-bottom: 1px solid var(–border2); color: var(–pale);
+font-size: 13px; outline: none; font-family: monospace;
+}
+.tz-list { overflow-y: auto; max-height: 200px; }
+.tz-item {
+padding: 9px 14px; cursor: pointer; font-size: 12px;
+color: #a0a0d0; font-family: monospace;
+transition: background 0.1s;
+display: flex; justify-content: space-between;
+}
+.tz-item:hover { background: var(–bg1); }
+.tz-item.selected { background: #1a1a3a; color: var(–gold); }
+.tz-item .dst-tag { font-size: 10px; color: var(–dim); }
+
+button.calc-btn {
+width: 100%; padding: 13px;
+background: linear-gradient(135deg, #252550, #35357a);
+border: 1px solid var(–dim); border-radius: 9px;
+color: #c8c8f8; font-size: 13px; letter-spacing: 0.18em;
+text-transform: uppercase; cursor: pointer;
+font-family: ‘Cinzel’, serif; transition: all 0.25s;
+}
+button.calc-btn:hover {
+background: linear-gradient(135deg, #30306a, #404088);
+border-color: var(–gold);
+color: var(–gold-light);
+}
+
+/* Result grid */
+.result-top {
+display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start;
+}
+.moon-center { text-align: center; }
+.phase-name { margin-top: 10px; font-size: 15px; color: var(–moon-lit); font-style: italic; }
+.phase-ka { font-size: 12px; color: var(–muted); margin-top: 3px; }
+
+.stat-row {
+display: flex; justify-content: space-between; align-items: baseline;
+padding: 7px 0; border-bottom: 1px solid var(–border2);
+}
+.stat-label { color: var(–muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.stat-label .ka { display: block; font-size: 11px; color: #3a3a58; letter-spacing: 0; text-transform: none; }
+.stat-val { color: var(–pale); font-size: 14px; font-family: monospace; font-weight: 600; }
+.stat-val.accent { color: var(–gold); }
+.stat-unit { font-size: 11px; color: var(–muted); margin-left: 3px; }
+
+canvas { display: block; width: 100%; height: auto; border-radius: 8px; }
+
+.chart-note { font-size: 12px; color: #3a3a60; margin-top: 8px; font-style: italic; font-family: Georgia, serif; }
+
+.physics-note {
+background: var(–bg1); border: 1px solid var(–border2);
+border-radius: 10px; padding: 16px 18px;
+font-size: 12px; color: #4a4a70; line-height: 1.75;
+font-style: italic; font-family: Georgia, serif;
+}
+.physics-note strong { color: #6a6a9a; font-style: normal; }
+
+/* Deploy guide */
+.deploy-card {
+background: #080818; border: 1px solid #1a1a38; border-radius: 14px; padding: 24px;
+margin-bottom: 22px;
+}
+.deploy-title { font-family: ‘Cinzel’, serif; color: var(–gold); font-size: 14px; margin-bottom: 16px; letter-spacing: 0.1em; }
+.deploy-section { margin-bottom: 20px; }
+.deploy-section h3 { font-size: 12px; color: var(–muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 10px; font-family: ‘Cinzel’, serif; }
+.step {
+display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start;
+}
+.step-num {
+min-width: 24px; height: 24px; border-radius: 50%;
+background: var(–bg3); border: 1px solid var(–border);
+display: flex; align-items: center; justify-content: center;
+font-size: 11px; color: var(–gold); font-family: monospace; font-weight: bold;
+flex-shrink: 0; margin-top: 1px;
+}
+.step-text { font-size: 13px; color: #8a8ab8; line-height: 1.6; font-family: Georgia, serif; }
+.step-text strong { color: var(–pale); }
+code {
+background: #0a0a20; border: 1px solid var(–border2);
+border-radius: 4px; padding: 2px 6px;
+font-family: monospace; font-size: 12px; color: #80c8ff;
+}
+pre {
+background: #07071a; border: 1px solid var(–border2);
+border-radius: 8px; padding: 14px 16px;
+font-family: monospace; font-size: 12px; color: #80c8ff;
+overflow-x: auto; margin: 8px 0; line-height: 1.6;
+white-space: pre-wrap;
+}
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-family: monospace; letter-spacing: 0.05em; font-weight: bold; }
+.tag-html { background: #2a1a08; border: 1px solid #5a3a18; color: #f0a060; }
+.tag-react { background: #0a1a28; border: 1px solid #184060; color: #60c0f0; }
+.tag-backend { background: #0a2018; border: 1px solid #185030; color: #60d090; }
+.tag-free { background: #1a2a0a; border: 1px solid #3a5818; color: #a0d060; }
+.divider { border: none; border-top: 1px solid var(–border2); margin: 18px 0; }
+
+@media (max-width: 520px) {
+.input-grid { grid-template-columns: 1fr; }
+.result-top { grid-template-columns: 1fr; }
+.moon-center { display: flex; flex-direction: column; align-items: center; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Astronomical Calculator · ასტრონომიული კალკულატორი</div>
+  <h1>☽ Lunar Position & Age</h1>
+  <div class="ka-subtitle">მთვარის პოზიცია და სინოდური ასაკი</div>
+  <div class="tagline">Non-linear motion · Meeus Planetary Theory · 60+ perturbation terms · DST-aware timezones</div>
+</header>
+
+<div class="container">
+
+  <!-- ── Input Card ─────────────────────────────────────────────── -->
+
+  <div class="card">
+    <div class="card-title">📅 თარიღი და დრო · Date & Time</div>
+    <div class="input-grid">
+      <div>
+        <label>თარიღი · Date</label>
+        <input type="date" id="dateInput"/>
+      </div>
+      <div>
+        <label>დრო · Time</label>
+        <input type="time" id="timeInput" value="12:00"/>
+      </div>
+    </div>
+    <div class="tz-wrap">
+      <label>სასაათო სარტყელი · Timezone</label>
+      <div class="tz-btn" id="tzBtn">
+        <span id="tzDisplay">UTC +00:00</span>
+        <span style="color:var(--muted)">▾</span>
+      </div>
+      <div class="tz-dropdown" id="tzDropdown">
+        <input class="tz-search" id="tzSearch" placeholder="ძებნა · Search timezone…"/>
+        <div class="tz-list" id="tzList"></div>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calculate()">✦ გამოთვლა · Calculate</button>
+  </div>
+
+  <!-- ── Result ─────────────────────────────────────────────────── -->
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="card-title">🌙 შედეგი · Result</div>
+    <div class="result-top">
+      <div class="moon-center">
+        <svg id="moonSvg" width="140" height="140" viewBox="0 0 140 140"></svg>
+        <div class="phase-name" id="phaseName"></div>
+        <div class="phase-ka" id="phaseKa"></div>
+      </div>
+      <div id="statsDiv"></div>
+    </div>
+  </div>
+
+  <!-- ── Zodiac Wheel ───────────────────────────────────────────── -->
+
+  <div class="card" id="wheelCard" style="display:none">
+    <div class="card-title">♈ ეკლიპტიკა · Ecliptic Wheel</div>
+    <div style="text-align:center">
+      <svg id="zodiacSvg" width="280" height="280" viewBox="0 0 280 280" style="max-width:100%"></svg>
+      <div class="chart-note">☽ მთვარე (ვერცხლი) · ☀ მზე (ოქრო) · წყვეტილი რკალი = ელონგაცია<br/>ზოდიაქო ეწყობა საათის უკუღმა, ვარძოდან — Aries at left, counterclockwise</div>
+    </div>
+  </div>
+
+  <!-- ── Velocity Chart ─────────────────────────────────────────── -->
+
+  <div class="card" id="velCard" style="display:none">
+    <div class="card-title">📐 კუთხური სიჩქარე · Angular Velocity (non-linear)</div>
+    <canvas id="velCanvas" width="700" height="270"></canvas>
+    <div class="chart-note">მთვარე პერიგეასთან სწრაფად მოძრაობს, აპოგეასთან — ნელა (კეპლერის II კანონი). მზის გრავიტაცია დამატებით ანიჭებს.<br/>Moon moves faster at perigee, slower at apogee — Kepler's 2nd law + solar perturbations.</div>
+  </div>
+
+  <!-- ── Distance Chart ────────────────────────────────────────── -->
+
+  <div class="card" id="distCard" style="display:none">
+    <div class="card-title">📏 მანძილი · Earth–Moon Distance</div>
+    <canvas id="distCanvas" width="700" height="210"></canvas>
+    <div class="chart-note">ელიფსური ორბიტა — პერიგეა (ახლოს) vs. აპოგეა (შორს). ეს განსხვავება იწვევს სიჩქარის ცვლილებას.</div>
+  </div>
+
+  <!-- ── Physics Note ───────────────────────────────────────────── -->
+
+  <div class="physics-note" id="physicsNote" style="display:none">
+    <strong>რატომ არაწრფივი? · Why non-linear?</strong><br/>
+    სინოდური თვის საშ. ხანგრძლივობა 29.530 დღეა, მაგრამ მოკლე სიჩქარე ±12%-ით იცვლება:
+    (1) მთვარის ელიფსური ორბიტა (e≈0.055) — 12–15°/დღე;
+    (2) მზის გრავიტაციული შეშფოთება ანიჭებს ორბიტის ელიფსის ორიენტაციას;
+    (3) დედამიწის საკუთარი ელიფსური ორბიტა ცვლის მზის აშკარა მოძრაობის სიჩქარეს.
+    <br/><br/>
+    <strong>Meeus Ch.47</strong> lunar theory with 60+ perturbation terms. Julian Day → T centuries → longitude + distance.
+  </div>
+
+  <!-- ── Deploy Guide ───────────────────────────────────────────── -->
+
+  <div class="deploy-card">
+    <div class="deploy-title">🚀 განლაგების სახელმძღვანელო · Deployment Guide</div>
+
+```
+<div class="deploy-section">
+  <h3>ვარიანტი 1: GitHub Pages <span class="tag tag-free">FREE</span> <span class="tag tag-html">HTML only</span></h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">
+    შექმენი GitHub ანგარიში → <strong>github.com</strong> → Sign Up<br/>
+    Create a GitHub account at github.com
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">
+    <strong>New repository</strong> → სახელი: <code>moon-calculator</code> → Public → Create<br/>
+    Create a new <strong>public</strong> repository named <code>moon-calculator</code>
+  </div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">
+    ატვირთე ეს ფაილი: <strong>Add file → Upload files → drag moon_calculator.html → Commit changes</strong><br/>
+    Upload this HTML file directly in the GitHub web interface
+  </div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">
+    დაარქვი <code>index.html</code> — ან ატვირთე პირდაპირ ამ სახელით.<br/>
+    The file must be named <code>index.html</code> for the root page to work.
+  </div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-text">
+    <strong>Settings → Pages → Branch: main → / (root) → Save</strong><br/>
+    Enable GitHub Pages from the Settings tab. Wait ~60 seconds.
+  </div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-text">
+    შენი გვერდი ხელმისაწვდომია: <strong>https://YOUR-USERNAME.github.io/moon-calculator/</strong><br/>
+    Your page will be live at the URL above. Share it with anyone!
+  </div></div>
+  <pre>
+```
+
+# Or use Git from terminal:
+
+git clone https://github.com/YOUR-USERNAME/moon-calculator
+cp moon_calculator.html moon-calculator/index.html
+cd moon-calculator
+git add index.html
+git commit -m “Add lunar calculator”
+git push origin main
+</pre>
+</div>
+
+```
+<hr class="divider"/>
+
+<div class="deploy-section">
+  <h3>ვარიანტი 2: React App + Vite <span class="tag tag-react">React</span> <span class="tag tag-free">FREE</span></h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">
+    გჭირდება: <strong>Node.js 18+</strong> → <a href="https://nodejs.org" style="color:var(--gold)">nodejs.org</a>
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">
+    <strong>React-ის ვერსია (.jsx) ასევე მოქმედია</strong> — ახლა გაქვს ორივე ვარიანტი:<br/>
+    The <code>.jsx</code> file from before works in any React project.
+  </div></div>
+  <pre>
+```
+
+npm create vite@latest moon-app – –template react
+cd moon-app
+npm install
+
+# Copy moon_calculator.jsx into src/App.jsx (replace contents)
+
+npm run dev          # local preview
+npm run build        # builds to dist/
+
+# Then deploy dist/ to GitHub Pages or Netlify
+
+```
+  </pre>
+  <div class="step"><div class="step-num">3</div><div class="step-text">
+    Netlify-ზე: <strong>netlify.com → Add new site → Import from Git → connect repo → Build: npm run build, Publish: dist</strong>
+  </div></div>
+</div>
+
+<hr class="divider"/>
+
+<div class="deploy-section">
+  <h3>ვარიანტი 3: Python Backend (Skyfield/Astropy) <span class="tag tag-backend">Backend</span></h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">
+    <strong>მაშინ გამოიყენე backend, როცა გჭირდება:</strong> სუბ-არცსეკუნდული სიზუსტე, DE440 ephemeris, Skyfield-ის სრული სიმძლავრე.<br/>
+    Use a backend when you need sub-arcsecond accuracy with DE440 ephemeris.
+  </div></div>
+  <pre>
+```
+
+# Install (Python 3.9+)
+
+pip install flask skyfield pytz
+
+# app.py
+
+from flask import Flask, request, jsonify
+from skyfield.api import load, wgs84
+from skyfield import almanac
+import pytz, datetime
+
+app = Flask(**name**)
+ts = load.timescale()
+eph = load(‘de421.bsp’)
+
+@app.route(’/moon’)
+def moon():
+iso = request.args.get(‘datetime’)   # e.g. 2025-04-10T12:00:00
+tz  = request.args.get(‘tz’, ‘UTC’)
+zone = pytz.timezone(tz)
+dt_local = datetime.datetime.fromisoformat(iso)
+dt_utc = zone.localize(dt_local).astimezone(pytz.utc)
+t = ts.from_datetime(dt_utc)
+earth, moon, sun = eph[‘earth’], eph[‘moon’], eph[‘sun’]
+m = (earth + wgs84.latlon(0,0)).at(t).observe(moon).apparent()
+s = (earth + wgs84.latlon(0,0)).at(t).observe(sun).apparent()
+ml, _, _ = m.ecliptic_latlon()
+sl, _, _ = s.ecliptic_latlon()
+elong = (ml.degrees - sl.degrees) % 360
+age = elong / 360 * 29.530588861
+return jsonify({“age”: age, “elongation”: elong,
+“moon_lon”: ml.degrees, “sun_lon”: sl.degrees})
+
+if **name** == ‘**main**’: app.run(debug=True)
+</pre>
+<div class="step"><div class="step-num">2</div><div class="step-text">
+Frontend-ში (ამ HTML-ში) შეგიძლია fetch-ი: <code>fetch(‘http://localhost:5000/moon?datetime=2025-04-10T12:00:00&tz=Asia/Tbilisi’)</code><br/>
+Then call this API from the HTML frontend with fetch().
+</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">
+<strong>Hosting Python:</strong> Render.com (free tier), Railway.app, or Heroku.<br/>
+Deploy backend to Render.com free tier — connect GitHub repo → set start command: <code>python app.py</code>
+</div></div>
+</div>
+
+```
+<hr class="divider"/>
+
+<div class="deploy-section">
+  <h3>📊 შედარება · Which option?</h3>
+  <div style="font-size:12px; color:var(--muted); font-family:monospace; line-height:2">
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; color:#7a7ab0">
+      <span style="color:var(--gold)">Option</span><span style="color:var(--gold)">Accuracy</span><span style="color:var(--gold)">Complexity</span>
+      <span>HTML (this file)</span><span>~0.1°</span><span>Zero — just upload</span>
+      <span>React + Vite</span><span>~0.1°</span><span>Low — npm + GitHub</span>
+      <span>Python backend</span><span>&lt;0.001°</span><span>Medium — server needed</span>
+    </div>
+  </div>
+  <div style="margin-top:10px; font-size:12px; color:#4a4a70; font-family:Georgia,serif; font-style:italic">
+    ამ HTML ფაილის სიზუსტე საკმარისია ასტროლოგიური გამოყენებისთვის. Python backend-ი გჭირდება მხოლოდ პროფესიული/სამეცნიერო სიზუსტისთვის.<br/>
+    The HTML file's accuracy is sufficient for astrology. Use Python backend only for professional/scientific precision.
+  </div>
+</div>
+```
+
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  ASTRONOMY CORE  (Meeus Astronomical Algorithms Ch.47)
+// ════════════════════════════════════════════════════════
+const DEG = Math.PI / 180;
+const RAD = 180 / Math.PI;
+
+function julianDay(year, month, day, hourUTC) {
+  if (month <= 2) { year -= 1; month += 12; }
+  const A = Math.floor(year / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + hourUTC / 24 + B - 1524.5;
+}
+function jc(jd) { return (jd - 2451545.0) / 36525.0; }
+
+function sunLon(T) {
+  const L0 = 280.46646 + 36000.76983 * T;
+  const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * DEG;
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M)
+          + (0.019993 - 0.000101 * T) * Math.sin(2 * M)
+          + 0.000289 * Math.sin(3 * M);
+  let lon = (L0 + C) % 360;
+  return lon < 0 ? lon + 360 : lon;
+}
+
+function moonPos(T) {
+  const r = v => ((v % 360) + 360) % 360;
+  let Lp = r(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
+  let D  = r(297.8501921 + 445267.1114034  * T - 0.0018819 * T * T);
+  let M  = r(357.5291092 +  35999.0502909  * T - 0.0001536 * T * T);
+  let Mp = r(134.9633964 + 477198.8675055  * T + 0.0087414 * T * T);
+  let F  = r( 93.2720950 + 483202.0175233  * T - 0.0036539 * T * T);
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T;
+  const [Lr,Dr,Mr,Mpr,Fr] = [Lp,D,M,Mp,F].map(v => v * DEG);
+  const dL =
+    6288774*Math.sin(Mpr)+1274027*Math.sin(2*Dr-Mpr)+658314*Math.sin(2*Dr)+
+    214176*Math.sin(2*Mpr)-185116*E*Math.sin(Mr)-114332*Math.sin(2*Fr)+
+    58793*Math.sin(2*Dr-2*Mpr)+57066*E*Math.sin(2*Dr-Mr-Mpr)+53322*Math.sin(2*Dr+Mpr)+
+    45758*E*Math.sin(2*Dr-Mr)-40923*E*Math.sin(Mr-Mpr)-34720*Math.sin(Dr)-
+    30383*E*Math.sin(Mr+Mpr)+15327*Math.sin(2*Dr-2*Fr)-12528*Math.sin(Mpr+2*Fr)+
+    10980*Math.sin(Mpr-2*Fr)+10675*Math.sin(4*Dr-Mpr)+10034*Math.sin(3*Mpr)+
+    8548*Math.sin(4*Dr-2*Mpr)-7888*E*Math.sin(2*Dr+Mr-Mpr)-6766*E*Math.sin(2*Dr+Mr)-
+    5163*Math.sin(Dr-Mpr)+4987*E*Math.sin(Dr+Mr)+4036*E*Math.sin(2*Dr-Mr+Mpr)+
+    3994*Math.sin(2*Dr+2*Mpr)+3861*Math.sin(4*Dr)+3665*Math.sin(2*Dr-3*Mpr)-
+    2689*E*Math.sin(Mr-2*Mpr)-2602*Math.sin(2*Dr-Mpr+2*Fr)+2390*E*Math.sin(2*Dr-Mr-2*Mpr)-
+    2348*Math.sin(Dr+Mpr)+2236*E*E*Math.sin(2*Dr-2*Mr)-2120*E*Math.sin(Mr+2*Mpr)-
+    2069*E*E*Math.sin(2*Mr)+2048*E*E*Math.sin(2*Dr-2*Mr-Mpr)-1773*Math.sin(2*Dr+Mpr-2*Fr)-
+    1595*Math.sin(2*Dr+2*Fr)+1215*E*Math.sin(4*Dr-Mr-Mpr)-1110*Math.sin(2*Mpr+2*Fr);
+  const dR =
+    -20905355*Math.cos(Mpr)-3699111*Math.cos(2*Dr-Mpr)-2955968*Math.cos(2*Dr)-
+    569925*Math.cos(2*Mpr)+48888*E*Math.cos(Mr)-3149*Math.cos(2*Fr)+
+    246158*Math.cos(2*Dr-2*Mpr)-152138*E*Math.cos(2*Dr-Mr-Mpr)-
+    170733*Math.cos(2*Dr+Mpr)-204586*E*Math.cos(2*Dr-Mr)-129620*E*Math.cos(Mr-Mpr)+
+    108743*Math.cos(Dr)+104755*E*Math.cos(Mr+Mpr)+10321*Math.cos(2*Dr-2*Fr)+
+    79661*Math.cos(Mpr-2*Fr)-34782*Math.cos(4*Dr-Mpr)-23210*Math.cos(3*Mpr)-
+    21636*Math.cos(4*Dr-2*Mpr)+24208*E*Math.cos(2*Dr+Mr-Mpr)+30824*E*Math.cos(2*Dr+Mr)-
+    8379*Math.cos(Dr-Mpr)-16675*E*Math.cos(Dr+Mr)-12831*E*Math.cos(2*Dr-Mr+Mpr)-
+    10445*Math.cos(2*Dr+2*Mpr)-11650*Math.cos(4*Dr)+14403*Math.cos(2*Dr-3*Mpr)-
+    7003*E*Math.cos(Mr-2*Mpr)+10056*E*Math.cos(2*Dr-Mr-2*Mpr)+6322*Math.cos(Dr+Mpr)-
+    9884*E*E*Math.cos(2*Dr-2*Mr);
+  const moonLon = ((Lp + dL / 1000000) % 360 + 360) % 360;
+  const distance = 385000.56 + dR / 1000;
+  return { moonLon, distance };
+}
+
+function moonAge(jd) {
+  const T = jc(jd);
+  const sLon = sunLon(T);
+  const { moonLon, distance } = moonPos(T);
+  let elong = ((moonLon - sLon) % 360 + 360) % 360;
+  const age = elong / 360 * 29.530588861;
+  const illumination = (1 - Math.cos(elong * DEG)) / 2;
+  return { age, elong, illumination, moonLon, sunLon: sLon, distance };
+}
+
+function phaseName(age) {
+  if (age < 1.85)  return ["🌑 New Moon",          "🌑 მოლუსნი მთვარე"];
+  if (age < 7.38)  return ["🌒 Waxing Crescent",    "🌒 მზარდი ნამგალა"];
+  if (age < 9.22)  return ["🌓 First Quarter",      "🌓 პირველი მეოთხედი"];
+  if (age < 14.77) return ["🌔 Waxing Gibbous",     "🌔 მზარდი სავსე"];
+  if (age < 16.61) return ["🌕 Full Moon",           "🌕 სავსე მთვარე"];
+  if (age < 22.15) return ["🌖 Waning Gibbous",     "🌖 კლებადი სავსე"];
+  if (age < 23.99) return ["🌗 Last Quarter",       "🌗 ბოლო მეოთხედი"];
+  return                   ["🌘 Waning Crescent",   "🌘 კლებადი ნამგალა"];
+}
+
+function computeVelData(jd) {
+  const pts = [];
+  for (let i = 0; i <= 60; i++) {
+    const d = jd - 29.5 + i * 0.5;
+    const T = jc(d), T1 = jc(d + 0.5);
+    let { moonLon: m0, distance: dist } = moonPos(T);
+    let { moonLon: m1 } = moonPos(T1);
+    let dLon = m1 - m0; if (dLon < 0) dLon += 360;
+    const { age, illumination } = moonAge(d);
+    pts.push({ age, dLon: dLon * 2, dist });
+  }
+  return pts;
+}
+
+// ════════════════════════════════════════════════════════
+//  TIMEZONE ENGINE  (Real DST via Intl.DateTimeFormat)
+// ════════════════════════════════════════════════════════
+
+// Full IANA timezone list with display names
+const TIMEZONES = [
+  // UTC
+  { iana: "UTC",                    display: "UTC — Universal",                region: "UTC" },
+  // Americas
+  { iana: "America/New_York",       display: "New_York (EST/EDT)",             region: "Americas" },
+  { iana: "America/Chicago",        display: "Chicago (CST/CDT)",              region: "Americas" },
+  { iana: "America/Denver",         display: "Denver (MST/MDT)",               region: "Americas" },
+  { iana: "America/Phoenix",        display: "Phoenix (MST, no DST)",          region: "Americas" },
+  { iana: "America/Los_Angeles",    display: "Los_Angeles (PST/PDT)",          region: "Americas" },
+  { iana: "America/Anchorage",      display: "Anchorage (AKST/AKDT)",          region: "Americas" },
+  { iana: "America/Honolulu",       display: "Honolulu (HST, no DST)",         region: "Americas" },
+  { iana: "America/Toronto",        display: "Toronto (EST/EDT)",              region: "Americas" },
+  { iana: "America/Vancouver",      display: "Vancouver (PST/PDT)",            region: "Americas" },
+  { iana: "America/Sao_Paulo",      display: "São Paulo (BRT/BRST)",           region: "Americas" },
+  { iana: "America/Buenos_Aires",   display: "Buenos Aires (ART)",             region: "Americas" },
+  { iana: "America/Mexico_City",    display: "Mexico City (CST/CDT)",          region: "Americas" },
+  { iana: "America/Bogota",         display: "Bogotá (COT)",                   region: "Americas" },
+  { iana: "America/Lima",           display: "Lima (PET)",                     region: "Americas" },
+  { iana: "America/Santiago",       display: "Santiago (CLT/CLST)",            region: "Americas" },
+  { iana: "America/Caracas",        display: "Caracas (VET)",                  region: "Americas" },
+  { iana: "America/Halifax",        display: "Halifax (AST/ADT)",              region: "Americas" },
+  { iana: "America/St_Johns",       display: "St_Johns (NST/NDT)",             region: "Americas" },
+  // Europe
+  { iana: "Europe/London",          display: "London (GMT/BST)",               region: "Europe" },
+  { iana: "Europe/Dublin",          display: "Dublin (GMT/IST)",               region: "Europe" },
+  { iana: "Europe/Lisbon",          display: "Lisbon (WET/WEST)",              region: "Europe" },
+  { iana: "Europe/Paris",           display: "Paris (CET/CEST)",               region: "Europe" },
+  { iana: "Europe/Berlin",          display: "Berlin (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Rome",            display: "Rome (CET/CEST)",                region: "Europe" },
+  { iana: "Europe/Madrid",          display: "Madrid (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Amsterdam",       display: "Amsterdam (CET/CEST)",           region: "Europe" },
+  { iana: "Europe/Brussels",        display: "Brussels (CET/CEST)",            region: "Europe" },
+  { iana: "Europe/Stockholm",       display: "Stockholm (CET/CEST)",           region: "Europe" },
+  { iana: "Europe/Oslo",            display: "Oslo (CET/CEST)",                region: "Europe" },
+  { iana: "Europe/Copenhagen",      display: "Copenhagen (CET/CEST)",          region: "Europe" },
+  { iana: "Europe/Helsinki",        display: "Helsinki (EET/EEST)",            region: "Europe" },
+  { iana: "Europe/Riga",            display: "Riga (EET/EEST)",                region: "Europe" },
+  { iana: "Europe/Tallinn",         display: "Tallinn (EET/EEST)",             region: "Europe" },
+  { iana: "Europe/Vilnius",         display: "Vilnius (EET/EEST)",             region: "Europe" },
+  { iana: "Europe/Warsaw",          display: "Warsaw (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Prague",          display: "Prague (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Budapest",        display: "Budapest (CET/CEST)",            region: "Europe" },
+  { iana: "Europe/Vienna",          display: "Vienna (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Zurich",          display: "Zürich (CET/CEST)",              region: "Europe" },
+  { iana: "Europe/Athens",          display: "Athens (EET/EEST)",              region: "Europe" },
+  { iana: "Europe/Bucharest",       display: "Bucharest (EET/EEST)",           region: "Europe" },
+  { iana: "Europe/Sofia",           display: "Sofia (EET/EEST)",               region: "Europe" },
+  { iana: "Europe/Kiev",            display: "Kyiv (EET/EEST)",                region: "Europe" },
+  { iana: "Europe/Minsk",           display: "Minsk (FET, no DST)",            region: "Europe" },
+  { iana: "Europe/Moscow",          display: "Moscow (MSK, no DST)",           region: "Europe" },
+  { iana: "Europe/Istanbul",        display: "Istanbul (TRT, no DST)",         region: "Europe" },
+  { iana: "Europe/Tbilisi",         display: "თბილისი · Tbilisi (GET)",         region: "Europe" },
+  { iana: "Europe/Yerevan",         display: "Yerevan (AMT)",                  region: "Europe" },
+  { iana: "Europe/Baku",            display: "Baku (AZT)",                     region: "Europe" },
+  // Asia
+  { iana: "Asia/Dubai",             display: "Dubai (GST)",                    region: "Asia" },
+  { iana: "Asia/Riyadh",            display: "Riyadh (AST)",                   region: "Asia" },
+  { iana: "Asia/Baghdad",           display: "Baghdad (AST)",                  region: "Asia" },
+  { iana: "Asia/Tehran",            display: "Tehran (IRST/IRDT)",             region: "Asia" },
+  { iana: "Asia/Kabul",             display: "Kabul (AFT)",                    region: "Asia" },
+  { iana: "Asia/Karachi",           display: "Karachi (PKT)",                  region: "Asia" },
+  { iana: "Asia/Kolkata",           display: "Kolkata/Mumbai (IST)",           region: "Asia" },
+  { iana: "Asia/Kathmandu",         display: "Kathmandu (NPT)",                region: "Asia" },
+  { iana: "Asia/Dhaka",             display: "Dhaka (BST)",                    region: "Asia" },
+  { iana: "Asia/Yangon",            display: "Yangon (MMT)",                   region: "Asia" },
+  { iana: "Asia/Bangkok",           display: "Bangkok (ICT)",                  region: "Asia" },
+  { iana: "Asia/Jakarta",           display: "Jakarta (WIB)",                  region: "Asia" },
+  { iana: "Asia/Singapore",         display: "Singapore (SGT)",                region: "Asia" },
+  { iana: "Asia/Kuala_Lumpur",      display: "Kuala Lumpur (MYT)",             region: "Asia" },
+  { iana: "Asia/Manila",            display: "Manila (PST)",                   region: "Asia" },
+  { iana: "Asia/Shanghai",          display: "Shanghai/Beijing (CST)",         region: "Asia" },
+  { iana: "Asia/Hong_Kong",         display: "Hong Kong (HKT)",                region: "Asia" },
+  { iana: "Asia/Taipei",            display: "Taipei (CST)",                   region: "Asia" },
+  { iana: "Asia/Tokyo",             display: "Tokyo (JST)",                    region: "Asia" },
+  { iana: "Asia/Seoul",             display: "Seoul (KST)",                    region: "Asia" },
+  { iana: "Asia/Jerusalem",         display: "Jerusalem (IST/IDT)",            region: "Asia" },
+  { iana: "Asia/Beirut",            display: "Beirut (EET/EEST)",              region: "Asia" },
+  { iana: "Asia/Almaty",            display: "Almaty (ALMT)",                  region: "Asia" },
+  { iana: "Asia/Tashkent",          display: "Tashkent (UZT)",                 region: "Asia" },
+  { iana: "Asia/Yekaterinburg",     display: "Yekaterinburg (YEKT)",           region: "Asia" },
+  { iana: "Asia/Novosibirsk",       display: "Novosibirsk (NOVT)",             region: "Asia" },
+  { iana: "Asia/Krasnoyarsk",       display: "Krasnoyarsk (KRAT)",             region: "Asia" },
+  { iana: "Asia/Irkutsk",           display: "Irkutsk (IRKT)",                 region: "Asia" },
+  { iana: "Asia/Vladivostok",       display: "Vladivostok (VLAT)",             region: "Asia" },
+  // Africa
+  { iana: "Africa/Cairo",           display: "Cairo (EET)",                    region: "Africa" },
+  { iana: "Africa/Nairobi",         display: "Nairobi (EAT)",                  region: "Africa" },
+  { iana: "Africa/Lagos",           display: "Lagos (WAT)",                    region: "Africa" },
+  { iana: "Africa/Accra",           display: "Accra (GMT)",                    region: "Africa" },
+  { iana: "Africa/Johannesburg",    display: "Johannesburg (SAST)",            region: "Africa" },
+  { iana: "Africa/Casablanca",      display: "Casablanca (WET/WEST)",          region: "Africa" },
+  { iana: "Africa/Addis_Ababa",     display: "Addis Ababa (EAT)",              region: "Africa" },
+  // Pacific / Australia
+  { iana: "Australia/Sydney",       display: "Sydney (AEST/AEDT)",             region: "Pacific" },
+  { iana: "Australia/Melbourne",    display: "Melbourne (AEST/AEDT)",          region: "Pacific" },
+  { iana: "Australia/Brisbane",     display: "Brisbane (AEST, no DST)",        region: "Pacific" },
+  { iana: "Australia/Adelaide",     display: "Adelaide (ACST/ACDT)",           region: "Pacific" },
+  { iana: "Australia/Perth",        display: "Perth (AWST)",                   region: "Pacific" },
+  { iana: "Pacific/Auckland",       display: "Auckland (NZST/NZDT)",           region: "Pacific" },
+  { iana: "Pacific/Fiji",           display: "Fiji (FJT/FJST)",                region: "Pacific" },
+  { iana: "Pacific/Honolulu",       display: "Honolulu (HST)",                 region: "Pacific" },
+  { iana: "Pacific/Tongatapu",      display: "Tonga (TOT)",                    region: "Pacific" },
+];
+
+// Get real UTC offset for a timezone at a given date using Intl API
+function getUtcOffsetMinutes(ianaName, date) {
+  try {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: ianaName,
+      timeZoneName: 'shortOffset',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    const parts = fmt.formatToParts(date);
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    if (!tzPart) return 0;
+    const m = tzPart.value.match(/GMT([+-])(\d+)(?::(\d+))?/);
+    if (!m) return 0;
+    const sign = m[1] === '+' ? 1 : -1;
+    return sign * (parseInt(m[2]) * 60 + parseInt(m[3] || 0));
+  } catch { return 0; }
+}
+
+function formatOffset(mins) {
+  const sign = mins >= 0 ? '+' : '-';
+  const abs = Math.abs(mins);
+  const h = String(Math.floor(abs / 60)).padStart(2, '0');
+  const m = String(abs % 60).padStart(2, '0');
+  return `UTC ${sign}${h}:${m}`;
+}
+
+function isDST(ianaName, date) {
+  try {
+    const jan = getUtcOffsetMinutes(ianaName, new Date(date.getFullYear(), 0, 15));
+    const jul = getUtcOffsetMinutes(ianaName, new Date(date.getFullYear(), 6, 15));
+    if (jan === jul) return false;
+    const now = getUtcOffsetMinutes(ianaName, date);
+    return now === Math.max(jan, jul);
+  } catch { return false; }
+}
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let selectedTz = "Europe/Tbilisi";
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+
+  buildTzList('');
+  updateTzBtn();
+  setupTzDropdown();
+  calculate();
+});
+
+function buildTzList(query) {
+  const list = document.getElementById('tzList');
+  const q = query.toLowerCase();
+  const refDate = new Date();
+  const filtered = TIMEZONES.filter(tz =>
+    tz.display.toLowerCase().includes(q) || tz.iana.toLowerCase().includes(q) || tz.region.toLowerCase().includes(q)
+  );
+  // Group by region
+  const groups = {};
+  filtered.forEach(tz => {
+    if (!groups[tz.region]) groups[tz.region] = [];
+    groups[tz.region].push(tz);
+  });
+  list.innerHTML = '';
+  Object.entries(groups).forEach(([region, tzs]) => {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'padding:5px 14px 2px; font-size:10px; color:#3a3a60; text-transform:uppercase; letter-spacing:0.15em; font-family:Cinzel,serif; border-top:1px solid #1a1a30; margin-top:4px;';
+    hdr.textContent = region;
+    list.appendChild(hdr);
+    tzs.forEach(tz => {
+      const offsetMins = getUtcOffsetMinutes(tz.iana, refDate);
+      const dst = isDST(tz.iana, refDate);
+      const item = document.createElement('div');
+      item.className = 'tz-item' + (tz.iana === selectedTz ? ' selected' : '');
+      item.innerHTML = `<span>${tz.display}</span><span class="dst-tag">${formatOffset(offsetMins)}${dst ? ' ☀DST' : ''}</span>`;
+      item.addEventListener('click', () => {
+        selectedTz = tz.iana;
+        updateTzBtn();
+        document.getElementById('tzDropdown').classList.remove('open');
+        document.getElementById('tzSearch').value = '';
+        buildTzList('');
+      });
+      list.appendChild(item);
+    });
+  });
+}
+
+function updateTzBtn() {
+  const refDate = new Date();
+  const offsetMins = getUtcOffsetMinutes(selectedTz, refDate);
+  const dst = isDST(selectedTz, refDate);
+  const tz = TIMEZONES.find(t => t.iana === selectedTz);
+  document.getElementById('tzDisplay').textContent =
+    `${tz ? tz.display : selectedTz}  ${formatOffset(offsetMins)}${dst ? ' ☀' : ''}`;
+}
+
+function setupTzDropdown() {
+  const btn = document.getElementById('tzBtn');
+  const dd  = document.getElementById('tzDropdown');
+  const srch = document.getElementById('tzSearch');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dd.classList.toggle('open');
+    if (dd.classList.contains('open')) setTimeout(() => srch.focus(), 50);
+  });
+  srch.addEventListener('input', () => buildTzList(srch.value));
+  document.addEventListener('click', () => dd.classList.remove('open'));
+  dd.addEventListener('click', e => e.stopPropagation());
+}
+
+// ════════════════════════════════════════════════════════
+//  CALCULATE
+// ════════════════════════════════════════════════════════
+function calculate() {
+  const dateVal = document.getElementById('dateInput').value;
+  const timeVal = document.getElementById('timeInput').value || '12:00';
+  if (!dateVal) return;
+
+  const [year, month, day] = dateVal.split('-').map(Number);
+  const [hour, minute] = timeVal.split(':').map(Number);
+
+  // Get real UTC offset for the selected timezone at this date
+  const localDate = new Date(year, month - 1, day, hour, minute);
+  const offsetMins = getUtcOffsetMinutes(selectedTz, localDate);
+  const utcHour = hour - offsetMins / 60 + minute / 60;
+
+  const jd = julianDay(year, month, day, utcHour);
+  const res = moonAge(jd);
+  const [phaseEn, phaseKa] = phaseName(res.age);
+  const velData = computeVelData(jd);
+
+  drawMoon(res.age);
+  document.getElementById('phaseName').textContent = phaseEn;
+  document.getElementById('phaseKa').textContent = phaseKa;
+
+  const statsDiv = document.getElementById('statsDiv');
+  statsDiv.innerHTML = statRow("სინოდური ასაკი · Age", res.age.toFixed(3), "days", true)
+    + statRow("განათება · Illumination", (res.illumination * 100).toFixed(1), "%")
+    + statRow("ელონგაცია · Elongation", res.elong.toFixed(2), "°")
+    + statRow("მთვარის გრძ. · Moon Lon", res.moonLon.toFixed(3), "°")
+    + statRow("მზის გრძ. · Sun Lon", res.sunLon.toFixed(3), "°")
+    + statRow("მანძილი · Distance", Math.round(res.distance).toLocaleString(), "km")
+    + statRow("Julian Day", jd.toFixed(5), "")
+    + statRow("UTC Offset", formatOffset(offsetMins), isDST(selectedTz, localDate) ? "☀ DST" : "")
+    + statRow("Mean Synodic Month", "29.53059", "days");
+
+  drawZodiac(res.moonLon, res.sunLon);
+  drawVelChart(velData, res.age);
+  drawDistChart(velData, res.age);
+
+  ['resultCard','wheelCard','velCard','distCard','physicsNote'].forEach(id => {
+    document.getElementById(id).style.display = '';
+  });
+}
+
+function statRow(label, value, unit, accent = false) {
+  return `<div class="stat-row">
+    <span class="stat-label">${label}</span>
+    <span class="stat-val ${accent ? 'accent' : ''}">${value}<span class="stat-unit">${unit}</span></span>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  MOON SVG
+// ════════════════════════════════════════════════════════
+function drawMoon(age) {
+  const svg = document.getElementById('moonSvg');
+  const S = 140, r = 68, cx = 70, cy = 70;
+  const illum = (1 - Math.cos((age / 29.530588861) * 2 * Math.PI)) / 2;
+  const waxing = age < 14.765;
+  const termX = r * Math.cos((age / 29.530588861) * 2 * Math.PI);
+  const isNew = age < 1 || age > 28.5;
+  const isFull = age > 13.5 && age < 16;
+  const glowOp = illum * 0.7;
+
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f8f0d0" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#f8f0d0" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="gf"><feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <clipPath id="mc"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>
+    </defs>
+    ${!isNew ? `<circle cx="${cx}" cy="${cy}" r="${r + 10}" fill="url(#mg)" opacity="${glowOp}"/>` : ''}
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#14142a" stroke="#2a2a48" stroke-width="1"/>
+    <g clip-path="url(#mc)">
+      ${!isNew ? `<rect x="${waxing ? cx : 0}" y="0" width="${r}" height="${S}" fill="#d4c9a0"/>` : ''}
+      ${!isNew ? `<ellipse cx="${cx}" cy="${cy}" rx="${Math.max(1, Math.abs(termX))}" ry="${r}"
+        fill="${waxing ? (termX > 0 ? '#14142a' : '#d4c9a0') : (termX > 0 ? '#d4c9a0' : '#14142a')}"/>` : ''}
+      ${!isNew ? `
+        <circle cx="${cx * 0.8}" cy="${cy * 0.75}" r="${r * 0.07}" fill="#b0a070" opacity="0.4"/>
+        <circle cx="${cx * 1.15}" cy="${cy * 1.2}" r="${r * 0.05}" fill="#b0a070" opacity="0.3"/>
+        <circle cx="${cx * 0.95}" cy="${cy * 1.45}" r="${r * 0.04}" fill="#b0a070" opacity="0.3"/>
+        <circle cx="${cx * 1.3}" cy="${cy * 0.85}" r="${r * 0.06}" fill="#b0a070" opacity="0.28"/>
+      ` : ''}
+    </g>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${isFull ? '#f0e8b0' : '#2a2a50'}"
+      stroke-width="${isFull ? 1.5 : 0.5}"
+      ${isFull ? 'filter="url(#gf)"' : ''}/>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  ZODIAC WHEEL  — counterclockwise, Aries at 9 o'clock (180° in SVG angles)
+//  Convention: 0° ecliptic lon = Aries, placed at LEFT (9 o'clock).
+//  Counterclockwise: angle in SVG = -(eclipticLon) + 180°
+// ════════════════════════════════════════════════════════
+function drawZodiac(moonLon, sLon) {
+  const svg = document.getElementById('zodiacSvg');
+  const cx = 140, cy = 140;
+  const outerR = 128, innerR = 96, labelR = 112;
+
+  // Convert ecliptic longitude to SVG angle
+  // Aries (0°) at left (9-o'clock = 180° in standard SVG polar),
+  // increasing counterclockwise → SVG angle = 180 - lon
+  const toAngle = lon => (180 - lon) * DEG; // radians in SVG coord
+  const toXY = (lon, r) => ({
+    x: cx + r * Math.cos(toAngle(lon)),
+    y: cy - r * Math.sin(toAngle(lon)) * -1  // SVG y-flipped
+  });
+  // Actually cleaner:
+  const pos = (lon, r) => {
+    const a = (180 - lon) * DEG;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  };
+
+  const signs = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+  const signNames = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const kaNames = ["ვარძა","კურო","ტყუპი","კირჩხიბი","ლომი","ქალწული","სასწორი","მორიელი","მშვილდოსანი","თხის რქა","მერწყული","თევზები"];
+
+  let out = `<defs>
+    <radialGradient id="wbg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#12122a"/><stop offset="100%" stop-color="#070714"/>
+    </radialGradient>
+  </defs>
+  <circle cx="${cx}" cy="${cy}" r="${outerR + 5}" fill="url(#wbg)" stroke="#252545" stroke-width="1"/>`;
+
+  // Sign sectors
+  signs.forEach((s, i) => {
+    const startLon = i * 30;
+    const midLon = startLon + 15;
+    const isLit = Math.floor(moonLon / 30) === i;
+    const lp = pos(midLon, labelR);
+    const sp = pos(startLon, outerR);
+    const ip = pos(startLon, innerR);
+    // Sector line
+    out += `<line x1="${sp.x}" y1="${sp.y}" x2="${ip.x}" y2="${ip.y}" stroke="${isLit ? '#5a5a9a' : '#252545'}" stroke-width="0.8"/>`;
+    // Sign glyph
+    out += `<text x="${lp.x}" y="${lp.y + 5}" text-anchor="middle" font-size="15" fill="${isLit ? '#d8d0f8' : '#4a4a80'}">${s}</text>`;
+  });
+
+  // Rings
+  out += `<circle cx="${cx}" cy="${cy}" r="${outerR}" fill="none" stroke="#252545" stroke-width="0.8"/>`;
+  out += `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="none" stroke="#1e1e3a" stroke-width="0.5"/>`;
+  out += `<circle cx="${cx}" cy="${cy}" r="60" fill="none" stroke="#1e1e3a" stroke-width="0.5"/>`;
+
+  // Earth
+  out += `<circle cx="${cx}" cy="${cy}" r="7" fill="#3a6aaa"/>`;
+  out += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="9" fill="#fff">🜨</text>`;
+
+  // Elongation arc (counterclockwise from sun to moon)
+  const sr = 50;
+  let elong = ((moonLon - sLon) % 360 + 360) % 360;
+  const sunP = pos(sLon, sr + 5);
+  const moonP_arc = pos(moonLon, sr + 5);
+  // Large arc flag: if elongation > 180 going CCW in ecliptic → but in SVG coords CCW ecliptic = CW SVG
+  // We draw arc from sun angle to moon angle going clockwise in SVG (= counterclockwise ecliptic)
+  const sunA = (180 - sLon) * DEG;
+  const moonA = (180 - moonLon) * DEG;
+  const sax = cx + (sr+5)*Math.cos(sunA), say = cy + (sr+5)*Math.sin(sunA);
+  const max_ = cx + (sr+5)*Math.cos(moonA), may = cy + (sr+5)*Math.sin(moonA);
+  // sweep-flag=1 = clockwise in SVG = counterclockwise in ecliptic
+  const laf = elong > 180 ? 0 : 1;
+  const swf = 0; // counterclockwise in SVG
+  out += `<path d="M ${sax} ${say} A ${sr+5} ${sr+5} 0 ${laf} ${swf} ${max_} ${may}" fill="none" stroke="#c8b870" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.65"/>`;
+
+  // Sun marker
+  const sPos = pos(sLon, 72);
+  out += `<circle cx="${sPos.x}" cy="${sPos.y}" r="9" fill="#f0c030" opacity="0.92"/>`;
+  out += `<text x="${sPos.x}" y="${sPos.y + 4}" text-anchor="middle" font-size="11" fill="#1a1a2e">☀</text>`;
+
+  // Moon marker
+  const mPos = pos(moonLon, 72);
+  out += `<circle cx="${mPos.x}" cy="${mPos.y}" r="8" fill="#c8c0a0" opacity="0.92"/>`;
+  out += `<text x="${mPos.x}" y="${mPos.y + 4}" text-anchor="middle" font-size="11" fill="#1a1a2e">☽</text>`;
+
+  // Moon sign label
+  const signIdx = Math.floor(moonLon / 30);
+  out += `<text x="${cx}" y="${cy - 72}" text-anchor="middle" font-size="10" fill="#8a8ab8">☽ ${signNames[signIdx]} / ${kaNames[signIdx]}</text>`;
+
+  // Cardinal points: Aries at left, Cancer at top, Libra at right, Capricorn at bottom
+  const cardinals = [[0,"♈"],[90,"♋"],[180,"♎"],[270,"♑"]];
+  cardinals.forEach(([lon, sym]) => {
+    const p = pos(lon, outerR + 15);
+    out += `<text x="${p.x}" y="${p.y + 4}" text-anchor="middle" font-size="12" fill="#6a6aa0">${sym}</text>`;
+  });
+
+  svg.innerHTML = out;
+}
+
+// ════════════════════════════════════════════════════════
+//  VELOCITY CHART
+// ════════════════════════════════════════════════════════
+function drawVelChart(data, curAge) {
+  const c = document.getElementById('velCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = { top: 30, right: 22, bottom: 46, left: 50 };
+  const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+  ctx.clearRect(0, 0, W, H);
+
+  const vels = data.map(d => d.dLon);
+  const minV = Math.min(...vels) - 0.08, maxV = Math.max(...vels) + 0.08;
+  const xS = age => pad.left + (age / 29.53) * cW;
+  const yS = v => pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
+
+  // BG
+  ctx.fillStyle = '#090914'; ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#1a1a30'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + (i / 5) * cH;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
+  }
+
+  // Phase lines
+  const phases = [0, 7.38, 14.77, 22.15, 29.53];
+  const phaseEmoji = ["🌑","🌓","🌕","🌗","🌑"];
+  ctx.setLineDash([3, 5]); ctx.strokeStyle = '#252540';
+  phases.forEach((p, i) => {
+    ctx.beginPath(); ctx.moveTo(xS(p), pad.top); ctx.lineTo(xS(p), pad.top + cH); ctx.stroke();
+    ctx.fillStyle = '#4a4a78'; ctx.font = '12px serif'; ctx.textAlign = 'center';
+    ctx.fillText(phaseEmoji[i], xS(p), pad.top - 10);
+  });
+  ctx.setLineDash([]);
+
+  // Average line
+  const avg = vels.reduce((a,b) => a+b, 0) / vels.length;
+  ctx.strokeStyle = '#303060'; ctx.lineWidth = 1;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(pad.left, yS(avg)); ctx.lineTo(pad.left + cW, yS(avg)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#404070'; ctx.font = '9px monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`avg ${avg.toFixed(2)}°/d`, pad.left + 4, yS(avg) - 4);
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+  grad.addColorStop(0, 'rgba(180,160,90,0.22)');
+  grad.addColorStop(1, 'rgba(180,160,90,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(xS(data[0].age), yS(data[0].dLon));
+  data.forEach(d => ctx.lineTo(xS(d.age), yS(d.dLon)));
+  ctx.lineTo(xS(data[data.length-1].age), yS(minV));
+  ctx.lineTo(xS(data[0].age), yS(minV));
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+
+  // Curve
+  ctx.beginPath(); ctx.strokeStyle = '#c8b870'; ctx.lineWidth = 2;
+  data.forEach((d, i) => {
+    if (i === 0) ctx.moveTo(xS(d.age), yS(d.dLon));
+    else ctx.lineTo(xS(d.age), yS(d.dLon));
+  });
+  ctx.stroke();
+
+  // Current marker
+  const closest = data.reduce((b, d) => Math.abs(d.age - curAge) < Math.abs(b.age - curAge) ? d : b);
+  const mx = xS(curAge), my = yS(closest.dLon);
+  ctx.strokeStyle = '#f0d06044'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(mx, pad.top); ctx.lineTo(mx, pad.top+cH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.left, my); ctx.lineTo(pad.left+cW, my); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(mx, my, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#f0d060'; ctx.fill();
+  ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Axes
+  ctx.strokeStyle = '#353560'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH);
+  ctx.lineTo(pad.left+cW, pad.top+cH); ctx.stroke();
+
+  ctx.fillStyle = '#6a6a9a'; ctx.font = '10px monospace';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = minV + (i/4)*(maxV-minV);
+    ctx.fillText(v.toFixed(2), pad.left-4, yS(v)+4);
+  }
+  ctx.textAlign = 'center';
+  [0,7,14,22,29].forEach(d => ctx.fillText(d+'d', xS(d), pad.top+cH+16));
+
+  ctx.save(); ctx.translate(13, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle = '#4a4a80'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('°/day', 0, 0); ctx.restore();
+
+  ctx.fillStyle = '#4a4a80'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('Synodic Age (days)', pad.left+cW/2, H-6);
+}
+
+// ════════════════════════════════════════════════════════
+//  DISTANCE CHART
+// ════════════════════════════════════════════════════════
+function drawDistChart(data, curAge) {
+  const c = document.getElementById('distCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = { top: 26, right: 22, bottom: 38, left: 70 };
+  const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#090914'; ctx.fillRect(0, 0, W, H);
+
+  const dists = data.map(d => d.dist);
+  const minD = Math.min(...dists) - 600, maxD = Math.max(...dists) + 600;
+  const xS = age => pad.left + (age / 29.53) * cW;
+  const yS = v => pad.top + cH - ((v - minD) / (maxD - minD)) * cH;
+
+  ctx.strokeStyle = '#1a1a30'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (i/4)*cH;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+cW, y); ctx.stroke();
+  }
+
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top+cH);
+  grad.addColorStop(0, 'rgba(80,140,210,0.2)'); grad.addColorStop(1, 'rgba(80,140,210,0.02)');
+  ctx.beginPath(); ctx.moveTo(xS(data[0].age), yS(data[0].dist));
+  data.forEach(d => ctx.lineTo(xS(d.age), yS(d.dist)));
+  ctx.lineTo(xS(data[data.length-1].age), yS(minD));
+  ctx.lineTo(xS(data[0].age), yS(minD));
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath(); ctx.strokeStyle = '#5aB0dc'; ctx.lineWidth = 2;
+  data.forEach((d, i) => {
+    if (i === 0) ctx.moveTo(xS(d.age), yS(d.dist));
+    else ctx.lineTo(xS(d.age), yS(d.dist));
+  });
+  ctx.stroke();
+
+  const minDist = Math.min(...dists), maxDist = Math.max(...dists);
+  const periIdx = dists.indexOf(minDist), apoIdx = dists.indexOf(maxDist);
+  [[periIdx,'#ff8060','პერიგეა',true],[apoIdx,'#80c8ff','აპოგეა',false]].forEach(([idx, col, label, above]) => {
+    const px = xS(data[idx].age), py = yS(data[idx].dist);
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill();
+    ctx.fillStyle = col; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+    const yo = above ? -22 : 14;
+    ctx.fillText(label, px, py + yo);
+    ctx.fillText(`${Math.round(data[idx].dist).toLocaleString()} km`, px, py + yo + 10);
+  });
+
+  const cx = xS(curAge);
+  const cl = data.reduce((b, d) => Math.abs(d.age - curAge) < Math.abs(b.age - curAge) ? d : b);
+  ctx.beginPath(); ctx.arc(cx, yS(cl.dist), 6, 0, Math.PI*2);
+  ctx.fillStyle = '#f0d060'; ctx.fill();
+  ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  ctx.strokeStyle = '#353560'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH);
+  ctx.lineTo(pad.left+cW, pad.top+cH); ctx.stroke();
+
+  ctx.fillStyle = '#6a6a9a'; ctx.font = '10px monospace'; ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = minD + (i/4)*(maxD-minD);
+    ctx.fillText(`${Math.round(v/1000)}k`, pad.left-4, yS(v)+4);
+  }
+  ctx.textAlign = 'center';
+  [0,7,14,22,29].forEach(d => ctx.fillText(d+'d', xS(d), pad.top+cH+16));
+
+  ctx.save(); ctx.translate(13, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle = '#4a4a80'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('Distance (km)', 0, 0); ctx.restore();
+}
+</script>
+
+</body>
+</html>
