@@ -364,7 +364,7 @@ function calculateCompat(){
   const Cv=r22(L3+T3+R3+B3);
 
   // Diagonals
-  const TL3=r22(L3+T3),TR3=r22(T3+R3),BR3=r22(R3+B3),BL3=r22(B3+L3);
+  const TL3=r22(v1.TL3+v2.TL3),TR3=r22(v1.TR3+v2.TR3),BR3=r22(v1.BR3+v2.BR3),BL3=r22(v1.BL3+v2.BL3);
   const RC1=r22(TL3+TR3+BR3+BL3),RC2=r22(RC1+Cv);
   const B1=r22(Cv+B3),B2=r22(B1+B3);
   const R1=r22(Cv+R3),R2=r22(R1+R3);
