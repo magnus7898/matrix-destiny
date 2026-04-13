@@ -355,6 +355,8 @@ function calculate(){
 function calculateCompat(){
   const g=id=>parseInt(document.getElementById(id).value)||1;
   const p1={dd:g('c1-dd'),mm:g('c1-mm'),yyyy:g('c1-yyyy')};
+
+  
   const p2={dd:g('c2-dd'),mm:g('c2-mm'),yyyy:g('c2-yyyy')};
   const v1=base(p1), v2=base(p2);
 
@@ -364,7 +366,7 @@ function calculateCompat(){
   const Cv=r22(L3+T3+R3+B3);
 
   // Diagonals
-  const TL3=r22(v1.TL3+v2.TL3),TR3=r22(v1.TR3+v2.TR3),BR3=r22(v1.BR3+v2.BR3),BL3=r22(v1.BL3+v2.BL3);
+  const TL3=r22(v1.T3+v2.T3+v1.L3+v2.L3),TR3=r22(v1.TR3+v2.TR3),BR3=r22(v1.BR3+v2.BR3),BL3=r22(v1.BL3+v2.BL3);
   const RC1=r22(TL3+TR3+BR3+BL3),RC2=r22(RC1+Cv);
   const B1=r22(Cv+B3),B2=r22(B1+B3);
   const R1=r22(Cv+R3),R2=r22(R1+R3);
