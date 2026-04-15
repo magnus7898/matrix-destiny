@@ -4,429 +4,279 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>მთვარე</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400&family=Cinzel:wght@300;400;600&family=IM+Fell+English:ital@0;1&family=Noto+Sans+Georgian:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07080f;--surface:rgba(255,255,255,0.034);--surf2:rgba(255,255,255,0.06);--border:rgba(180,190,255,0.09);--text:#dde0f0;--muted:#50506a;--accent:#a78bfa;--gold:#fde68a;--moon:#c4b5fd;--green:#34d399;--red:#f87171}
+:root{
+  --void:#04030a;--deep:#07071a;--surface:rgba(15,13,42,0.85);
+  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a20;
+  --purple:#a78bfa;--purple-d:#2d1f6e;
+  --txt:#e0d8ff;--dim:rgba(155,168,184,0.6);
+  --brd:rgba(45,31,110,0.8);
+  --green:#34d399;--red:#f87171;--moon-col:#c4b5fd;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:60px 20px 100px;position:relative;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% -5%,rgba(80,40,160,0.20) 0%,transparent 65%),radial-gradient(ellipse 80% 50% at 50% 110%,rgba(15,8,40,0.50) 0%,transparent 60%);pointer-events:none;z-index:0}
-header{text-align:center;margin-bottom:52px;position:relative;z-index:1;animation:fadeUp 0.8s 0.1s both}
-.eyebrow{font-weight:200;font-size:10px;letter-spacing:0.5em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
-h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,8vw,72px);letter-spacing:0.1em;color:#e8e2f8;line-height:1;margin-bottom:10px}
-.subtitle{font-weight:200;font-size:11px;letter-spacing:0.35em;color:var(--muted);text-transform:uppercase}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;position:relative;overflow:hidden;width:100%;max-width:540px;margin-bottom:20px;animation:fadeUp 0.8s both}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
-.card-body{padding:32px 36px}
-.field-label{font-weight:200;font-size:10px;letter-spacing:0.35em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block}
-.inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-@media(max-width:480px){.inputs{grid-template-columns:1fr}}
-input[type="date"],input[type="time"],select{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Jost',sans-serif;font-size:14px;font-weight:300;padding:12px 14px;outline:none;color-scheme:dark;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;appearance:none}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555570' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-select option,select optgroup{background:#0d0e1c;color:var(--text)}
-input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(167,139,250,0.12)}
-/* City search */
-.search-wrap{position:relative;margin-bottom:8px}
-.city-search{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Jost',sans-serif;font-size:14px;font-weight:300;padding:10px 14px 10px 38px;outline:none;color-scheme:dark;transition:border-color 0.2s}
-.city-search:focus{border-color:var(--accent)}
-.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
-.btn{width:100%;background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;font-family:'Jost',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;border:none;border-radius:10px;padding:14px 24px;cursor:pointer;transition:all 0.25s;margin-top:4px}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(167,139,250,0.4)}
-.btn:disabled{opacity:0.4;cursor:default;transform:none;box-shadow:none}
-.utc-bar{display:none;align-items:center;gap:8px;padding:10px 14px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.14);border-radius:8px;margin-top:12px;font-size:11px;font-weight:300;letter-spacing:0.05em;color:var(--muted);flex-wrap:wrap;gap:6px}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);color:var(--txt);
+  font-family:'Noto Sans Georgian',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:0 0 80px;overflow-x:hidden;position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.55) 0,transparent 100%),
+    radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.45) 0,transparent 100%),
+    radial-gradient(1px 1px at 60% 25%,rgba(255,255,255,.3) 0,transparent 100%),
+    radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.5) 0,transparent 100%),
+    radial-gradient(1px 1px at 88% 44%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1px 1px at 15% 68%,rgba(255,255,255,.3) 0,transparent 100%),
+    radial-gradient(1px 1px at 50% 75%,rgba(255,255,255,.4) 0,transparent 100%),
+    radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.35) 0,transparent 100%),
+    radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%),
+    radial-gradient(1.5px 1.5px at 66% 44%,rgba(201,168,76,.18) 0,transparent 100%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(100,40,200,.08) 0,transparent 70%),
+    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(40,80,200,.06) 0,transparent 70%),
+    radial-gradient(ellipse 400px 300px at 50% 90%,rgba(120,50,180,.05) 0,transparent 70%);
+}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:1;text-align:center;
+  padding:56px 24px 40px;width:100%;
+}
+.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:12px;font-weight:300;font-family:'Cinzel',serif}
+.hero-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(28px,5vw,56px);font-weight:400;letter-spacing:3px;line-height:1.2;
+  background:linear-gradient(160deg,#f5e8ba 0%,var(--gold) 35%,#9a7028 60%,#e8d5a0 80%,#c09040 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 28px rgba(201,168,76,.25));
+}
+.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:13px;color:var(--dim);margin-top:10px}
+.hero-divider{display:flex;align-items:center;gap:14px;margin:24px auto 0;max-width:300px}
+.hero-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent)}
+.hero-gem{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:.5;flex-shrink:0}
+
+/* ── FORM CARD ── */
+.form-card{
+  position:relative;z-index:1;
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
+  border-radius:16px;padding:24px;width:100%;max-width:620px;
+  margin:32px auto;backdrop-filter:blur(12px);
+  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(167,139,250,.08);
+}
+.form-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);
+}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.wide{grid-column:span 3}
+label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;font-family:'Cinzel',serif}
+input{
+  background:rgba(10,8,30,.7);border:1px solid rgba(61,42,138,.6);
+  border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  width:100%;transition:border-color .2s,box-shadow .2s;
+}
+input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+input::placeholder{color:rgba(155,168,184,.35)}
+.coords-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.coords input{background:rgba(6,5,18,.7);color:rgba(155,168,184,.6)}
+#city-hint{font-size:11px;color:var(--purple);margin-top:3px;min-height:15px;padding-left:2px}
+#tz-display{
+  font-size:11px;color:var(--gold);margin-bottom:16px;
+  background:rgba(6,5,18,.5);border-radius:6px;padding:6px 10px;
+  border-left:2px solid rgba(201,168,76,.3);
+}
+.utc-bar{
+  display:none;align-items:center;gap:8px;padding:8px 12px;
+  background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);
+  border-radius:8px;margin-bottom:14px;font-size:11px;color:var(--dim);
+  flex-wrap:wrap;
+}
 .utc-bar.v{display:flex}
-.utc-bar code{color:var(--moon);font-family:'Courier New',monospace;font-size:11px}
-.dst-badge{padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;font-weight:400;border:1px solid;margin-left:auto}
-.dst-on{color:var(--green);border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.07)}
-.dst-off{color:var(--muted);border-color:rgba(100,100,140,0.2);background:rgba(100,100,140,0.05)}
-/* Result */
-.moon-display{display:flex;align-items:center;gap:22px;margin-bottom:28px}
-.moon-emoji{font-size:60px;line-height:1;filter:drop-shadow(0 0 18px rgba(196,181,253,0.6));flex-shrink:0}
-.moon-age-num{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--moon);line-height:1;text-shadow:0 0 28px rgba(196,181,253,0.4)}
-.moon-age-unit{font-size:12px;font-weight:200;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
-.moon-phase{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);margin-top:4px}
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.stat-box{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-.stat-lbl{font-size:9px;font-weight:300;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.stat-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
-.stat-unit{font-size:10px;color:var(--muted);margin-left:2px}
-.bar-labels{display:flex;justify-content:space-between;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.bar-bg{height:5px;border-radius:3px;background:rgba(255,255,255,0.05);overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#6d28d9,var(--moon));box-shadow:0 0 8px rgba(196,181,253,0.45);transition:width 1s cubic-bezier(0.4,0,0.2,1)}
-/* DST note */
-.note{margin-top:20px;padding:16px;background:rgba(253,230,138,0.05);border:1px solid rgba(253,230,138,0.10);border-radius:10px;font-size:12px;font-weight:300;color:var(--muted);line-height:1.7}
-.note strong{color:var(--gold);font-weight:400}
-.error{color:var(--red);font-size:12px;margin-top:10px;display:none;letter-spacing:0.05em}
-.error.v{display:block}
-.loader{display:none;align-items:center;gap:8px;color:var(--muted);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;margin-top:12px}
-.loader.v{display:flex}
-.ld{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:lp 1.2s infinite}
-.ld:nth-child(2){animation-delay:0.2s}.ld:nth-child(3){animation-delay:0.4s}
-@keyframes lp{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-#resultCard{display:none}
-#resultCard.v{display:block}
+.utc-bar code{color:var(--moon-col);font-family:'Courier New',monospace;font-size:11px}
+.dst-badge{padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;border:1px solid;margin-left:auto}
+.dst-on{color:var(--green);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07)}
+.dst-off{color:var(--dim);border-color:rgba(100,100,140,.2);background:rgba(100,100,140,.05)}
+.gen-btn{
+  width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);
+  color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;
+  padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;
+  font-family:'Cinzel',serif;transition:all .3s;
+  box-shadow:0 4px 20px rgba(109,40,217,.3);
+}
+.gen-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);box-shadow:0 6px 28px rgba(124,58,237,.4);transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.4;cursor:default;transform:none}
+
+/* ── RESULT ── */
+#result-area{position:relative;z-index:1;width:100%;max-width:620px;padding:0 0 20px}
+
+.sec-title{
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;
+  color:var(--gold);text-transform:uppercase;text-align:center;
+  margin:28px 0 16px;display:flex;align-items:center;gap:14px;
+}
+.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
+
+.moon-card{
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);
+  border-radius:16px;overflow:hidden;backdrop-filter:blur(8px);
+  padding:28px;margin-bottom:16px;text-align:center;
+}
+.moon-emoji-big{font-size:72px;line-height:1;margin-bottom:16px;
+  filter:drop-shadow(0 0 24px rgba(196,181,253,.7));}
+.moon-age-num{
+  font-family:'Cinzel Decorative',serif;
+  font-size:56px;font-weight:400;color:var(--moon-col);line-height:1;
+  text-shadow:0 0 32px rgba(196,181,253,.5);margin-bottom:6px;
+}
+.moon-age-unit{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);font-family:'Cinzel',serif;margin-bottom:12px}
+.moon-phase-name{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:22px;color:var(--gold-l);margin-bottom:20px;
+}
+.moon-bar-wrap{max-width:340px;margin:0 auto}
+.moon-bar-labels{display:flex;justify-content:space-between;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;font-family:'Cinzel',serif}
+.moon-bar-bg{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.moon-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4c1d95,var(--moon-col));box-shadow:0 0 10px rgba(196,181,253,.5);transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat-card{
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);
+  border-radius:12px;padding:16px;text-align:center;backdrop-filter:blur(8px);
+}
+.stat-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.stat-val{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--txt)}
+.stat-unit{font-size:10px;color:var(--dim);margin-left:2px}
+
+.lunar-day-card{
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);
+  border-radius:12px;padding:16px 20px;backdrop-filter:blur(8px);
+  display:flex;align-items:center;gap:16px;
+}
+.lunar-day-num{
+  font-family:'Cinzel Decorative',serif;font-size:44px;color:var(--gold);
+  line-height:1;text-shadow:0 0 20px rgba(201,168,76,.4);flex-shrink:0;
+}
+.lunar-day-info{text-align:left}
+.lunar-day-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.lunar-day-phase{font-family:'IM Fell English',serif;font-style:italic;font-size:16px;color:var(--gold-l)}
+.lunar-next{font-size:11px;color:var(--dim);margin-top:4px}
+
+.dst-note{
+  font-size:11px;color:var(--dim);line-height:1.7;
+  background:rgba(6,5,18,.5);border-radius:8px;padding:12px 16px;
+  border-left:2px solid rgba(201,168,76,.2);margin-top:12px;
+}
+.dst-note strong{color:var(--gold);font-weight:400}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="eyebrow">სასაათო სარტყელი · ზაფხულის/ზამთრის დრო · ყველა ქალაქი</div>
-  <h1>მთვარე</h1>
-  <p class="subtitle">ყველა სასაათო სარტყელი · UTC კონვერსია · სეზონური ცვლილებები</p>
-</header>
-
-<!-- INPUT CARD -->
-<div class="card" style="animation-delay:0.2s">
-  <div class="card-body">
-
-    <div class="inputs">
-      <div>
-        <label class="field-label">თარიღი</label>
-        <input type="date" id="dateInput">
-      </div>
-      <div>
-        <label class="field-label">ადგილობრივი დრო</label>
-        <input type="time" id="timeInput" value="12:00">
-      </div>
-    </div>
-
-    <div style="margin-bottom:8px">
-      <label class="field-label">ქალაქის ძიება</label>
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input type="text" class="city-search" id="citySearch" placeholder="აკრიფეთ ქალაქის სახელი…" autocomplete="off">
-      </div>
-    </div>
-
-    <div style="margin-bottom:12px">
-      <label class="field-label">ქალაქი / სასაათო სარტყელი</label>
-      <select id="tzSelect" size="1"></select>
-    </div>
-
-    <button class="btn" id="calcBtn" onclick="calculate()">მთვარის ასაკის გამოთვლა</button>
-
-    <div class="utc-bar" id="utcBar">
-      UTC: <code id="utcPreview">—</code>
-      <span class="dst-badge" id="dstBadge">—</span>
-    </div>
-
-    <div class="error" id="errMsg"></div>
-    <div class="loader" id="loader">
-      <div class="ld"></div><div class="ld"></div><div class="ld"></div>
-      <span>მთვარის პოზიციის გამოთვლა</span>
-    </div>
-  </div>
+<div class="hero">
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="margin:0 auto 20px;display:block;opacity:.8">
+    <!-- Moon crescent sigil -->
+    <circle cx="28" cy="28" r="26.5" stroke="rgba(201,168,76,.2)" stroke-width=".5"/>
+    <path d="M32,8 Q44,18 44,28 Q44,38 32,48 Q40,38 40,28 Q40,18 32,8 Z" fill="rgba(196,181,253,.6)"/>
+    <circle cx="24" cy="28" r="14" fill="none" stroke="rgba(196,181,253,.3)" stroke-width=".8"/>
+    <circle cx="28" cy="28" r="2" fill="rgba(201,168,76,.7)"/>
+  </svg>
+  <div class="hero-eyebrow">სულის მეცნიერება · ლუნარული ანალიზი</div>
+  <h1 class="hero-title">მთვარე</h1>
+  <p class="hero-sub">Lunar Age · Phase · Illumination · Timezone Aware</p>
+  <div class="hero-divider"><div class="hero-line"></div><div class="hero-gem"></div><div class="hero-line"></div></div>
 </div>
 
-<!-- RESULT CARD -->
-<div class="card" id="resultCard" style="animation-delay:0.35s">
-  <div class="card-body">
-    <div class="moon-display">
-      <div class="moon-emoji" id="moonEmoji">🌕</div>
-      <div>
-        <div class="moon-age-num" id="moonAge">—</div>
-        <div class="moon-age-unit">დღე ახალმთვარიდან</div>
-        <div class="moon-phase" id="moonPhase">—</div>
-      </div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-lbl">განათება</div>
-        <div class="stat-val" id="statIllum">—<span class="stat-unit">%</span></div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-lbl">ელონგაცია</div>
-        <div class="stat-val" id="statElong">—<span class="stat-unit">°</span></div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-lbl">UTC სხვაობა</div>
-        <div class="stat-val" id="statOffset" style="font-size:16px">—</div>
-      </div>
-    </div>
-    <div class="bar-labels"><span>ახალმთვარე</span><span>სავსემთვარე</span><span>ახალმთვარე</span></div>
-    <div class="bar-bg"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+<!-- FORM -->
+<div class="form-card">
+  <div class="form-grid">
+    <div class="field"><label>დღე</label><input type="number" id="day" value="1" min="1" max="31"></div>
+    <div class="field"><label>თვე</label><input type="number" id="month" value="1" min="1" max="12"></div>
+    <div class="field"><label>წელი</label><input type="number" id="year" value="1990"></div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>საათი</label><input type="number" id="hour" value="12" min="0" max="23"></div>
+    <div class="field"><label>წუთი</label><input type="number" id="minute" value="0" min="0" max="59"></div>
+    <div class="field"><label>წამი</label><input type="number" id="second" value="0" min="0" max="59"></div>
+  </div>
+  <div class="field wide" style="margin-bottom:8px">
+    <label>ქალაქი</label>
+    <input id="city" placeholder="მაგ. თბილისი, London, Paris..." oninput="searchCity()">
+    <div id="city-hint"></div>
+  </div>
+  <div class="coords-row coords">
+    <div class="field"><label>განედი (Lat)</label><input type="number" id="lat" step="0.0001" readonly></div>
+    <div class="field"><label>გრძედი (Lon)</label><input type="number" id="lon" step="0.0001" readonly></div>
+  </div>
+  <div id="tz-display">⏳ ქალაქის შეყვანის შემდეგ სარტყელი განისაზღვრება</div>
+  <div class="utc-bar" id="utcBar">
+    UTC: <code id="utcPreview">—</code>
+    <span class="dst-badge" id="dstBadge">—</span>
+  </div>
+  <input type="hidden" id="tz_name" value="UTC">
+  <button class="gen-btn" id="calcBtn" onclick="calculate()">🌙 მთვარის გამოთვლა</button>
+</div>
 
-    <div class="note" style="margin-top:20px">
-      <strong>რატომ არის მნიშვნელოვანი ქალაქის სახელი:</strong> ფიქსირებული UTC+04:00 არ იცნობს ზამთარ-ზაფხულის გადართვის ისტორიას.
-      საქართველოში 1990 წლის ზაფხულში UTC+5 იყო, ზამთარში — UTC+4. მთვარე მოძრაობს ~0.5°/სთ —
-      1 საათის შეცდომა მთვარის ასაკს ~0.02 დღით ცვლის, რაც ადამიანის დიზაინის გეითებს შეიძლება ანაცვლებდეს.
+<!-- RESULT -->
+<div id="result-area" style="display:none">
+
+  <div class="sec-title">მთვარის ფაზა</div>
+
+  <div class="moon-card">
+    <div class="moon-emoji-big" id="moonEmoji">🌕</div>
+    <div class="moon-age-num" id="moonAge">—</div>
+    <div class="moon-age-unit">დღე ახალმთვარიდან</div>
+    <div class="moon-phase-name" id="moonPhase">—</div>
+    <div class="moon-bar-wrap">
+      <div class="moon-bar-labels"><span>ახალმთვარე</span><span>სავსემთვარე</span><span>ახალმთვარე</span></div>
+      <div class="moon-bar-bg"><div class="moon-bar-fill" id="barFill" style="width:0%"></div></div>
     </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-lbl">განათება</div>
+      <div class="stat-val" id="statIllum">—<span class="stat-unit">%</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">ელონგაცია</div>
+      <div class="stat-val" id="statElong">—<span class="stat-unit">°</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">UTC სხვაობა</div>
+      <div class="stat-val" id="statOffset" style="font-size:16px">—</div>
+    </div>
+  </div>
+
+  <div class="sec-title">მთვარის დღე</div>
+
+  <div class="lunar-day-card">
+    <div class="lunar-day-num" id="lunarDayNum">—</div>
+    <div class="lunar-day-info">
+      <div class="lunar-day-label">მთვარის დღე · Lunar Day</div>
+      <div class="lunar-day-phase" id="lunarDayPhase">—</div>
+      <div class="lunar-next" id="lunarNext">—</div>
+    </div>
+  </div>
+
+  <div class="dst-note">
+    <strong>სასაათო სარტყელი და DST:</strong> ფიქსირებული UTC±N არ ითვალისწინებს ზამთარ-ზაფხულის ისტორიას.
+    ქალაქის სახელი IANA მონაცემთა ბაზის საფუძველზე განსაზღვრავს ზუსტ UTC-ს ნებისმიერი თარიღისთვის.
   </div>
 </div>
 
 <script>
-// ── All world cities with IANA timezone names ─────────────────
-const CITIES = [
-  {g:'— UTC —'},{c:'UTC',z:'UTC'},
-  {g:'Africa'},
-  {c:'Abidjan',z:'Africa/Abidjan'},{c:'Accra',z:'Africa/Accra'},{c:'Addis Ababa',z:'Africa/Addis_Ababa'},
-  {c:'Algiers',z:'Africa/Algiers'},{c:'Asmara',z:'Africa/Asmara'},{c:'Bamako',z:'Africa/Bamako'},
-  {c:'Bangui',z:'Africa/Bangui'},{c:'Banjul',z:'Africa/Banjul'},{c:'Bissau',z:'Africa/Bissau'},
-  {c:'Blantyre',z:'Africa/Blantyre'},{c:'Brazzaville',z:'Africa/Brazzaville'},{c:'Bujumbura',z:'Africa/Bujumbura'},
-  {c:'Cairo',z:'Africa/Cairo'},{c:'Casablanca',z:'Africa/Casablanca'},{c:'Ceuta',z:'Africa/Ceuta'},
-  {c:'Conakry',z:'Africa/Conakry'},{c:'Dakar',z:'Africa/Dakar'},{c:'Dar es Salaam',z:'Africa/Dar_es_Salaam'},
-  {c:'Djibouti',z:'Africa/Djibouti'},{c:'Douala',z:'Africa/Douala'},{c:'El Aaiun',z:'Africa/El_Aaiun'},
-  {c:'Freetown',z:'Africa/Freetown'},{c:'Gaborone',z:'Africa/Gaborone'},{c:'Harare',z:'Africa/Harare'},
-  {c:'Johannesburg',z:'Africa/Johannesburg'},{c:'Juba',z:'Africa/Juba'},{c:'Kampala',z:'Africa/Kampala'},
-  {c:'Khartoum',z:'Africa/Khartoum'},{c:'Kigali',z:'Africa/Kigali'},{c:'Kinshasa',z:'Africa/Kinshasa'},
-  {c:'Lagos',z:'Africa/Lagos'},{c:'Libreville',z:'Africa/Libreville'},{c:'Lomé',z:'Africa/Lome'},
-  {c:'Luanda',z:'Africa/Luanda'},{c:'Lubumbashi',z:'Africa/Lubumbashi'},{c:'Lusaka',z:'Africa/Lusaka'},
-  {c:'Malabo',z:'Africa/Malabo'},{c:'Maputo',z:'Africa/Maputo'},{c:'Maseru',z:'Africa/Maseru'},
-  {c:'Mbabane',z:'Africa/Mbabane'},{c:'Mogadishu',z:'Africa/Mogadishu'},{c:'Monrovia',z:'Africa/Monrovia'},
-  {c:'Nairobi',z:'Africa/Nairobi'},{c:'Ndjamena',z:'Africa/Ndjamena'},{c:'Niamey',z:'Africa/Niamey'},
-  {c:'Nouakchott',z:'Africa/Nouakchott'},{c:'Ouagadougou',z:'Africa/Ouagadougou'},{c:'Porto-Novo',z:'Africa/Porto-Novo'},
-  {c:'São Tomé',z:'Africa/Sao_Tome'},{c:'Tripoli',z:'Africa/Tripoli'},{c:'Tunis',z:'Africa/Tunis'},
-  {c:'Windhoek',z:'Africa/Windhoek'},
+const BACKEND = 'https://astrology-production-b165.up.railway.app';
 
-  {g:'Americas — North'},
-  {c:'Adak',z:'America/Adak'},{c:'Anchorage',z:'America/Anchorage'},{c:'Anguilla',z:'America/Anguilla'},
-  {c:'Antigua',z:'America/Antigua'},{c:'Aruba',z:'America/Aruba'},{c:'Barbados',z:'America/Barbados'},
-  {c:'Belize',z:'America/Belize'},{c:'Bogotá',z:'America/Bogota'},{c:'Cancún',z:'America/Cancun'},
-  {c:'Caracas',z:'America/Caracas'},{c:'Cayman Islands',z:'America/Cayman'},{c:'Chicago',z:'America/Chicago'},
-  {c:'Costa Rica',z:'America/Costa_Rica'},{c:'Cuba / Havana',z:'America/Havana'},{c:'Curacao',z:'America/Curacao'},
-  {c:'Denver',z:'America/Denver'},{c:'Detroit',z:'America/Detroit'},{c:'Dominica',z:'America/Dominica'},
-  {c:'Edmonton',z:'America/Edmonton'},{c:'El Salvador',z:'America/El_Salvador'},{c:'Grenada',z:'America/Grenada'},
-  {c:'Guadeloupe',z:'America/Guadeloupe'},{c:'Guatemala City',z:'America/Guatemala'},{c:'Guayaquil',z:'America/Guayaquil'},
-  {c:'Guyana',z:'America/Guyana'},{c:'Halifax',z:'America/Halifax'},{c:'Hermosillo',z:'America/Hermosillo'},
-  {c:'Jamaica / Kingston',z:'America/Jamaica'},{c:'Juneau',z:'America/Juneau'},{c:'Lima',z:'America/Lima'},
-  {c:'Los Angeles',z:'America/Los_Angeles'},{c:'Managua',z:'America/Managua'},{c:'Martinique',z:'America/Martinique'},
-  {c:'Mexico City',z:'America/Mexico_City'},{c:'Miquelon',z:'America/Miquelon'},{c:'Moncton',z:'America/Moncton'},
-  {c:'Monterrey',z:'America/Monterrey'},{c:'Montserrat',z:'America/Montserrat'},{c:'Nassau',z:'America/Nassau'},
-  {c:'New York',z:'America/New_York'},{c:'Nome',z:'America/Nome'},{c:'Panama City',z:'America/Panama'},
-  {c:'Paramaribo',z:'America/Paramaribo'},{c:'Phoenix',z:'America/Phoenix'},{c:'Port of Spain',z:'America/Port_of_Spain'},
-  {c:'Port-au-Prince',z:'America/Port-au-Prince'},{c:'Puerto Rico',z:'America/Puerto_Rico'},
-  {c:'Regina',z:'America/Regina'},{c:'Santo Domingo',z:'America/Santo_Domingo'},{c:'Sitka',z:'America/Sitka'},
-  {c:'St Johns',z:'America/St_Johns'},{c:'St Kitts',z:'America/St_Kitts'},{c:'St Lucia',z:'America/St_Lucia'},
-  {c:'St Thomas',z:'America/St_Thomas'},{c:'St Vincent',z:'America/St_Vincent'},
-  {c:'Tegucigalpa',z:'America/Tegucigalpa'},{c:'Tijuana',z:'America/Tijuana'},{c:'Toronto',z:'America/Toronto'},
-  {c:'Tortola',z:'America/Tortola'},{c:'Vancouver',z:'America/Vancouver'},{c:'Whitehorse',z:'America/Whitehorse'},
-  {c:'Winnipeg',z:'America/Winnipeg'},{c:'Yellowknife',z:'America/Yellowknife'},
-
-  {g:'Americas — South'},
-  {c:'Buenos Aires',z:'America/Argentina/Buenos_Aires'},{c:'Córdoba (AR)',z:'America/Argentina/Cordoba'},
-  {c:'Mendoza',z:'America/Argentina/Mendoza'},{c:'Salta',z:'America/Argentina/Salta'},
-  {c:'San Juan (AR)',z:'America/Argentina/San_Juan'},{c:'Tucumán',z:'America/Argentina/Tucuman'},
-  {c:'Ushuaia',z:'America/Argentina/Ushuaia'},{c:'Asunción',z:'America/Asuncion'},
-  {c:'Boa Vista',z:'America/Boa_Vista'},{c:'Campo Grande',z:'America/Campo_Grande'},
-  {c:'Cayenne',z:'America/Cayenne'},{c:'Cuiabá',z:'America/Cuiaba'},{c:'Fortaleza',z:'America/Fortaleza'},
-  {c:'La Paz',z:'America/La_Paz'},{c:'Maceió',z:'America/Maceio'},{c:'Manaus',z:'America/Manaus'},
-  {c:'Montevideo',z:'America/Montevideo'},{c:'Porto Velho',z:'America/Porto_Velho'},
-  {c:'Recife',z:'America/Recife'},{c:'Rio Branco',z:'America/Rio_Branco'},
-  {c:'Santiago',z:'America/Santiago'},{c:'São Paulo',z:'America/Sao_Paulo'},
-
-  {g:'Antarctica'},
-  {c:'Casey',z:'Antarctica/Casey'},{c:'Davis',z:'Antarctica/Davis'},{c:'Mawson',z:'Antarctica/Mawson'},
-  {c:'McMurdo',z:'Antarctica/McMurdo'},{c:'Palmer',z:'Antarctica/Palmer'},{c:'Rothera',z:'Antarctica/Rothera'},
-  {c:'South Pole',z:'Antarctica/South_Pole'},{c:'Syowa',z:'Antarctica/Syowa'},{c:'Vostok',z:'Antarctica/Vostok'},
-
-  {g:'Asia — West'},
-  {c:'Aden',z:'Asia/Aden'},{c:'Amman',z:'Asia/Amman'},{c:'Baghdad',z:'Asia/Baghdad'},
-  {c:'Bahrain / Manama',z:'Asia/Bahrain'},{c:'Beirut',z:'Asia/Beirut'},{c:'Damascus',z:'Asia/Damascus'},
-  {c:'Dubai',z:'Asia/Dubai'},{c:'Gaza',z:'Asia/Gaza'},{c:'Hebron',z:'Asia/Hebron'},
-  {c:'Jerusalem / Tel Aviv',z:'Asia/Jerusalem'},{c:'Kuwait City',z:'Asia/Kuwait'},
-  {c:'Muscat',z:'Asia/Muscat'},{c:'Nicosia',z:'Asia/Nicosia'},{c:'Qatar / Doha',z:'Asia/Qatar'},
-  {c:'Riyadh',z:'Asia/Riyadh'},{c:'Tehran',z:'Asia/Tehran'},
-
-  {g:'Asia — Caucasus & Central'},
-  {c:'Almaty',z:'Asia/Almaty'},{c:'Ashgabat',z:'Asia/Ashgabat'},{c:'Baku',z:'Asia/Baku'},
-  {c:'Bishkek',z:'Asia/Bishkek'},{c:'Dushanbe',z:'Asia/Dushanbe'},{c:'Kabul',z:'Asia/Kabul'},
-  {c:'Karachi',z:'Asia/Karachi'},{c:'Oral',z:'Asia/Oral'},{c:'Samarkand',z:'Asia/Samarkand'},
-  {c:'Tashkent',z:'Asia/Tashkent'},{c:'Tbilisi',z:'Asia/Tbilisi'},{c:'Yekaterinburg',z:'Asia/Yekaterinburg'},
-  {c:'Yerevan',z:'Asia/Yerevan'},
-
-  {g:'Asia — South'},
-  {c:'Colombo',z:'Asia/Colombo'},{c:'Dhaka',z:'Asia/Dhaka'},{c:'Kathmandu',z:'Asia/Kathmandu'},
-  {c:'Kolkata / Calcutta',z:'Asia/Calcutta'},{c:'Thimphu',z:'Asia/Thimphu'},
-
-  {g:'Asia — Southeast'},
-  {c:'Bangkok',z:'Asia/Bangkok'},{c:'Brunei',z:'Asia/Brunei'},{c:'Ho Chi Minh City',z:'Asia/Ho_Chi_Minh'},
-  {c:'Hong Kong',z:'Asia/Hong_Kong'},{c:'Jakarta',z:'Asia/Jakarta'},{c:'Kuala Lumpur',z:'Asia/Kuala_Lumpur'},
-  {c:'Macau',z:'Asia/Macau'},{c:'Makassar',z:'Asia/Makassar'},{c:'Manila',z:'Asia/Manila'},
-  {c:'Phnom Penh',z:'Asia/Phnom_Penh'},{c:'Rangoon / Yangon',z:'Asia/Rangoon'},
-  {c:'Singapore',z:'Asia/Singapore'},{c:'Taipei',z:'Asia/Taipei'},{c:'Ulaanbaatar',z:'Asia/Ulaanbaatar'},
-  {c:'Vientiane',z:'Asia/Vientiane'},
-
-  {g:'Asia — East & Russia Far East'},
-  {c:'Choibalsan',z:'Asia/Choibalsan'},{c:'Irkutsk',z:'Asia/Irkutsk'},{c:'Krasnoyarsk',z:'Asia/Krasnoyarsk'},
-  {c:'Magadan',z:'Asia/Magadan'},{c:'Novosibirsk',z:'Asia/Novosibirsk'},{c:'Omsk',z:'Asia/Omsk'},
-  {c:'Sakhalin',z:'Asia/Sakhalin'},{c:'Seoul',z:'Asia/Seoul'},{c:'Shanghai / Beijing',z:'Asia/Shanghai'},
-  {c:'Tokyo',z:'Asia/Tokyo'},{c:'Vladivostok',z:'Asia/Vladivostok'},{c:'Yakutsk',z:'Asia/Yakutsk'},
-
-  {g:'Atlantic'},
-  {c:'Azores',z:'Atlantic/Azores'},{c:'Bermuda',z:'Atlantic/Bermuda'},{c:'Canary Islands',z:'Atlantic/Canary'},
-  {c:'Cape Verde',z:'Atlantic/Cape_Verde'},{c:'Faroe Islands',z:'Atlantic/Faroe'},
-  {c:'Madeira',z:'Atlantic/Madeira'},{c:'Reykjavik',z:'Atlantic/Reykjavik'},
-  {c:'South Georgia',z:'Atlantic/South_Georgia'},{c:'St Helena',z:'Atlantic/St_Helena'},
-
-  {g:'Australia'},
-  {c:'Adelaide',z:'Australia/Adelaide'},{c:'Brisbane',z:'Australia/Brisbane'},
-  {c:'Darwin',z:'Australia/Darwin'},{c:'Eucla',z:'Australia/Eucla'},
-  {c:'Hobart',z:'Australia/Hobart'},{c:'Lord Howe',z:'Australia/Lord_Howe'},
-  {c:'Melbourne',z:'Australia/Melbourne'},{c:'Perth',z:'Australia/Perth'},
-  {c:'Sydney',z:'Australia/Sydney'},
-
-  {g:'Europe — West'},
-  {c:'Dublin',z:'Europe/Dublin'},{c:'Lisbon',z:'Europe/Lisbon'},{c:'London',z:'Europe/London'},
-
-  {g:'Europe — Central'},
-  {c:'Amsterdam',z:'Europe/Amsterdam'},{c:'Andorra',z:'Europe/Andorra'},
-  {c:'Belgrade',z:'Europe/Belgrade'},{c:'Berlin',z:'Europe/Berlin'},
-  {c:'Bratislava',z:'Europe/Bratislava'},{c:'Brussels',z:'Europe/Brussels'},
-  {c:'Budapest',z:'Europe/Budapest'},{c:'Copenhagen',z:'Europe/Copenhagen'},
-  {c:'Gibraltar',z:'Europe/Gibraltar'},{c:'Ljubljana',z:'Europe/Ljubljana'},
-  {c:'Luxembourg',z:'Europe/Luxembourg'},{c:'Madrid',z:'Europe/Madrid'},
-  {c:'Malta',z:'Europe/Malta'},{c:'Monaco',z:'Europe/Monaco'},
-  {c:'Oslo',z:'Europe/Oslo'},{c:'Paris',z:'Europe/Paris'},
-  {c:'Prague',z:'Europe/Prague'},{c:'Rome',z:'Europe/Rome'},
-  {c:'Sarajevo',z:'Europe/Sarajevo'},{c:'Skopje',z:'Europe/Skopje'},
-  {c:'Stockholm',z:'Europe/Stockholm'},{c:'Tirane',z:'Europe/Tirane'},
-  {c:'Vatican',z:'Europe/Vatican'},{c:'Vienna',z:'Europe/Vienna'},
-  {c:'Warsaw',z:'Europe/Warsaw'},{c:'Zagreb',z:'Europe/Zagreb'},
-  {c:'Zurich',z:'Europe/Zurich'},
-
-  {g:'Europe — East'},
-  {c:'Athens',z:'Europe/Athens'},{c:'Bucharest',z:'Europe/Bucharest'},
-  {c:'Chisinau',z:'Europe/Chisinau'},{c:'Helsinki',z:'Europe/Helsinki'},
-  {c:'Kaliningrad',z:'Europe/Kaliningrad'},{c:'Kyiv',z:'Europe/Kiev'},
-  {c:'Minsk',z:'Europe/Minsk'},{c:'Riga',z:'Europe/Riga'},
-  {c:'Sofia',z:'Europe/Sofia'},{c:'Tallinn',z:'Europe/Tallinn'},
-  {c:'Vilnius',z:'Europe/Vilnius'},
-
-  {g:'Europe — Russia'},
-  {c:'Astrakhan',z:'Europe/Astrakhan'},{c:'Kirov',z:'Europe/Kirov'},
-  {c:'Moscow',z:'Europe/Moscow'},{c:'Samara',z:'Europe/Samara'},
-  {c:'Saratov',z:'Europe/Saratov'},{c:'Ulyanovsk',z:'Europe/Ulyanovsk'},
-  {c:'Volgograd',z:'Europe/Volgograd'},
-
-  {g:'Indian Ocean'},
-  {c:'Antananarivo',z:'Indian/Antananarivo'},{c:'Chagos',z:'Indian/Chagos'},
-  {c:'Christmas Island',z:'Indian/Christmas'},{c:'Cocos Islands',z:'Indian/Cocos'},
-  {c:'Comoros',z:'Indian/Comoro'},{c:'Kerguelen',z:'Indian/Kerguelen'},
-  {c:'Mahe (Seychelles)',z:'Indian/Mahe'},{c:'Maldives',z:'Indian/Maldives'},
-  {c:'Mauritius',z:'Indian/Mauritius'},{c:'Mayotte',z:'Indian/Mayotte'},
-  {c:'Réunion',z:'Indian/Reunion'},
-
-  {g:'Pacific'},
-  {c:'Apia (Samoa)',z:'Pacific/Apia'},{c:'Auckland',z:'Pacific/Auckland'},
-  {c:'Chatham Islands',z:'Pacific/Chatham'},{c:'Easter Island',z:'Pacific/Easter'},
-  {c:'Fiji',z:'Pacific/Fiji'},{c:'Funafuti (Tuvalu)',z:'Pacific/Funafuti'},
-  {c:'Galapagos',z:'Pacific/Galapagos'},{c:'Guadalcanal',z:'Pacific/Guadalcanal'},
-  {c:'Guam',z:'Pacific/Guam'},{c:'Honolulu',z:'Pacific/Honolulu'},
-  {c:'Kiritimati',z:'Pacific/Kiritimati'},{c:'Majuro (Marshall Is.)',z:'Pacific/Majuro'},
-  {c:'Nauru',z:'Pacific/Nauru'},{c:'Niue',z:'Pacific/Niue'},
-  {c:'Norfolk Island',z:'Pacific/Norfolk'},{c:'Noumea',z:'Pacific/Noumea'},
-  {c:'Pago Pago',z:'Pacific/Pago_Pago'},{c:'Palau',z:'Pacific/Palau'},
-  {c:'Pitcairn',z:'Pacific/Pitcairn'},{c:'Port Moresby',z:'Pacific/Port_Moresby'},
-  {c:'Rarotonga (Cook Is.)',z:'Pacific/Rarotonga'},{c:'Tahiti',z:'Pacific/Tahiti'},
-  {c:'Tarawa (Kiribati)',z:'Pacific/Tarawa'},{c:'Tongatapu',z:'Pacific/Tongatapu'},
-  {c:'Wake Island',z:'Pacific/Wake'},{c:'Wallis',z:'Pacific/Wallis'},
-];
-
-// Build select
-const tzSelect = document.getElementById('tzSelect');
-let allOptions = [];
-
-function buildSelect(filter='') {
-  tzSelect.innerHTML = '';
-  let group = null;
-  CITIES.forEach(item => {
-    if (item.g) {
-      group = null;
-      if (!filter) {
-        const og = document.createElement('optgroup');
-        og.label = item.g;
-        tzSelect.appendChild(og);
-        group = og;
-      }
-    } else {
-      if (filter && !item.c.toLowerCase().includes(filter) && !item.z.toLowerCase().includes(filter)) return;
-      const opt = document.createElement('option');
-      opt.value = item.z;
-      opt.textContent = filter ? `${item.c} (${item.z})` : item.c;
-      (group || tzSelect).appendChild(opt);
-    }
-  });
-}
-
-function loadTimezones() {
-  buildSelect();
-  const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const match = CITIES.find(x => x.z === local);
-  tzSelect.value = match ? local : 'Asia/Tbilisi';
-}
-
-// City search filter
-document.getElementById('citySearch').addEventListener('input', function() {
-  const q = this.value.trim().toLowerCase();
-  buildSelect(q);
-  if (tzSelect.options.length > 0) tzSelect.selectedIndex = 0;
-  updatePreview();
-});
-
-// Set default date
-document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-
-// Auto-preview on any input change
-['dateInput','timeInput','tzSelect'].forEach(id =>
-  document.getElementById(id).addEventListener('change', updatePreview)
-);
-
-async function updatePreview() {
-  const date=document.getElementById('dateInput').value;
-  const time=document.getElementById('timeInput').value;
-  const tz=tzSelect.value;
-  if(!date||!time||!tz)return;
-  try {
-    const res=await fetch(`/api/moon?date=${date}&time=${time}&timezone=${encodeURIComponent(tz)}`);
-    const d=await res.json();
-    if(d.error)return;
-    document.getElementById('utcBar').classList.add('v');
-    document.getElementById('utcPreview').textContent=d.input.utc_datetime+' UTC';
-    const badge=document.getElementById('dstBadge');
-    badge.textContent=d.input.dst_active?`ზაფხულის დრო ${d.input.utc_offset}`:`სტანდარტული დრო ${d.input.utc_offset}`;
-    badge.className='dst-badge '+(d.input.dst_active?'dst-on':'dst-off');
-  } catch{}
-}
-
-async function calculate() {
-  const date=document.getElementById('dateInput').value;
-  const time=document.getElementById('timeInput').value;
-  const tz=tzSelect.value;
-  if(!date){showErr('გთხოვთ აირჩიოთ თარიღი.');return;}
-  const btn=document.getElementById('calcBtn');
-  btn.disabled=true; showLoader(true); hideErr();
-  try {
-    const res=await fetch(`/api/moon?date=${date}&time=${time}&timezone=${encodeURIComponent(tz)}`);
-    const d=await res.json();
-    if(d.error){showErr(d.error);return;}
-    document.getElementById('moonEmoji').textContent=d.emoji;
-    document.getElementById('moonAge').textContent=d.age_days;
-    document.getElementById('moonPhase').textContent=PHASES_KA[d.phase]||d.phase;
-    document.getElementById('statIllum').innerHTML=`${d.illumination}<span class="stat-unit">%</span>`;
-    document.getElementById('statElong').innerHTML=`${d.elongation}<span class="stat-unit">°</span>`;
-    document.getElementById('statOffset').textContent=d.input.utc_offset;
-    const pct=((d.age_days/29.53059)*100).toFixed(1);
-    document.getElementById('barFill').style.width=pct+'%';
-    document.getElementById('resultCard').classList.add('v');
-    document.getElementById('utcBar').classList.add('v');
-    document.getElementById('utcPreview').textContent=d.input.utc_datetime+' UTC';
-    const badge=document.getElementById('dstBadge');
-    badge.textContent=d.input.dst_active?`ზაფხულის დრო ${d.input.utc_offset}`:`სტანდარტული დრო ${d.input.utc_offset}`;
-    badge.className='dst-badge '+(d.input.dst_active?'dst-on':'dst-off');
-  } catch {
-    showErr('სერვერთან კავშირი ვერ დამყარდა. გაუშვით: python app.py');
-  } finally {
-    btn.disabled=false; showLoader(false);
-  }
-}
-
-document.getElementById('dateInput').addEventListener('keydown',e=>{if(e.key==='Enter')calculate();});
-function showErr(m){const e=document.getElementById('errMsg');e.textContent=m;e.classList.add('v');}
-function hideErr(){document.getElementById('errMsg').classList.remove('v');}
-function showLoader(v){document.getElementById('loader').classList.toggle('v',v);}
-
-// Georgian phase names
-const PHASES_KA={
+const PHASES_KA = {
   'New Moon':        'ახალმთვარე',
   'Waxing Crescent': 'მზარდი ნამგალა',
   'First Quarter':   'პირველი მეოთხედი',
@@ -435,9 +285,128 @@ const PHASES_KA={
   'Waning Gibbous':  'კლებადი სავსე',
   'Last Quarter':    'ბოლო მეოთხედი',
   'Waning Crescent': 'კლებადი ნამგალა',
+  'Crescent':        'ნამგალა',
+  'Balsamic':        'ბალზამური',
 };
 
-loadTimezones();
+// ── GEOCODE ──
+let cityTimer = null;
+function searchCity() {
+  clearTimeout(cityTimer);
+  cityTimer = setTimeout(async () => {
+    const city = document.getElementById('city').value;
+    if (city.length < 2) return;
+    const hint = document.getElementById('city-hint');
+    hint.textContent = '⏳ ძიება...';
+    try {
+      const r = await fetch(`${BACKEND}/geocode`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({city})
+      });
+      const d = await r.json();
+      if (d.error) { hint.textContent = '❌ ' + d.error; return; }
+      document.getElementById('lat').value = d.lat.toFixed(4);
+      document.getElementById('lon').value = d.lon.toFixed(4);
+      document.getElementById('tz_name').value = d.tz_name || 'UTC';
+      document.getElementById('tz-display').textContent = '🕐 ' + d.tz_name;
+      hint.textContent = '📍 ' + d.display;
+      updateUtcPreview();
+    } catch(e) { hint.textContent = '❌ ' + e.message; }
+  }, 600);
+}
+
+function updateUtcPreview() {
+  const tz = document.getElementById('tz_name').value;
+  if (!tz || tz === 'UTC') return;
+  const day   = document.getElementById('day').value.padStart(2,'0');
+  const month = document.getElementById('month').value.padStart(2,'0');
+  const year  = document.getElementById('year').value;
+  const hour  = document.getElementById('hour').value.padStart(2,'0');
+  const min   = document.getElementById('minute').value.padStart(2,'0');
+  const date  = `${year}-${month}-${day}`;
+  const time  = `${hour}:${min}`;
+  fetch(`${BACKEND}/api/moon?date=${date}&time=${time}&timezone=${encodeURIComponent(tz)}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.error) return;
+      document.getElementById('utcBar').classList.add('v');
+      document.getElementById('utcPreview').textContent = d.input.utc_datetime + ' UTC';
+      const badge = document.getElementById('dstBadge');
+      badge.textContent = d.input.dst_active
+        ? `ზაფხულის დრო ${d.input.utc_offset}`
+        : `სტანდარტული ${d.input.utc_offset}`;
+      badge.className = 'dst-badge ' + (d.input.dst_active ? 'dst-on' : 'dst-off');
+    }).catch(() => {});
+}
+
+// ── CALCULATE ──
+async function calculate() {
+  const tz = document.getElementById('tz_name').value;
+  if (!document.getElementById('lat').value) {
+    alert('პირველ შეიყვანეთ ქალაქი');
+    return;
+  }
+  const btn = document.getElementById('calcBtn');
+  btn.textContent = '⏳ გთხოვთ დაელოდოთ...';
+  btn.disabled = true;
+
+  const day   = document.getElementById('day').value.padStart(2,'0');
+  const month = document.getElementById('month').value.padStart(2,'0');
+  const year  = document.getElementById('year').value;
+  const hour  = document.getElementById('hour').value.padStart(2,'0');
+  const min   = document.getElementById('minute').value.padStart(2,'0');
+  const sec   = document.getElementById('second').value.padStart(2,'0');
+  const date  = `${year}-${month}-${day}`;
+  const time  = `${hour}:${min}`;
+
+  try {
+    const r = await fetch(`${BACKEND}/api/moon?date=${date}&time=${time}&timezone=${encodeURIComponent(tz)}`);
+    const d = await r.json();
+    if (d.error) { alert('შეცდომა: ' + d.error); return; }
+
+    document.getElementById('moonEmoji').textContent   = d.emoji;
+    document.getElementById('moonAge').textContent     = d.age_days;
+    document.getElementById('moonPhase').textContent   = PHASES_KA[d.phase] || d.phase;
+    document.getElementById('statIllum').innerHTML     = `${d.illumination}<span class="stat-unit">%</span>`;
+    document.getElementById('statElong').innerHTML     = `${d.elongation}<span class="stat-unit">°</span>`;
+    document.getElementById('statOffset').textContent  = d.input?.utc_offset || tz;
+
+    const pct = ((d.age_days / 29.53059) * 100).toFixed(1);
+    document.getElementById('barFill').style.width = pct + '%';
+
+    // Lunar day
+    const ld = d.lunar_day;
+    document.getElementById('lunarDayNum').textContent   = ld || '—';
+    document.getElementById('lunarDayPhase').textContent = PHASES_KA[d.phase] || d.phase;
+    if (d.hours_to_next_nm !== undefined) {
+      const h = Math.floor(d.hours_to_next_nm);
+      const m = Math.round((d.hours_to_next_nm - h) * 60);
+      document.getElementById('lunarNext').textContent =
+        `შემდეგი ახალმთვარე: ${h} სთ ${m} წთ-ში`;
+    }
+
+    // UTC bar
+    if (d.input) {
+      document.getElementById('utcBar').classList.add('v');
+      document.getElementById('utcPreview').textContent = d.input.utc_datetime + ' UTC';
+      const badge = document.getElementById('dstBadge');
+      badge.textContent = d.input.dst_active
+        ? `ზაფხულის დრო ${d.input.utc_offset}`
+        : `სტანდარტული ${d.input.utc_offset}`;
+      badge.className = 'dst-badge ' + (d.input.dst_active ? 'dst-on' : 'dst-off');
+    }
+
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('result-area').scrollIntoView({behavior:'smooth', block:'start'});
+
+  } catch(e) {
+    alert('შეცდომა: ' + e.message);
+  } finally {
+    btn.textContent = '🌙 მთვარის გამოთვლა';
+    btn.disabled = false;
+  }
+}
 </script>
 </body>
 </html>
