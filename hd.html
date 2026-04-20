@@ -120,16 +120,9 @@
 
   #bodygraph{
     position:relative;display:flex;align-items:center;justify-content:center;
-    /* room for the svg */
   }
   #bodygraph svg{width:100%;height:auto;max-height:640px;display:block}
-  #channel-overlay{position:absolute;inset:0;pointer-events:none}
-
-  /* ---------------- activation colouring inside the svg ---------------- */
-  /* (default rules were injected by prepare_svg; these are UI overrides) */
   #bodygraph svg circle.gate-circle{transition:fill .25s ease}
-
-  /* (channel recoloring is done via chan-line classes injected by prepare_svg) */
 
   /* ---------------- detail panels ---------------- */
   .details{
@@ -184,12 +177,12 @@
 <div class="page">
 
   <nav class="site-nav">
-    <a href="/">მთავარი</a>
-    <a href="/astro">დასავლური</a>
-    <a href="/vedic">ვედური</a>
-    <a href="/true_sidereal">ჭეშმარიტი</a>
-    <a href="/moon">მთვარის დღე</a>
-    <a href="/hd" class="current">ადამიანის დიზაინი</a>
+    <a href="index.html">მთავარი</a>
+    <a href="astro.html">დასავლური</a>
+    <a href="vedic.html">ვედური</a>
+    <a href="true_sidereal.html">ჭეშმარიტი</a>
+    <a href="moon.html">მთვარის დღე</a>
+    <a href="hd.html" class="current">ადამიანის დიზაინი</a>
   </nav>
 
   <header class="top">
@@ -253,39 +246,20 @@
 </div>
 
 <script>
+/* ════════════════════════════════════════════════════════════════
+   BACKEND URL — set this to the Railway URL of your astrology API.
+   Example: "https://astrology-production-xxxx.up.railway.app"
+   Leave empty string "" ONLY if Flask is serving this HTML on the
+   same domain as the API.
+   ════════════════════════════════════════════════════════════════ */
+const API_BASE = "https://YOUR-BACKEND.up.railway.app";
+
+
 /* ---------------- constants ---------------- */
-const CHANNELS = [
-  [1,8],[2,14],[3,60],[4,63],[5,15],[6,59],[7,31],[9,52],
-  [10,20],[10,34],[10,57],[11,56],[12,22],[13,33],[16,48],
-  [17,62],[18,58],[19,49],[20,34],[20,57],[21,45],[23,43],
-  [24,61],[25,51],[26,44],[27,50],[28,38],[29,46],[30,41],
-  [32,54],[34,57],[35,36],[37,40],[39,55],[42,53],[47,64]
-];
-
-const CENTER_ORDER = ["Head","Ajna","Throat","G","Heart","Solar Plexus","Spleen","Sacral","Root"];
-const CENTER_KA = {
-  "Head": "თავი (სახასრარა)",
-  "Ajna": "აჯნა",
-  "Throat": "ყელი",
-  "G": "G ცენტრი",
-  "Heart": "გული (ეგო)",
-  "Solar Plexus": "მზის წნული",
-  "Spleen": "ელენთა",
-  "Sacral": "საკრალური",
-  "Root": "ფესვი",
-};
-
 const PLANET_ORDER = [
   "Sun","Earth","North Node","South Node","Moon",
   "Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"
 ];
-const PLANET_KA = {
-  "Sun": "მზე", "Earth": "დედამიწა", "Moon": "მთვარე",
-  "North Node": "ჩრდილოეთის კვანძი", "South Node": "სამხრეთის კვანძი",
-  "Mercury": "მერკური", "Venus": "ვენერა", "Mars": "მარსი",
-  "Jupiter": "იუპიტერი", "Saturn": "სატურნი",
-  "Uranus": "ურანი", "Neptune": "ნეპტუნი", "Pluto": "პლუტონი",
-};
 
 const PLANET_GLYPH = {
   "Sun":"☉","Earth":"⊕","Moon":"☽","North Node":"☊","South Node":"☋",
@@ -293,59 +267,46 @@ const PLANET_GLYPH = {
   "Uranus":"♅","Neptune":"♆","Pluto":"♇"
 };
 
-// Georgian labels for chart attributes and values
-const L10N = {
-  // card keys
-  type: "ტიპი",
-  strategy: "სტრატეგია",
-  authority: "ავტორიტეტი",
-  profile: "პროფილი",
-  signature: "ნიშანი",
-  notSelf: "არა-მე",
-  cross: "ინკარნაციული ჯვარი",
-  integration: "ინტეგრაცია",
-  // types
-  "Manifestor": "მანიფესტორი",
-  "Generator": "გენერატორი",
-  "Manifesting Generator": "მანიფესტატორი გენერატორი",
-  "Projector": "პროექტორი",
-  "Reflector": "რეფლექტორი",
-  // strategies
-  "To Inform": "ინფორმირება",
-  "To Respond": "რეაგირება",
-  "To Respond, then Inform": "რეაგირება, შემდეგ ინფორმირება",
-  "Wait for the Invitation": "მოლოდინი მოწვევის",
-  "Wait a Lunar Cycle (28 days)": "მოლოდინი მთვარის ციკლის (28 დღე)",
-  // authorities
-  "Emotional (Solar Plexus)": "ემოციური (მზის წნული)",
-  "Sacral": "საკრალური",
-  "Splenic": "ელენთური",
-  "Ego (Heart)": "ეგო (გული)",
-  "Self-Projected (G)": "თვითპროექციული (G)",
-  "Lunar": "მთვარის",
-  "Mental / Environmental (no inner authority)": "მენტალური / გარემოს (შინაგანი ავტორიტეტის გარეშე)",
-  // signatures / not-self
-  "Peace": "მშვიდობა", "Satisfaction": "კმაყოფილება",
-  "Peace & Satisfaction": "მშვიდობა & კმაყოფილება",
-  "Success": "წარმატება", "Surprise": "მოულოდნელობა",
-  "Anger": "გაბრაზება", "Frustration": "იმედგაცრუება",
-  "Anger & Frustration": "გაბრაზება & იმედგაცრუება",
-  "Bitterness": "სიმწარე", "Disappointment": "გულის გატეხვა",
-  // channel types
-  personality: "პიროვნება", design: "დიზაინი", mixed: "შერეული",
-  defined: "განსაზღვრული",
+const PLANET_KA = {
+  "Sun":"მზე","Earth":"დედამიწა","Moon":"მთვარე",
+  "North Node":"ჩრდილო კვანძი","South Node":"სამხრეთი კვანძი",
+  "Mercury":"მერკური","Venus":"ვენერა","Mars":"მარსი",
+  "Jupiter":"იუპიტერი","Saturn":"სატურნი",
+  "Uranus":"ურანი","Neptune":"ნეპტუნი","Pluto":"პლუტონი"
 };
-function tr(s){ return L10N[s] || s; }
+
+const CENTER_ORDER = ["Head","Ajna","Throat","G","Heart","Solar Plexus","Spleen","Sacral","Root"];
+const CENTER_KA = {
+  "Head":"სათავო","Ajna":"აჯნა","Throat":"ყელი","G":"G ცენტრი",
+  "Heart":"გული","Solar Plexus":"მზის წნული","Spleen":"ელენთა",
+  "Sacral":"საკრალური","Root":"ფესვი"
+};
+
+const TYPE_KA = {
+  "Manifestor":"მანიფესტორი",
+  "Generator":"გენერატორი",
+  "Manifesting Generator":"მანიფესტანტი გენერატორი",
+  "Projector":"პროექტორი",
+  "Reflector":"რეფლექტორი"
+};
+
+const STRATEGY_KA = {
+  "To Inform":"ინფორმირება",
+  "To Respond":"პასუხი",
+  "To Respond, then Inform":"პასუხი, შემდეგ ინფორმირება",
+  "Wait for the Invitation":"მოლოდინში მოწვევისა",
+  "Wait a Lunar Cycle (28 days)":"ელოდე მთვარის ციკლს (28 დღე)"
+};
 
 /* ---------------- state ---------------- */
-let gatePositions = null;   // { "1": {cx, cy}, ... }
-let svgDoc = null;          // inlined <svg> element
+let gatePositions = null;
+let svgDoc = null;
 
 /* ---------------- load the prepared SVG once ---------------- */
 async function loadBodygraph(){
   const [svgText, posJson] = await Promise.all([
-    fetch("/static/human_prepared.svg").then(r => r.text()),
-    fetch("/static/gate_positions.json").then(r => r.json())
+    fetch(API_BASE + "/static/human_prepared.svg").then(r => r.text()),
+    fetch(API_BASE + "/static/gate_positions.json").then(r => r.json())
   ]);
   gatePositions = posJson;
   const wrap = document.getElementById("bodygraph");
@@ -354,19 +315,15 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
-
-  // Crop viewBox to the visible bodygraph area.
-  // (The SVG has detail artboards at various transformed positions; we only
-  //  show the cropped integration-silhouette region of the main bodygraph.)
+  // Crop to the visible bodygraph area.
   svgDoc.setAttribute("viewBox","460 80 500 660");
 }
 
-/* ---------------- rendering ---------------- */
+/* ---------------- rendering helpers ---------------- */
 function clearActivations(){
   if(!svgDoc) return;
   svgDoc.querySelectorAll(".gate-circle.active").forEach(n => n.classList.remove("active"));
   svgDoc.querySelectorAll(".gate-text.active").forEach(n => n.classList.remove("active"));
-  // Clear per-gate activation classes on the svg root
   const toRemove = [];
   svgDoc.classList.forEach(c => {
     if (c.startsWith("active-p-") || c.startsWith("active-d-") ||
@@ -379,7 +336,6 @@ function clearActivations(){
 }
 
 function activateGate(gate){
-  // Highlight circle and text
   svgDoc.querySelectorAll(`.gate-circle[data-gate="${gate}"]`)
     .forEach(n => n.classList.add("active"));
   svgDoc.querySelectorAll(`.gate-text[data-gate="${gate}"]`)
@@ -387,7 +343,6 @@ function activateGate(gate){
 }
 
 function colorGateLines(gate, sourceFlags){
-  // sourceFlags = {p: bool, d: bool}
   // Skip the 4 integration gates — they're handled by detail overlay
   if ([10, 20, 34, 57].includes(gate)) return;
   let cls = null;
@@ -397,6 +352,7 @@ function colorGateLines(gate, sourceFlags){
   if (cls) svgDoc.classList.add(cls);
 }
 
+/* ---------------- main render ---------------- */
 function render(chart){
   clearActivations();
 
@@ -419,42 +375,22 @@ function render(chart){
     svgDoc.classList.add("detail-on-" + chart.integration.n);
   }
 
-  // 3. summary cards
+  // 5. summary cards
   const integrationLabel = chart.integration
     ? `#${chart.integration.n}<small style="display:block;font-size:.68rem;color:var(--ink-dim);margin-top:4px;letter-spacing:.06em">10·${chart.integration.states["10"]}  57·${chart.integration.states["57"]}  34·${chart.integration.states["34"]}  20·${chart.integration.states["20"]}</small>`
     : "—";
-  const TYPE_KA = {
-    "Manifestor": "მანიფესტორი",
-    "Generator": "გენერატორი",
-    "Manifesting Generator": "მანიფესტანტი გენერატორი",
-    "Projector": "პროექტორი",
-    "Reflector": "რეფლექტორი",
-  };
-  const STRATEGY_KA = {
-    "To Inform": "ინფორმირება",
-    "To Respond": "პასუხი",
-    "To Respond, then Inform": "პასუხი, შემდეგ ინფორმირება",
-    "Wait for the Invitation": "მოლოდინში მოწვევისა",
-    "Wait a Lunar Cycle (28 days)": "ელოდე მთვარის ციკლს (28 დღე)",
-  };
   const cards = [
-    {k:"ტიპი",        v: TYPE_KA[chart.type] || chart.type,         small:false},
-    {k:"სტრატეგია",   v: STRATEGY_KA[chart.strategy] || chart.strategy, small:true},
-    {k:"ავტორიტეტი",  v: chart.authority,        small:true},
-    {k:"პროფილი",     v: chart.profile,          small:false},
-    {k:"ინტეგრაცია",  v: integrationLabel,       small:false},
-    {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross, small:true},
+    {k:"ტიპი",            v: TYPE_KA[chart.type] || chart.type,                 small:false},
+    {k:"სტრატეგია",       v: STRATEGY_KA[chart.strategy] || chart.strategy,     small:true},
+    {k:"ავტორიტეტი",      v: chart.authority,                                   small:true},
+    {k:"პროფილი",         v: chart.profile,                                     small:false},
+    {k:"ინტეგრაცია",      v: integrationLabel,                                  small:false},
+    {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross,                         small:true}
   ];
   document.getElementById("summary-cards").innerHTML =
     cards.map(c => `<div class="card"><div class="k">${c.k}</div><div class="v${c.small?' small':''}">${c.v}</div></div>`).join("");
 
-  const PLANET_KA = {
-    "Sun":"მზე","Earth":"დედამიწა","Moon":"მთვარე",
-    "North Node":"ჩრდილო კვანძი","South Node":"სამხრეთი კვანძი",
-    "Mercury":"მერკური","Venus":"ვენერა","Mars":"მარსი",
-    "Jupiter":"იუპიტერი","Saturn":"სატურნი",
-    "Uranus":"ურანი","Neptune":"ნეპტუნი","Pluto":"პლუტონი",
-  };
+  // 6. planet columns
   const planetRow = (a, tag) => {
     const glyph = PLANET_GLYPH[a.planet] || "";
     const name  = PLANET_KA[a.planet] || a.planet;
@@ -470,8 +406,7 @@ function render(chart){
   document.getElementById("col-personality").innerHTML =
     `<h3>პიროვნება</h3>` + ordered(chart.personality).map(a => planetRow(a,"p")).join("");
 
-  // 5. channel list
-  const defSet = new Set(chart.defined_channels.map(c => `${c.gate_a}-${c.gate_b}`));
+  // 7. channel list
   const chanHtml = chart.defined_channels.map(c =>
     `<div class="channel-item ${c.type}">
        <span class="pair">${c.gate_a}–${c.gate_b}</span>
@@ -483,18 +418,13 @@ function render(chart){
   document.getElementById("channel-list").innerHTML = chanHtml ||
     `<div class="meta" style="font-style:italic">არხები განსაზღვრული არ არის.</div>`;
 
-  // 6. centers
-  const CENTER_KA = {
-    "Head":"სათავო","Ajna":"აჯნა","Throat":"ყელი","G":"G ცენტრი",
-    "Heart":"გული","Solar Plexus":"მზის წნული","Spleen":"ელენთა",
-    "Sacral":"საკრალური","Root":"ფესვი"
-  };
+  // 8. centers
   const defCenters = new Set(chart.defined_centers);
   document.getElementById("centers-list").innerHTML = CENTER_ORDER.map(c =>
     `<div class="center-chip ${defCenters.has(c)?'defined':''}">${defCenters.has(c)?'<span class="dot"></span>':''}${CENTER_KA[c] || c}</div>`
   ).join("");
 
-  // 7. meta
+  // 9. meta
   const inp = chart.input;
   document.getElementById("meta").innerHTML = `
     <div><strong>დაბადება:</strong> ${inp.date} ${inp.time} — ${inp.resolved_place}</div>
@@ -506,25 +436,25 @@ function render(chart){
   document.getElementById("results").classList.remove("hidden");
 }
 
-/* ---------------- form ---------------- */
+/* ---------------- form handler ---------------- */
 document.getElementById("birth-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const btn = document.getElementById("submit-btn");
   const stat = document.getElementById("status");
   stat.className = "status";
-  stat.textContent = "Consulting the heavens…";
+  stat.textContent = "იტვირთება…";
   btn.disabled = true;
   try{
     if(!svgDoc) await loadBodygraph();
     const body = {
       date:  document.getElementById("date").value,
       time:  document.getElementById("time").value,
-      place: document.getElementById("place").value,
+      place: document.getElementById("place").value
     };
-    const r = await fetch("/api/hd_chart", {
+    const r = await fetch(API_BASE + "/api/hd_chart", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     });
     const chart = await r.json();
     if(!r.ok) throw new Error(chart.error || "Unknown error");
