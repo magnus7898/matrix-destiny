@@ -35,21 +35,7 @@
   a{color:var(--gold)}
   button{font-family:inherit}
 
-  /* ---------------- layout ---------------- */
   .page{max-width:1400px;margin:0 auto;padding:42px 32px 80px}
-
-  /* site-wide navigation */
-  nav.site-nav{
-    display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;
-    padding:12px 0;border-bottom:1px solid #2a2742;
-  }
-  nav.site-nav a{
-    color:var(--ink-dim);text-decoration:none;font-size:.9rem;
-    padding:8px 14px;border-radius:8px;border:1px solid #1e1b34;
-    transition:all .2s;
-  }
-  nav.site-nav a:hover{color:var(--gold);border-color:var(--gold)}
-  nav.site-nav a.current{color:var(--gold);border-color:var(--gold);background:#1a1828}
 
   header.top{
     display:flex;align-items:baseline;justify-content:space-between;
@@ -59,7 +45,6 @@
   header.top h1 em{font-style:normal;color:var(--gold)}
   header.top .sub{color:var(--ink-dim);font-size:.85rem;letter-spacing:.22em;text-transform:uppercase}
 
-  /* ---------------- form ---------------- */
   form.input-form{
     background:var(--bg-card);
     border:1px solid rgba(196,154,108,.2);
@@ -86,7 +71,6 @@
   .status{font-size:.9rem;color:var(--ink-dim);margin-top:-20px;margin-bottom:30px;padding:0 6px}
   .status.error{color:var(--error)}
 
-  /* ---------------- summary cards ---------------- */
   .summary{
     display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:16px;margin-bottom:40px;
   }
@@ -100,7 +84,6 @@
   .card .v{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:500;color:var(--ink);line-height:1.2}
   .card .v.small{font-size:1.1rem}
 
-  /* ---------------- main chart area ---------------- */
   .chart-area{
     display:grid;grid-template-columns:200px 1fr 200px;gap:0;
     background:var(--bg-card);border:1px solid rgba(196,154,108,.15);border-radius:3px;
@@ -124,7 +107,6 @@
   #bodygraph svg{width:100%;height:auto;max-height:640px;display:block}
   #bodygraph svg circle.gate-circle{transition:fill .25s ease}
 
-  /* ---------------- detail panels ---------------- */
   .details{
     display:grid;grid-template-columns:1.3fr 1fr;gap:30px;
   }
@@ -156,11 +138,9 @@
   .meta{font-size:.82rem;color:var(--ink-dim);line-height:1.8}
   .meta strong{color:var(--ink);font-weight:500}
 
-  /* ---------------- loading ---------------- */
   .loading{text-align:center;padding:60px 20px;color:var(--ink-dim);font-style:italic;letter-spacing:.1em}
   .hidden{display:none!important}
 
-  /* ---------------- small screens ---------------- */
   @media (max-width:900px){
     form.input-form{grid-template-columns:1fr 1fr}
     .chart-area{grid-template-columns:1fr;padding:16px}
@@ -175,15 +155,6 @@
 </head>
 <body>
 <div class="page">
-
-  <nav class="site-nav">
-    <a href="index.html">მთავარი</a>
-    <a href="astro.html">დასავლური</a>
-    <a href="vedic.html">ვედური</a>
-    <a href="true_sidereal.html">ჭეშმარიტი</a>
-    <a href="moon.html">მთვარის დღე</a>
-    <a href="hd.html" class="current">ადამიანის დიზაინი</a>
-  </nav>
 
   <header class="top">
     <div>
@@ -246,16 +217,8 @@
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════════════════
-   BACKEND URL — set this to the Railway URL of your astrology API.
-   Example: "https://astrology-production-xxxx.up.railway.app"
-   Leave empty string "" ONLY if Flask is serving this HTML on the
-   same domain as the API.
-   ════════════════════════════════════════════════════════════════ */
 const API_BASE = "https://astrology-production-b165.up.railway.app";
 
-
-/* ---------------- constants ---------------- */
 const PLANET_ORDER = [
   "Sun","Earth","North Node","South Node","Moon",
   "Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"
@@ -298,11 +261,9 @@ const STRATEGY_KA = {
   "Wait a Lunar Cycle (28 days)":"ელოდე მთვარის ციკლს (28 დღე)"
 };
 
-/* ---------------- state ---------------- */
 let gatePositions = null;
 let svgDoc = null;
 
-/* ---------------- load the prepared SVG once ---------------- */
 async function loadBodygraph(){
   const [svgText, posJson] = await Promise.all([
     fetch(API_BASE + "/static/human_prepared.svg").then(r => r.text()),
@@ -315,11 +276,9 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
-  // Crop to the visible bodygraph area.
   svgDoc.setAttribute("viewBox","460 80 500 660");
 }
 
-/* ---------------- rendering helpers ---------------- */
 function clearActivations(){
   if(!svgDoc) return;
   svgDoc.querySelectorAll(".gate-circle.active").forEach(n => n.classList.remove("active"));
@@ -343,7 +302,6 @@ function activateGate(gate){
 }
 
 function colorGateLines(gate, sourceFlags){
-  // Skip the 4 integration gates — they're handled by detail overlay
   if ([10, 20, 34, 57].includes(gate)) return;
   let cls = null;
   if (sourceFlags.p && sourceFlags.d) cls = "active-b-" + gate;
@@ -352,30 +310,24 @@ function colorGateLines(gate, sourceFlags){
   if (cls) svgDoc.classList.add(cls);
 }
 
-/* ---------------- main render ---------------- */
 function render(chart){
   clearActivations();
 
-  // 1. gate activations (circles darkened + digits white)
   Object.keys(chart.gate_sources).forEach(g => activateGate(parseInt(g, 10)));
 
-  // 2. per-gate channel-line recoloring
   Object.entries(chart.gate_sources).forEach(([g, src]) => {
     colorGateLines(parseInt(g, 10), src);
   });
 
-  // 3. defined centers (chakras) coloring
   chart.defined_centers.forEach(center => {
     const key = center.replace(/ /g, "");
     svgDoc.classList.add("center-active-" + key);
   });
 
-  // 4. integration detail (1..256)
   if (chart.integration && chart.integration.n) {
     svgDoc.classList.add("detail-on-" + chart.integration.n);
   }
 
-  // 5. summary cards
   const integrationLabel = chart.integration
     ? `#${chart.integration.n}<small style="display:block;font-size:.68rem;color:var(--ink-dim);margin-top:4px;letter-spacing:.06em">10·${chart.integration.states["10"]}  57·${chart.integration.states["57"]}  34·${chart.integration.states["34"]}  20·${chart.integration.states["20"]}</small>`
     : "—";
@@ -390,7 +342,6 @@ function render(chart){
   document.getElementById("summary-cards").innerHTML =
     cards.map(c => `<div class="card"><div class="k">${c.k}</div><div class="v${c.small?' small':''}">${c.v}</div></div>`).join("");
 
-  // 6. planet columns
   const planetRow = (a, tag) => {
     const glyph = PLANET_GLYPH[a.planet] || "";
     const name  = PLANET_KA[a.planet] || a.planet;
@@ -406,7 +357,6 @@ function render(chart){
   document.getElementById("col-personality").innerHTML =
     `<h3>პიროვნება</h3>` + ordered(chart.personality).map(a => planetRow(a,"p")).join("");
 
-  // 7. channel list
   const chanHtml = chart.defined_channels.map(c =>
     `<div class="channel-item ${c.type}">
        <span class="pair">${c.gate_a}–${c.gate_b}</span>
@@ -418,13 +368,11 @@ function render(chart){
   document.getElementById("channel-list").innerHTML = chanHtml ||
     `<div class="meta" style="font-style:italic">არხები განსაზღვრული არ არის.</div>`;
 
-  // 8. centers
   const defCenters = new Set(chart.defined_centers);
   document.getElementById("centers-list").innerHTML = CENTER_ORDER.map(c =>
     `<div class="center-chip ${defCenters.has(c)?'defined':''}">${defCenters.has(c)?'<span class="dot"></span>':''}${CENTER_KA[c] || c}</div>`
   ).join("");
 
-  // 9. meta
   const inp = chart.input;
   document.getElementById("meta").innerHTML = `
     <div><strong>დაბადება:</strong> ${inp.date} ${inp.time} — ${inp.resolved_place}</div>
@@ -436,7 +384,6 @@ function render(chart){
   document.getElementById("results").classList.remove("hidden");
 }
 
-/* ---------------- form handler ---------------- */
 document.getElementById("birth-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const btn = document.getElementById("submit-btn");
@@ -468,7 +415,6 @@ document.getElementById("birth-form").addEventListener("submit", async (ev) => {
   }
 });
 
-/* load the SVG up front so the first cast is fast */
 loadBodygraph().catch(e => {
   document.getElementById("bodygraph").innerHTML =
     `<div class="loading" style="color:var(--error)">Could not load body graph: ${e.message}</div>`;
