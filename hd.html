@@ -174,11 +174,20 @@
       <input id="time" name="time" type="time" required value="10:00">
     </div>
     <div style="grid-column:span 1">
-      <label for="place">დაბადების ადგილი</label>
-      <input id="place" name="place" type="text" required placeholder="ქალაქი, ქვეყანა" value="Tbilisi, Georgia">
+      <label for="city">ქალაქი</label>
+      <input id="city" name="city" type="text" placeholder="მაგ. თბილისი, London, Paris..." oninput="searchCity()">
+      <div id="city-hint" style="font-size:.78rem;color:var(--person-lt);margin-top:5px;min-height:16px"></div>
     </div>
     <div>
       <button type="submit" id="submit-btn">გრაფიკის გამოთვლა</button>
+    </div>
+    <!-- hidden coord fields filled by searchCity() -->
+    <input type="hidden" id="lat">
+    <input type="hidden" id="lon">
+    <input type="hidden" id="tz_name" value="UTC">
+    <div style="grid-column:span 4;display:flex;gap:16px;margin-top:-8px;font-size:.78rem;color:var(--ink-dim)">
+      <span id="coords-display"></span>
+      <span id="tz-display"></span>
     </div>
   </form>
 
@@ -263,6 +272,40 @@ const STRATEGY_KA = {
 
 let gatePositions = null;
 let svgDoc = null;
+
+/* ---------------- city geocode (same as astro.html) ---------------- */
+let _cityTimer = null;
+function searchCity(){
+  clearTimeout(_cityTimer);
+  _cityTimer = setTimeout(async () => {
+    const city = document.getElementById("city").value.trim();
+    const hint = document.getElementById("city-hint");
+    if (city.length < 2) { hint.textContent = ""; return; }
+    hint.textContent = "⏳ ძიება…";
+    try {
+      const r = await fetch(API_BASE + "/geocode", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({city})
+      });
+      const raw = await r.text();
+      let d;
+      try { d = JSON.parse(raw); }
+      catch(e) { hint.textContent = "❌ Server error (" + r.status + ")"; return; }
+      if (d.error) { hint.textContent = "❌ " + d.error; return; }
+      document.getElementById("lat").value     = d.lat;
+      document.getElementById("lon").value     = d.lon;
+      document.getElementById("tz_name").value = d.tz_name || "UTC";
+      hint.textContent = "📍 " + d.display;
+      document.getElementById("coords-display").textContent =
+        d.lat.toFixed(4) + "°, " + d.lon.toFixed(4) + "°";
+      document.getElementById("tz-display").textContent =
+        "🕐 " + (d.tz_name || "UTC");
+    } catch(e) {
+      hint.textContent = "❌ " + e.message;
+    }
+  }, 600);
+}
 
 async function loadBodygraph(){
   const [svgText, posJson] = await Promise.all([
@@ -388,28 +431,53 @@ document.getElementById("birth-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const btn = document.getElementById("submit-btn");
   const stat = document.getElementById("status");
+
+  const lat     = document.getElementById("lat").value;
+  const lon     = document.getElementById("lon").value;
+  const tz_name = document.getElementById("tz_name").value;
+  const city    = document.getElementById("city").value.trim();
+
+  if (!lat || !lon) {
+    stat.className = "status error";
+    stat.textContent = "⚠ პირველ შეიყვანეთ ქალაქი და დაელოდეთ 📍 ნიშანს";
+    return;
+  }
+
   stat.className = "status";
   stat.textContent = "იტვირთება…";
   btn.disabled = true;
   try{
     if(!svgDoc) await loadBodygraph();
     const body = {
-      date:  document.getElementById("date").value,
-      time:  document.getElementById("time").value,
-      place: document.getElementById("place").value
+      date:     document.getElementById("date").value,
+      time:     document.getElementById("time").value,
+      lat:      parseFloat(lat),
+      lon:      parseFloat(lon),
+      tz_name:  tz_name,
+      place:    city,
     };
     const r = await fetch(API_BASE + "/api/hd_chart", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify(body)
     });
-    const chart = await r.json();
-    if(!r.ok) throw new Error(chart.error || "Unknown error");
+
+    const raw = await r.text();
+    let chart;
+    try { chart = JSON.parse(raw); }
+    catch(_) {
+      throw new Error(
+        "Backend returned HTTP " + r.status + " (HTML instead of JSON). " +
+        "Check Railway logs."
+      );
+    }
+
+    if(!r.ok) throw new Error(chart.error || "HTTP " + r.status);
     render(chart);
     stat.textContent = "";
   } catch(e){
     stat.className = "status error";
-    stat.textContent = "Error: " + e.message;
+    stat.textContent = "შეცდომა: " + e.message;
   } finally {
     btn.disabled = false;
   }
