@@ -273,7 +273,9 @@ function searchCity(){
     try{
       const r=await fetch(`${BACKEND}/geocode`,{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
-      const d=await r.json();
+      const raw=await r.text();
+      let d;
+      try{d=JSON.parse(raw);}catch(e){hint.textContent='❌ Backend error ('+r.status+'): '+raw.slice(0,120);return;}
       if(d.error){hint.textContent='❌ '+d.error;return;}
       document.getElementById('lat').value=d.lat.toFixed(4);
       document.getElementById('lon').value=d.lon.toFixed(4);
