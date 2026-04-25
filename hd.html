@@ -159,8 +159,9 @@
   <header class="top">
     <div>
       <h1>ადამიანის <em>დიზაინი</em></h1>
-      <div class="sub" style="margin-top:6px">სხეულის გრაფიკა</div>
+      <div class="sub" style="margin-top:6px">სხეულის გრაფიკა · კარიბჭეები · არხები</div>
     </div>
+    <div class="sub">Swiss Ephemeris · ტროპიკული</div>
   </header>
 
   <form class="input-form" id="birth-form">
@@ -318,7 +319,21 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
-  svgDoc.setAttribute("viewBox", "460 80 500 660");
+  svgDoc.setAttribute("viewBox","0 0 960 790");
+
+  // Extract the activation <style> from the SVG and inject into document <head>.
+  // Some browsers don't reliably apply <style> blocks inside inline SVG loaded
+  // via innerHTML. Moving it to <head> guarantees correct CSS processing.
+  const svgStyle = svgDoc.querySelector('#hd-activation');
+  if (svgStyle) {
+    const old = document.getElementById('hd-activation-doc');
+    if (old) old.remove();
+    const docStyle = document.createElement('style');
+    docStyle.id = 'hd-activation-doc';
+    docStyle.textContent = svgStyle.textContent;
+    document.head.appendChild(docStyle);
+    svgStyle.remove();
+  }
 }
 
 function clearActivations(){
