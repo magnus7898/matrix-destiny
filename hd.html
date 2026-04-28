@@ -319,7 +319,7 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
-  svgDoc.setAttribute("viewBox", "460 80 500 660");
+  svgDoc.setAttribute("viewBox","0 0 960 790");
 
   // Extract the activation <style> from the SVG and inject into document <head>.
   // Some browsers don't reliably apply <style> blocks inside inline SVG loaded
@@ -351,11 +351,17 @@ function clearActivations(){
   toRemove.forEach(c => svgDoc.classList.remove(c));
 }
 
-function activateGate(gate){
-  svgDoc.querySelectorAll(`.gate-circle[data-gate="${gate}"]`)
-    .forEach(n => n.classList.add("active"));
-  svgDoc.querySelectorAll(`.gate-text[data-gate="${gate}"]`)
-    .forEach(n => n.classList.add("active"));
+function activateGate(gate, src){
+  // Add color class to svg root (drives CSS for circles, texts, lines)
+  // colorGateLines handles the 60 non-integration gates;
+  // we handle circles/texts for ALL gates including 10,20,34,57 here.
+  if (src) {
+    let cls = null;
+    if (src.p && src.d) cls = "active-b-" + gate;
+    else if (src.p)    cls = "active-p-" + gate;
+    else if (src.d)    cls = "active-d-" + gate;
+    if (cls) svgDoc.classList.add(cls);
+  }
 }
 
 function colorGateLines(gate, sourceFlags){
@@ -370,9 +376,8 @@ function colorGateLines(gate, sourceFlags){
 function render(chart){
   clearActivations();
 
-  Object.keys(chart.gate_sources).forEach(g => activateGate(parseInt(g, 10)));
-
   Object.entries(chart.gate_sources).forEach(([g, src]) => {
+    activateGate(parseInt(g, 10), src);
     colorGateLines(parseInt(g, 10), src);
   });
 
