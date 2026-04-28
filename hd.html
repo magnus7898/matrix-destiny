@@ -322,8 +322,6 @@ async function loadBodygraph(){
   svgDoc.setAttribute("viewBox","0 0 960 790");
 
   // Extract the activation <style> from the SVG and inject into document <head>.
-  // Some browsers don't reliably apply <style> blocks inside inline SVG loaded
-  // via innerHTML. Moving it to <head> guarantees correct CSS processing.
   const svgStyle = svgDoc.querySelector('#hd-activation');
   if (svgStyle) {
     const old = document.getElementById('hd-activation-doc');
@@ -334,12 +332,16 @@ async function loadBodygraph(){
     document.head.appendChild(docStyle);
     svgStyle.remove();
   }
+  // Ensure all detail-part groups are hidden via direct DOM style
+  // (CSS !important can be unreliable when SVG is set via innerHTML)
+  svgDoc.querySelectorAll(".detail-part").forEach(el => {
+    el.style.display = "none";
+  });
 }
 
 function clearActivations(){
   if(!svgDoc) return;
-  svgDoc.querySelectorAll(".gate-circle.active").forEach(n => n.classList.remove("active"));
-  svgDoc.querySelectorAll(".gate-text.active").forEach(n => n.classList.remove("active"));
+  // Clear gate/center activation classes from SVG root
   const toRemove = [];
   svgDoc.classList.forEach(c => {
     if (c.startsWith("active-p-") || c.startsWith("active-d-") ||
@@ -349,6 +351,10 @@ function clearActivations(){
     }
   });
   toRemove.forEach(c => svgDoc.classList.remove(c));
+  // Directly hide ALL detail-part groups (bypass CSS specificity issues)
+  svgDoc.querySelectorAll(".detail-part").forEach(el => {
+    el.style.display = "none";
+  });
 }
 
 function activateGate(gate, src){
@@ -387,7 +393,14 @@ function render(chart){
   });
 
   if (chart.integration && chart.integration.n) {
-    svgDoc.classList.add("detail-on-" + chart.integration.n);
+    // Directly show the correct detail group — bypasses CSS specificity issues
+    // that arise when SVG is loaded via innerHTML
+    const n = chart.integration.n;
+    svgDoc.classList.add("detail-on-" + n);  // keep for CSS fallback
+    const detEl = svgDoc.querySelector(`.detail-part[data-detail="${n}"]`);
+    if (detEl) {
+      detEl.style.display = "block";
+    }
   }
 
   const integrationLabel = chart.integration
