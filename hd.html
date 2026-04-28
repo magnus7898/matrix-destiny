@@ -319,7 +319,7 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
-  svgDoc.setAttribute("viewBox","0 0 960 790");
+  svgDoc.setAttribute("viewBox","480 80 500 660");
 
   // Extract the activation <style> from the SVG and inject into document <head>.
   const svgStyle = svgDoc.querySelector('#hd-activation');
@@ -335,7 +335,7 @@ async function loadBodygraph(){
   // Ensure all detail-part groups are hidden via direct DOM style
   // (CSS !important can be unreliable when SVG is set via innerHTML)
   svgDoc.querySelectorAll(".detail-part").forEach(el => {
-    el.style.display = "none";
+    el.style.setProperty('display', 'none', 'important');
   });
 }
 
@@ -353,7 +353,7 @@ function clearActivations(){
   toRemove.forEach(c => svgDoc.classList.remove(c));
   // Directly hide ALL detail-part groups (bypass CSS specificity issues)
   svgDoc.querySelectorAll(".detail-part").forEach(el => {
-    el.style.display = "none";
+    el.style.setProperty('display', 'none', 'important');
   });
 }
 
@@ -399,7 +399,7 @@ function render(chart){
     svgDoc.classList.add("detail-on-" + n);  // keep for CSS fallback
     const detEl = svgDoc.querySelector(`.detail-part[data-detail="${n}"]`);
     if (detEl) {
-      detEl.style.display = "block";
+      detEl.style.setProperty('display', 'block', 'important');
     }
   }
 
