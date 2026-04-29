@@ -316,6 +316,9 @@ async function loadBodygraph(){
   const wrap = document.getElementById("bodygraph");
   wrap.innerHTML = svgText;
   svgDoc = wrap.querySelector("svg");
+  if (!svgDoc) {
+    throw new Error("SVG not found — human_prepared.svg may not have been built. Check Railway logs.");
+    }
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
