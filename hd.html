@@ -314,17 +314,17 @@ async function loadBodygraph(){
   ]);
   gatePositions = posJson;
   const wrap = document.getElementById("bodygraph");
-  wrap.innerHTML = svgText;
+  const parser = new DOMParser();
+  const svgDom = parser.parseFromString(svgText, 'image/svg+xml');
+  const importedSvg = document.importNode(svgDom.documentElement, true);
+  wrap.innerHTML = '';
+  wrap.appendChild(importedSvg);
   svgDoc = wrap.querySelector("svg");
-  if (!svgDoc) {
-    throw new Error("SVG not found — human_prepared.svg may not have been built. Check Railway logs.");
-    }
+  if (!svgDoc) throw new Error("SVG not found — check Railway logs.");
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");
   svgDoc.removeAttribute("height");
   svgDoc.setAttribute("viewBox","480 80 500 660");
-
-  // Extract the activation <style> from the SVG and inject into document <head>.
   const svgStyle = svgDoc.querySelector('#hd-activation');
   if (svgStyle) {
     const old = document.getElementById('hd-activation-doc');
@@ -335,8 +335,6 @@ async function loadBodygraph(){
     document.head.appendChild(docStyle);
     svgStyle.remove();
   }
-  // Ensure all detail-part groups are hidden via direct DOM style
-  // (CSS !important can be unreliable when SVG is set via innerHTML)
   svgDoc.querySelectorAll(".detail-part").forEach(el => {
     el.style.setProperty('display', 'none', 'important');
   });
