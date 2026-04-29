@@ -384,6 +384,7 @@ function colorGateLines(gate, sourceFlags){
 
 function render(chart){
   clearActivations();
+  console.log("Integration N:", chart.integration);
 
   Object.entries(chart.gate_sources).forEach(([g, src]) => {
     activateGate(parseInt(g, 10), src);
