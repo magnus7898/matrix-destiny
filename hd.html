@@ -314,11 +314,7 @@ async function loadBodygraph(){
   ]);
   gatePositions = posJson;
   const wrap = document.getElementById("bodygraph");
-  const parser = new DOMParser();
-  const svgDom = parser.parseFromString(svgText, 'image/svg+xml');
-  const importedSvg = document.importNode(svgDom.documentElement, true);
-  wrap.innerHTML = '';
-  wrap.appendChild(importedSvg);
+  wrap.innerHTML = svgText;
   svgDoc = wrap.querySelector("svg");
   if (!svgDoc) throw new Error("SVG not found — check Railway logs.");
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
