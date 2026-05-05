@@ -407,6 +407,7 @@ function render(chart){
     {k:"სტრატეგია",       v: STRATEGY_KA[chart.strategy] || chart.strategy,     small:true},
     {k:"ავტორიტეტი",      v: chart.authority,                                   small:true},
     {k:"პროფილი",         v: chart.profile,                                     small:false},
+    {k:"არარეალიზებული „მე"", v: chart.not_self || "",                        small:true},
     {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross,                         small:true}
   ];
   document.getElementById("summary-cards").innerHTML =
