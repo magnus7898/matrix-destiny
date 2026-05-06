@@ -375,6 +375,7 @@ function colorGateLines(gate, sourceFlags){
 }
 
 function render(chart){
+  window._chart = chart;
   clearActivations();
   console.log("Integration N:", chart.integration);
 
