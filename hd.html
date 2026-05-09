@@ -417,6 +417,7 @@ function render(chart){
     {k:"გარემო", v: chart.environment || "", small:true},
     {k:"მოტივაცია", v: chart.motivation || "", small:true},
     {k:"პერსპექტივა", v: chart.perspective || "", small:true},
+    {k:"სხვა საჩუქრები", v: (chart.other_gifts || []).join(", "), small:true},
     {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross,                         small:true}
   ];
   document.getElementById("summary-cards").innerHTML =
