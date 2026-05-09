@@ -431,14 +431,14 @@ function render(chart){
     "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
 };
 
-function crossToKa(cross) {
-    for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
-        if (cross.startsWith(en)) {
-            return cross.replace(en, ka);
-        }
-    }
-    return cross;
-}
+  function crossToKa(cross) {
+      for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
+          if (cross.startsWith(en)) {
+              return cross.replace(en, ka);
+          }
+      }
+      return cross;
+  }
 
   const planetRow = (a, tag) => {
     const glyph = PLANET_GLYPH[a.planet] || "";
