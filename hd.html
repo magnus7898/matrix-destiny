@@ -399,20 +399,7 @@ function render(chart){
       detEl.style.setProperty('display', 'block', 'important');
     }
   }
-  const CROSS_PREFIX_KA = {
-      "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
-      "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
-      "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
-  };
-  
-  function crossToKa(cross) {
-      for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
-          if (cross.startsWith(en)) {
-              return cross.replace(en, ka);
-          }
-      }
-      return cross;
-  }
+
 
 
   const integrationLabel = chart.integration
@@ -536,6 +523,21 @@ document.getElementById("birth-form").addEventListener("submit", async (ev) => {
     btn.disabled = false;
   }
 });
+
+const CROSS_PREFIX_KA = {
+    "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
+    "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
+    "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
+};
+
+function crossToKa(cross) {
+    for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
+        if (cross.startsWith(en)) {
+            return cross.replace(en, ka);
+        }
+    }
+    return cross;
+}
 
 loadBodygraph().catch(e => {
   document.getElementById("bodygraph").innerHTML =
