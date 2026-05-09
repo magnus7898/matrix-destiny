@@ -399,7 +399,20 @@ function render(chart){
       detEl.style.setProperty('display', 'block', 'important');
     }
   }
-
+  const CROSS_PREFIX_KA = {
+      "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
+      "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
+      "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
+  };
+  
+  function crossToKa(cross) {
+      for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
+          if (cross.startsWith(en)) {
+              return cross.replace(en, ka);
+          }
+      }
+      return cross;
+  }
 
 
   const integrationLabel = chart.integration
@@ -425,20 +438,7 @@ function render(chart){
   document.getElementById("summary-cards").innerHTML =
     cards.map(c => `<div class="card"><div class="k">${c.k}</div><div class="v${c.small?' small':''}">${c.v}</div></div>`).join("");
 
-  const CROSS_PREFIX_KA = {
-      "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
-      "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
-      "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
-  };
-  
-  function crossToKa(cross) {
-      for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
-          if (cross.startsWith(en)) {
-              return cross.replace(en, ka);
-          }
-      }
-      return cross;
-  }
+
   const planetRow = (a, tag) => {
     const glyph = PLANET_GLYPH[a.planet] || "";
     const name  = PLANET_KA[a.planet] || a.planet;
