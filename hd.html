@@ -418,7 +418,7 @@ function render(chart){
     {k:"მოტივაცია", v: chart.motivation || "", small:true},
     {k:"პერსპექტივა", v: chart.perspective || "", small:true},
     {k:"სხვა საჩუქრები", v: (chart.other_gifts || []).join(", "), small:true},
-    {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross,                         small:true}
+    {k:"ინკარნაციის ჯვარი", v: TYPE_KA[chart.incarnation_cross] || chart.incarnation_cross,                         small:true}
   ];
   document.getElementById("summary-cards").innerHTML =
     cards.map(c => `<div class="card"><div class="k">${c.k}</div><div class="v${c.small?' small':''}">${c.v}</div></div>`).join("");
