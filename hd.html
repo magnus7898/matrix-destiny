@@ -400,6 +400,21 @@ function render(chart){
     }
   }
 
+  const CROSS_PREFIX_KA = {
+    "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
+    "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
+    "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
+};
+
+function crossToKa(cross) {
+    for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
+        if (cross.startsWith(en)) {
+            return cross.replace(en, ka);
+        }
+    }
+    return cross;
+}
+
   const integrationLabel = chart.integration
     ? `#${chart.integration.n}<small style="display:block;font-size:.68rem;color:var(--ink-dim);margin-top:4px;letter-spacing:.06em">10·${chart.integration.states["10"]}  57·${chart.integration.states["57"]}  34·${chart.integration.states["34"]}  20·${chart.integration.states["20"]}</small>`
     : "—";
