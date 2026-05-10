@@ -82,19 +82,19 @@ header::after{content:"";display:block;width:320px;height:1px;
 .hidden{display:none!important}
 
 /* SECTION DIVIDER */
-.sec-head{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.sec-head{display:flex;align-items:center;gap:16px;margin-bottom:12px;}
 .sec-head span{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-dim);white-space:nowrap;}
 .sec-head::before,.sec-head::after{content:"";flex:1;height:1px;}
 .sec-head::before{background:linear-gradient(90deg,transparent,var(--border));}
 .sec-head::after{background:linear-gradient(90deg,var(--border),transparent);}
 
 /* MAIN LAYOUT — bodygraph left, cards right */
-.main-layout{display:grid;grid-template-columns:1fr 560px 170px;gap:14px;margin-bottom:36px;align-items:start;}
-.left-col{display:flex;flex-direction:column;gap:0;}
-.right-col{display:flex;flex-direction:column;gap:0;}
-.gifts-col{display:flex;flex-direction:column;gap:0;}
+.main-layout{display:grid;grid-template-columns:1fr 560px 170px;gap:20px;margin-bottom:20px;align-items:stretch;}
+.left-col{display:flex;flex-direction:column;}
+.right-col{display:flex;flex-direction:column;}
+.gifts-col{display:flex;flex-direction:column;}
 .gifts-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
-  padding:12px 10px 10px;position:relative;overflow:hidden;flex:1;}
+  padding:12px 10px 10px;position:relative;overflow:hidden;flex:1;overflow-y:auto;}
 .gifts-card::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
 .gifts-card .k{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:7px;font-family:'Cinzel',serif;}
@@ -103,7 +103,7 @@ header::after{content:"";display:block;width:320px;height:1px;
 .gifts-card .gift-item:last-child{border-bottom:none;}
 
 /* CARDS — 2 columns in right sidebar */
-.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;grid-auto-rows:1fr;}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;grid-auto-rows:1fr;align-content:stretch;height:100%;}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
   padding:22px 18px 20px;position:relative;overflow:hidden;
   transition:border-color .25s,transform .25s,box-shadow .25s;cursor:default;
@@ -120,9 +120,9 @@ header::after{content:"";display:block;width:320px;height:1px;
 .card .v.xs{font-size:.88rem;font-family:'Noto Serif Georgian',serif;line-height:1.5;}
 
 /* CHART AREA */
-.chart-area{display:grid;grid-template-columns:120px 1fr 120px;
+.chart-area{display:grid;grid-template-columns:120px 1fr 120px;flex:1;
   background:var(--surface);border:1px solid var(--border);border-radius:6px;
-  padding:18px;min-height:660px;align-items:start;position:relative;overflow:hidden;}
+  padding:18px;align-items:start;position:relative;overflow:hidden;flex:1;}
 .chart-area::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim) 30%,var(--gold) 50%,var(--gold-dim) 70%,transparent);}
 .planet-col{padding:6px 0px;font-family:'JetBrains Mono',monospace;font-size:.63rem;}
@@ -139,10 +139,10 @@ header::after{content:"";display:block;width:320px;height:1px;
 .prow .gl .gate{color:var(--ink);}
 .prow .gl .line{color:var(--gold-dim);}
 #bodygraph{display:flex;align-items:center;justify-content:center;}
-#bodygraph svg{width:100%;height:auto;max-height:800px;display:block;}
+#bodygraph svg{width:100%;height:auto;max-height:660px;display:block;}
 
 /* DETAILS */
-.details{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;}
+.details{display:grid;grid-template-columns:1fr 560px;gap:20px;}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;
   padding:24px 26px;position:relative;overflow:hidden;}
 .panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
@@ -250,7 +250,6 @@ header::after{content:"";display:block;width:320px;height:1px;
     <div class="gifts-col">
       <div class="sec-head"><span>სხვა ნიჭები</span></div>
       <div class="gifts-card" id="gifts-card">
-        <div class="k">ყველა აქტიური კარი</div>
         <div id="gifts-list"></div>
       </div>
     </div>
@@ -321,7 +320,7 @@ async function loadBodygraph(){
   if(!svgDoc)throw new Error("SVG not found");
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");svgDoc.removeAttribute("height");
-  svgDoc.setAttribute("viewBox","450 55 500 720");
+  svgDoc.setAttribute("viewBox","480 80 500 660");
   const ss=svgDoc.querySelector("#hd-activation");
   if(ss){
     const old=document.getElementById("hd-activation-doc");
