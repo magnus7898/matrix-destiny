@@ -321,7 +321,7 @@ async function loadBodygraph(){
   if(!svgDoc)throw new Error("SVG not found");
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");svgDoc.removeAttribute("height");
-  svgDoc.setAttribute("viewBox","480 80 500 660");
+  svgDoc.setAttribute("viewBox","450 55 500 720");
   const ss=svgDoc.querySelector("#hd-activation");
   if(ss){
     const old=document.getElementById("hd-activation-doc");
