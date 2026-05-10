@@ -420,7 +420,7 @@ function render(chart){
     {k:"მოტივაცია", v: chart.motivation || "", small:true},
     {k:"პერსპექტივა", v: chart.perspective || "", small:true},
     {k:"სხვა საჩუქრები", v: (chart.other_gifts || []).join(", "), small:true},
-    {k:"ინკარნაციის ჯვარი", v: crossToKa(chart.incarnation_cross || ""), small:true},
+    {k:"ინკარნაციის ჯვარი", v: chart.incarnation_cross,  small:true},
   ];
   document.getElementById("summary-cards").innerHTML =
     cards.map(c => `<div class="card"><div class="k">${c.k}</div><div class="v${c.small?' small':''}">${c.v}</div></div>`).join("");
@@ -524,20 +524,7 @@ document.getElementById("birth-form").addEventListener("submit", async (ev) => {
   }
 });
 
-const CROSS_PREFIX_KA = {
-    "The Right Angle Cross of": "მარჯვენა კუთხის ჯვარი —",
-    "The Left Angle Cross of": "მარცხენა კუთხის ჯვარი —",
-    "The Juxtaposition Cross of": "იუქსტაპოზიციის ჯვარი —",
-};
 
-function crossToKa(cross) {
-    for (const [en, ka] of Object.entries(CROSS_PREFIX_KA)) {
-        if (cross.startsWith(en)) {
-            return cross.replace(en, ka);
-        }
-    }
-    return cross;
-}
 
 loadBodygraph().catch(e => {
   document.getElementById("bodygraph").innerHTML =
