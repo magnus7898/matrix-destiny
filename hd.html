@@ -496,7 +496,7 @@ function render(chart){
     {k:"გარემო",         v:chart.environment||"",                        sm:true},
     {k:"მოტივაცია",      v:chart.motivation||"",                         sm:true},
     {k:"პერსპექტივა",    v:chart.perspective||"",                        sm:true},
-    {k:"სხვა ნიჭები",    v:(chart.other_gifts||[]).join(", "),           xs:true},
+    {k:"სხვა ნიჭები", v:(chart.other_gifts||[]).map(g=>`<div style="padding:2px 0;border-bottom:1px solid rgba(180,140,90,.08)">${g}</div>`).join(""), xs:true},
   ];
 
   document.getElementById("summary-cards").innerHTML=cards.map(c=>
