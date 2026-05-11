@@ -61,7 +61,7 @@ header::after{content:"";display:block;width:280px;height:1px;
   pointer-events:none;}
 .form-title{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;
   color:var(--gold-dim);text-align:center;margin-bottom:24px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 2fr auto;gap:20px;align-items:end;position:relative;z-index:1;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 2fr auto;gap:18px;align-items:end;position:relative;z-index:1;}
 .field label{display:block;font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
   color:var(--ink-dim);margin-bottom:7px;font-family:'Cinzel',serif;}
 .field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.03);color:var(--ink);
@@ -104,15 +104,13 @@ header::after{content:"";display:block;width:280px;height:1px;
 /* ── BODYGRAPH ── */
 .chart-area{
   flex:1;
-  display:grid;
-  grid-template-columns:minmax(110px,160px) 1fr minmax(110px,160px);
+  display:grid;grid-template-columns:110px 1fr 110px;
   background:var(--surface);border:1px solid var(--border);border-radius:6px;
-  padding:18px 12px;align-items:center;justify-items:center;position:relative;overflow:hidden;
-  gap:8px;
+  padding:16px;align-items:start;position:relative;overflow:hidden;
 }
 .chart-area::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim) 30%,var(--gold) 50%,var(--gold-dim) 70%,transparent);}
-.planet-col{width:100%;padding:0 4px;}
+.planet-col{padding:4px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
 .planet-col h3{font-family:'Cinzel',serif;font-size:.52rem;font-weight:500;letter-spacing:.2em;
   text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
   border-bottom:1px solid var(--border);text-align:center;}
@@ -126,21 +124,8 @@ header::after{content:"";display:block;width:280px;height:1px;
 .prow .gl{font-variant-numeric:tabular-nums;font-size:.68rem;}
 .prow .gl .gate{color:var(--ink);}
 .prow .gl .line{color:var(--gold-dim);}
-
-#bodygraph{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  padding:0;
-}
-#bodygraph svg{
-  width:100%;
-  height:auto;
-  display:block;
-  max-width:100%;
-  margin:0 auto;
-}
+#bodygraph{display:flex;align-items:center;justify-content:center;}
+#bodygraph svg{width:100%;height:auto;max-height:780px;display:block;}
 
 /* ── CARDS ── */
 .summary{
@@ -253,12 +238,8 @@ header::after{content:"";display:block;width:280px;height:1px;
       <input id="date" type="date" required value="1948-04-09">
     </div>
     <div class="field">
-      <label>საათი</label>
-      <input id="hour" type="number" min="0" max="23" value="10">
-    </div>
-    <div class="field">
-      <label>წუთი</label>
-      <input id="minute" type="number" min="0" max="59" value="0">
+      <label>დაბადების დრო</label>
+      <input id="time" type="text" required value="10:00" placeholder="მაგ. 14:30">
     </div>
     <div class="field">
       <label>ქალაქი</label>
@@ -372,8 +353,6 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");svgDoc.removeAttribute("height");
   svgDoc.setAttribute("viewBox","420 40 580 780");
-  svgDoc.style.display="block";
-  svgDoc.style.margin="0 auto";
   const ss=svgDoc.querySelector("#hd-activation");
   if(ss){
     const old=document.getElementById("hd-activation-doc");
@@ -507,15 +486,12 @@ document.getElementById("birth-form").addEventListener("submit",async ev=>{
   if(!lat||!lon){stat.className="status error";stat.textContent="⚠ პირველ შეიყვანეთ ქალაქი";return;}
   stat.className="status";stat.textContent="იტვირთება…";btn.disabled=true;
   try{
-      if(!svgDoc)await loadBodygraph();
-      const hour=String(document.getElementById("hour").value).padStart(2,"0");
-      const minute=String(document.getElementById("minute").value).padStart(2,"0");
-      const timeStr=`${hour}:${minute}`;
-      const r=await fetch(API_BASE+"/api/hd_chart",{
+    if(!svgDoc)await loadBodygraph();
+    const r=await fetch(API_BASE+"/api/hd_chart",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         date:document.getElementById("date").value,
-        time:timeStr,
+        time:document.getElementById("time").value,
         lat:parseFloat(lat),lon:parseFloat(lon),tz_name,place:city
       })
     });
@@ -534,4 +510,3 @@ loadBodygraph().catch(e=>{
 </script>
 </body>
 </html>
-
