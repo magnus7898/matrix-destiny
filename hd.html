@@ -609,7 +609,11 @@ function renderSynastry(c1,c2){
   });
 
   // Centers from P1
-  c1.defined_centers.forEach(c=>svgSyn.classList.add('center-active-'+c.replace(/ /g,'')));
+  if(c1.integration?.n){
+    svgSyn.classList.add('detail-on-'+c1.integration.n);
+    const el=svgSyn.querySelector(`.detail-part[data-detail="${c1.integration.n}"]`);
+    if(el)el.style.setProperty('display','block','important');
+  }
 
   // Planet cols
   fillPlanetCol(c1.design,c1.personality,'syn-p1-design','syn-p1-personality',false);
