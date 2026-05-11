@@ -507,8 +507,11 @@ document.getElementById("birth-form").addEventListener("submit",async ev=>{
   if(!lat||!lon){stat.className="status error";stat.textContent="⚠ პირველ შეიყვანეთ ქალაქი";return;}
   stat.className="status";stat.textContent="იტვირთება…";btn.disabled=true;
   try{
-    if(!svgDoc)await loadBodygraph();
-    const r=await fetch(API_BASE+"/api/hd_chart",{
+      if(!svgDoc)await loadBodygraph();
+      const hour=String(document.getElementById("hour").value).padStart(2,"0");
+      const minute=String(document.getElementById("minute").value).padStart(2,"0");
+      const timeStr=`${hour}:${minute}`;
+      const r=await fetch(API_BASE+"/api/hd_chart",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         date:document.getElementById("date").value,
