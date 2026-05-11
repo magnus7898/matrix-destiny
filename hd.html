@@ -61,7 +61,7 @@ header::after{content:"";display:block;width:280px;height:1px;
   pointer-events:none;}
 .form-title{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;
   color:var(--gold-dim);text-align:center;margin-bottom:24px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 2fr auto;gap:18px;align-items:end;position:relative;z-index:1;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 2fr auto;gap:20px;align-items:end;position:relative;z-index:1;}
 .field label{display:block;font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
   color:var(--ink-dim);margin-bottom:7px;font-family:'Cinzel',serif;}
 .field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.03);color:var(--ink);
@@ -253,8 +253,12 @@ header::after{content:"";display:block;width:280px;height:1px;
       <input id="date" type="date" required value="1948-04-09">
     </div>
     <div class="field">
-      <label>დაბადების დრო</label>
-      <<input id="time" type="time" required value="10:00">
+      <label>საათი</label>
+      <input id="hour" type="number" min="0" max="23" value="10">
+    </div>
+    <div class="field">
+      <label>წუთი</label>
+      <input id="minute" type="number" min="0" max="59" value="0">
     </div>
     <div class="field">
       <label>ქალაქი</label>
