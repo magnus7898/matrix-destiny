@@ -50,34 +50,37 @@ header::after{content:"";display:block;width:280px;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:18px auto 0;}
 
 /* ── FORM ── */
-.form-shell{max-width:900px;margin:0 auto 24px;
-  background:linear-gradient(145deg,rgba(22,18,40,.9),rgba(7,5,15,.95));
-  border:1px solid var(--border);border-radius:8px;padding:32px 36px 28px;
-  position:relative;overflow:hidden;}
-.form-shell::before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);}
-.form-shell::after{content:"";position:absolute;inset:0;
-  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(196,149,80,.04),transparent);
-  pointer-events:none;}
-.form-title{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;
-  color:var(--gold-dim);text-align:center;margin-bottom:24px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 2fr auto;gap:18px;align-items:end;position:relative;z-index:1;}
-.field label{display:block;font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
-  color:var(--ink-dim);margin-bottom:7px;font-family:'Cinzel',serif;}
-.field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.03);color:var(--ink);
-  border:1px solid var(--border);border-radius:var(--r);font:inherit;font-size:.87rem;
-  transition:border-color .2s,background .2s;outline:none;}
-.field input:focus{border-color:var(--gold);background:rgba(196,149,80,.04);}
-.field input::placeholder{color:var(--ink-dim);}
-.city-hint{font-size:.66rem;color:var(--indigo-lt);margin-top:5px;min-height:12px;}
-.btn-calc{padding:11px 24px;background:linear-gradient(145deg,#c49550,#8a6030);
-  color:#110800;border:0;border-radius:var(--r);font-family:'Cinzel',serif;font-weight:600;
-  font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;white-space:nowrap;
-  box-shadow:0 4px 20px rgba(196,149,80,.25);transition:opacity .2s,transform .1s;}
-.btn-calc:hover{opacity:.9;}
+.form-shell{max-width:620px;margin:0 auto 24px;
+  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
+  border-radius:16px;padding:24px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(167,139,250,.08);
+  position:relative;}
+.form-shell::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);}
+.form-title{font-size:9px;letter-spacing:5px;text-transform:uppercase;
+  color:rgba(167,139,250,.6);text-align:center;margin-bottom:18px;
+  font-family:'Cinzel',serif;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.field label{display:block;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);opacity:.7;margin-bottom:5px;font-family:'Cinzel',serif;}
+.field input{width:100%;padding:9px 12px;
+  background:rgba(10,8,30,.7);color:var(--ink);
+  border:1px solid rgba(61,42,138,.6);border-radius:8px;
+  font:inherit;font-size:13px;
+  transition:border-color .2s,box-shadow .2s;outline:none;}
+.field input:focus{border-color:var(--violet-lt);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.field input::placeholder{color:rgba(155,168,184,.35);}
+.city-hint{font-size:11px;color:var(--violet-lt);margin-top:3px;min-height:14px;}
+.btn-calc{width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);
+  color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;
+  padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;
+  font-family:'Cinzel',serif;transition:all .3s;
+  box-shadow:0 4px 20px rgba(109,40,217,.3);}
+.btn-calc:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);
+  box-shadow:0 6px 28px rgba(124,58,237,.4);transform:translateY(-1px);}
 .btn-calc:active{transform:translateY(1px);}
-.btn-calc:disabled{opacity:.35;cursor:wait;}
-.coords-row{grid-column:span 4;font-size:.65rem;color:var(--ink-dim);display:flex;gap:16px;margin-top:-6px;}
+.btn-calc:disabled{opacity:.4;cursor:wait;}
 .status{font-size:.83rem;color:var(--ink-dim);margin-bottom:8px;text-align:center;min-height:16px;}
 .status.error{color:#e06060;}
 .hidden{display:none!important}
@@ -232,32 +235,34 @@ header::after{content:"";display:block;width:280px;height:1px;
 
 <div class="form-shell">
   <div class="form-title">სხეულის გრაფიკის გამოთვლა</div>
-  <form class="form-grid" id="birth-form">
-    <div class="field">
-      <label>დაბადების თარიღი</label>
-      <input id="date" type="date" required value="1948-04-09">
+  <form id="birth-form">
+    <div class="form-row">
+      <div class="field"><label>დღე</label><input id="day" type="number" min="1" max="31" value="9"></div>
+      <div class="field"><label>თვე</label><input id="month" type="number" min="1" max="12" value="4"></div>
+      <div class="field"><label>წელი</label><input id="year" type="number" value="1948"></div>
     </div>
-    <div class="field">
-      <label>დაბადების დრო</label>
-      <input id="time" type="text" required value="10:00" placeholder="მაგ. 14:30">
+    <div class="form-row">
+      <div class="field"><label>საათი</label><input id="hour" type="number" min="0" max="23" value="10"></div>
+      <div class="field"><label>წუთი</label><input id="minute" type="number" min="0" max="59" value="0"></div>
+      <div class="field"><label>წამი</label><input id="second" type="number" min="0" max="59" value="0"></div>
     </div>
-    <div class="field">
+    <div class="field" style="margin-bottom:12px">
       <label>ქალაქი</label>
       <input id="city" type="text" placeholder="თბილისი, London, Paris…" oninput="searchCity()">
       <div class="city-hint" id="city-hint"></div>
     </div>
-    <div>
-      <button type="submit" class="btn-calc" id="submit-btn">გამოთვლა</button>
+    <div style="font-size:11px;color:rgba(167,139,250,.7);margin-bottom:14px;min-height:16px">
+      <span id="coords-display"></span>
+      <span id="tz-display" style="margin-left:12px"></span>
     </div>
     <input type="hidden" id="lat">
     <input type="hidden" id="lon">
     <input type="hidden" id="tz_name" value="UTC">
-    <div class="coords-row">
-      <span id="coords-display"></span>
-      <span id="tz-display"></span>
-    </div>
+    <button type="submit" class="btn-calc" id="submit-btn">✦ გრაფიკის გამოთვლა ✦</button>
   </form>
 </div>
+
+<div class="status"
 
 <div class="status" id="status"></div>
 
@@ -486,12 +491,19 @@ document.getElementById("birth-form").addEventListener("submit",async ev=>{
   if(!lat||!lon){stat.className="status error";stat.textContent="⚠ პირველ შეიყვანეთ ქალაქი";return;}
   stat.className="status";stat.textContent="იტვირთება…";btn.disabled=true;
   try{
+    const day=String(document.getElementById("day").value).padStart(2,"0");
+    const month=String(document.getElementById("month").value).padStart(2,"0");
+    const year=document.getElementById("year").value;
+    const hour=String(document.getElementById("hour").value).padStart(2,"0");
+    const minute=String(document.getElementById("minute").value).padStart(2,"0");
+    const dateStr=`${year}-${month}-${day}`;
+    const timeStr=`${hour}:${minute}`;
     if(!svgDoc)await loadBodygraph();
     const r=await fetch(API_BASE+"/api/hd_chart",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        date:document.getElementById("date").value,
-        time:document.getElementById("time").value,
+        date:dateStr,
+        time:timeStr,
         lat:parseFloat(lat),lon:parseFloat(lon),tz_name,place:city
       })
     });
