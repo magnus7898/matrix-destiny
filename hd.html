@@ -155,7 +155,7 @@ header::after{content:"";display:block;width:280px;height:1px;
 
 /* ── GIFTS COLUMN ── */
 .gifts-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 14px;position:relative;overflow:hidden;overflow-y:auto;}
+  padding:16px 14px;position:relative;overflow-y:auto;}
 .gifts-card::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
 .gift-item{font-size:.82rem;font-family:'Noto Serif Georgian',serif;color:var(--ink);
@@ -163,6 +163,12 @@ header::after{content:"";display:block;width:280px;height:1px;
 .gift-item:last-child{border-bottom:none;}
 
 /* ── DETAILS ── */
+.details-wrap{
+  display:grid;
+  grid-template-columns:1fr 440px;
+  gap:20px;
+  margin-top:0;
+}
 .details{display:grid;grid-template-columns:2fr 1fr;gap:20px;}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;
   padding:22px 24px;position:relative;overflow:hidden;}
@@ -281,15 +287,17 @@ header::after{content:"";display:block;width:280px;height:1px;
 
   </div>
 
-  <div class="details">
-    <div class="panel">
-      <h2>არხები <small id="channel-count"></small></h2>
-      <div class="channel-list" id="channel-list"></div>
-    </div>
-    <div class="panel">
-      <h2>ცენტრები</h2>
-      <div class="centers-grid" id="centers-list"></div>
-      <div class="meta-info" id="meta"></div>
+  <div class="details-wrap">
+    <div class="details">
+      <div class="panel">
+        <h2>არხები <small id="channel-count"></small></h2>
+        <div class="channel-list" id="channel-list"></div>
+      </div>
+      <div class="panel">
+        <h2>ცენტრები</h2>
+        <div class="centers-grid" id="centers-list"></div>
+        <div class="meta-info" id="meta"></div>
+      </div>
     </div>
   </div>
 </section>
