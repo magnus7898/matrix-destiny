@@ -104,13 +104,14 @@ header::after{content:"";display:block;width:280px;height:1px;
 /* ── BODYGRAPH ── */
 .chart-area{
   flex:1;
-  display:grid;grid-template-columns:110px 1fr 110px;
+  display:grid;
+  grid-template-columns:minmax(100px,130px) 1fr minmax(100px,130px);
   background:var(--surface);border:1px solid var(--border);border-radius:6px;
-  padding:16px;align-items:start;position:relative;overflow:hidden;
+  padding:16px 12px;align-items:center;justify-items:center;position:relative;overflow:hidden;
 }
 .chart-area::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--gold-dim) 30%,var(--gold) 50%,var(--gold-dim) 70%,transparent);}
-.planet-col{padding:4px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
+.planet-col{padding:4px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;align-self:center;width:100%;}
 .planet-col h3{font-family:'Cinzel',serif;font-size:.52rem;font-weight:500;letter-spacing:.2em;
   text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
   border-bottom:1px solid var(--border);text-align:center;}
@@ -124,8 +125,21 @@ header::after{content:"";display:block;width:280px;height:1px;
 .prow .gl{font-variant-numeric:tabular-nums;font-size:.68rem;}
 .prow .gl .gate{color:var(--ink);}
 .prow .gl .line{color:var(--gold-dim);}
-#bodygraph{display:flex;align-items:center;justify-content:center;}
-#bodygraph svg{width:100%;height:auto;max-height:780px;display:block;}
+
+#bodygraph{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:0;
+  padding:0 8px;
+}
+#bodygraph svg{
+  width:100%;
+  height:auto;
+  display:block;
+  margin:0 auto;
+}
 
 /* ── CARDS ── */
 .summary{
@@ -353,6 +367,8 @@ async function loadBodygraph(){
   svgDoc.setAttribute("preserveAspectRatio","xMidYMid meet");
   svgDoc.removeAttribute("width");svgDoc.removeAttribute("height");
   svgDoc.setAttribute("viewBox","420 40 580 780");
+  svgDoc.style.display="block";
+  svgDoc.style.margin="0 auto";
   const ss=svgDoc.querySelector("#hd-activation");
   if(ss){
     const old=document.getElementById("hd-activation-doc");
@@ -510,3 +526,4 @@ loadBodygraph().catch(e=>{
 </script>
 </body>
 </html>
+
