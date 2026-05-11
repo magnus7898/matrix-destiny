@@ -84,15 +84,15 @@ header::after{content:"";display:block;width:280px;height:1px;
 
 /* ── SECTION DIVIDER ── */
 .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
-.sec-head span{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.4em;
-  text-transform:uppercase;color:var(--gold-dim);white-space:nowrap;}
+.sec-head span{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .sec-head::before{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border));}
 .sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 
 /* ── MAIN LAYOUT: bodygraph | cards | gifts ── */
 .main-layout{
   display:grid;
-  grid-template-columns:1fr 440px 220px;
+  grid-template-columns:1fr 440px 240px;
   gap:10px;
   margin-bottom:20px;
   align-items:stretch;
@@ -165,7 +165,7 @@ header::after{content:"";display:block;width:280px;height:1px;
 /* ── DETAILS ── */
 .details-wrap{
   display:grid;
-  grid-template-columns:1fr calc(440px + 10px + 220px);
+  grid-template-columns:1fr calc(440px + 10px + 240px);
   gap:10px;
   margin-top:0;
 }
