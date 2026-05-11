@@ -596,16 +596,14 @@ function renderSynastry(c1,c2){
   const p2Gates=new Set(Object.keys(c2.gate_sources).map(Number));
 
   // Activate P1 gates (normal colors)
-  Object.entries(c1.gate_sources).forEach(([g,src])=>{
-    const gi=parseInt(g,10);
-    let cls=src.p&&src.d?'active-b-':src.p?'active-p-':src.d?'active-d-':null;
-    if(cls)svgSyn.classList.add(cls+gi);
+// Person 1 = all gates as Personality (conscious layer)
+  Object.keys(c1.gate_sources).forEach(g=>{
+    svgSyn.classList.add('active-p-'+parseInt(g,10));
   });
-
-  // Activate P2 gates — inject red style override
-  injectP2RedStyle();
+  
+  // Person 2 = all gates as Design (unconscious layer)
   Object.keys(c2.gate_sources).forEach(g=>{
-    svgSyn.classList.add('active-p2-'+parseInt(g,10));
+    svgSyn.classList.add('active-d-'+parseInt(g,10));
   });
 
   // Centers from P1
