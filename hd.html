@@ -515,7 +515,7 @@ document.getElementById("birth-form").addEventListener("submit",async ev=>{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         date:document.getElementById("date").value,
-        time:document.getElementById("time").value,
+        time:timeStr,
         lat:parseFloat(lat),lon:parseFloat(lon),tz_name,place:city
       })
     });
