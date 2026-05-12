@@ -370,23 +370,13 @@ header::after{content:"";display:block;width:280px;height:1px;
   </div>
 
   <!-- p2-design | p2-personality | [chart: p1-design | svg | p1-personality] -->
-  <div class="syn-layout">
-    <div>
-      <div class="sec-head" style="--border:rgba(192,57,43,.2)"><span style="color:var(--red-dim)">დიზაინი II</span></div>
-      <div class="pcol-box p2d" id="syn-p2-design"></div>
-    </div>
-    <div>
-      <div class="sec-head"><span style="color:var(--red-dim)">პიროვნება II</span></div>
-      <div class="pcol-box p2p" id="syn-p2-personality"></div>
-    </div>
-    <div>
-      <div class="sec-head"><span>სხეულის გრაფიკა</span></div>
-      <div class="chart-area" style="grid-template-columns:110px 1fr 110px">
-        <div class="planet-col design" id="syn-p1-design"><h3>დიზაინი I</h3></div>
-        <div id="bodygraph-syn"><div class="loading">იტვირთება…</div></div>
-        <div class="planet-col personality" id="syn-p1-personality"><h3>პიროვნება I</h3></div>
-      </div>
-    </div>
+  <div class="sec-head"><span>სხეულის გრაფიკა</span></div>
+  <div class="chart-area" style="grid-template-columns:110px 110px 1fr 110px 110px;margin-bottom:20px">
+    <div class="planet-col" id="syn-p2-design"><h3 style="color:var(--red-lt)">დიზაინი II</h3></div>
+    <div class="planet-col" id="syn-p2-personality"><h3 style="color:#f8a0a0">პიროვნება II</h3></div>
+    <div id="bodygraph-syn"><div class="loading">იტვირთება…</div></div>
+    <div class="planet-col design" id="syn-p1-design"><h3>დიზაინი I</h3></div>
+    <div class="planet-col personality" id="syn-p1-personality"><h3>პიროვნება I</h3></div>
   </div>
 
   <div class="panel" style="margin-bottom:20px">
@@ -739,8 +729,12 @@ function fillPlanetColBox(design,personality,dId,pId){
     <span class="nm">${PLANET_KA[a.planet]||a.planet}</span>
     <span class="gl"><span class="gate">${a.gate}</span>.<span class="line">${a.line}</span></span>
   </div>`;
-  document.getElementById(dId).innerHTML=`<h3>დიზაინი II</h3>`+ordered(design).map(row).join('');
-  document.getElementById(pId).innerHTML=`<h3>პიროვნება II</h3>`+ordered(personality).map(row).join('');
+  const dEl=document.getElementById(dId);
+  const pEl=document.getElementById(pId);
+  const dH=dEl.querySelector('h3')?.outerHTML||'';
+  const pH=pEl.querySelector('h3')?.outerHTML||'';
+  dEl.innerHTML=dH+ordered(design).map(row).join('');
+  pEl.innerHTML=pH+ordered(personality).map(row).join('');
 }
 
 // Preload natal SVG
