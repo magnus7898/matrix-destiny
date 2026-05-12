@@ -999,8 +999,6 @@ function drawWheel(data1,data2){
     el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'rgba(4,3,14,1)'},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'rgba(4,3,14,1)'},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.6)','stroke-width':1},svg);
   }else{
     el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
   }
@@ -1029,8 +1027,6 @@ function drawWheel(data1,data2){
     el('circle',{cx:CX,cy:CY,r:R_iz_out,fill:'none',stroke:'rgba(100,65,200,.65)','stroke-width':1},svg);
     el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'none',stroke:'rgba(167,139,250,.45)','stroke-width':1},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.6)','stroke-width':1},svg);
   }else{
     el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,0.7)','stroke-width':1},svg);
   }
@@ -1068,16 +1064,7 @@ function drawWheel(data1,data2){
       el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
     }
   }
-  // person 2 aspects inside R5d circle
-  if(data2&&data2.aspects){
-    const aspR2=R4;
-    for(const asp of data2.aspects){
-      if(!data2.planets[asp.p1]||!data2.planets[asp.p2])continue;
-      const a1=e2s(data2.planets[asp.p1].degree,asc),a2=e2s(data2.planets[asp.p2].degree,asc);
-      const p1p=pxy(a1,aspR2),p2p=pxy(a2,aspR2);
-      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.7,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'3 3'},svg);
-    }
-  }
+
 
   // draw planets helper
   function drawPlanets(data,Rg,colorMod,isInner){
