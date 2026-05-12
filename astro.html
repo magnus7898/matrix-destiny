@@ -971,7 +971,7 @@ function drawWheel(data1,data2){
   }
 
   // aspect lines (inner)
-  const aspR=data2?R5d-15:R4-2;
+  const aspR=data2?R_iz_in-8:R4-2;
   if(data1.aspects){
     for(const asp of data1.aspects){
       if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
@@ -1038,7 +1038,7 @@ function drawWheel(data1,data2){
   // draw person 2 inside inner ring
   if(data2)drawPlanets(data2,R_iz_out+18,false,true);
 
-  // ASC/MC
+  // ASC/MC for person 1
   if(!data1._timeUnknown){
     const angCol='#e8c06e';
     const ascA=e2s(asc,asc);
@@ -1050,6 +1050,36 @@ function drawWheel(data1,data2){
     el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),stroke:angCol,'stroke-width':2.5},svg);
     el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
     txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+  }
+
+  // ASC/MC and houses for person 2 (inner circle) in dual mode
+  if(data2&&!data2._timeUnknown&&data2.houses){
+    const asc2=data2.asc;
+    const angCol2='#a78bfa';
+    // house lines inside inner zodiac ring
+    const Rhn2=(R_iz_in+R5d)/2;
+    for(let i=0;i<12;i++){
+      const h1=data2.houses[i],h2=data2.houses[(i+1)%12];
+      const span2=((h2-h1)+360)%360,la2=span2>180?1:0;
+      const p2=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
+      el('path',{d:`M${p2(h1,R_iz_in)} A${R_iz_in},${R_iz_in} 0 ${la2},0 ${p2(h2,R_iz_in)} L${p2(h2,R5d)} A${R5d},${R5d} 0 ${la2},1 ${p2(h1,R5d)} Z`,fill:i%2?'rgba(6,5,18,.8)':'rgba(10,8,26,.8)'},svg);
+      const a2=e2s(data2.houses[i],asc);
+      const isAngle2=[0,3,6,9].includes(i);
+      el('line',{x1:CX+Math.cos(a2)*R_iz_in,y1:CY+Math.sin(a2)*R_iz_in,x2:CX+Math.cos(a2)*R5d,y2:CY+Math.sin(a2)*R5d,stroke:isAngle2?angCol2:'rgba(100,65,200,.4)','stroke-width':isAngle2?1.5:.6},svg);
+      const next2=data2.houses[(i+1)%12];
+      let mid2=data2.houses[i]+((next2-data2.houses[i]+360)%360)/2;
+      if(mid2>=360)mid2-=360;
+      const ma2=e2s(mid2,asc);
+      txt(svg,String(i+1),CX+Math.cos(ma2)*Rhn2,CY+Math.sin(ma2)*Rhn2,{fill:'rgba(167,139,250,.7)','font-size':7,'font-family':'Cinzel,serif','font-weight':'bold'});
+    }
+    // inner ASC line
+    const ascA2=e2s(asc2,asc);
+    el('line',{x1:CX+Math.cos(ascA2)*R_iz_out,y1:CY+Math.sin(ascA2)*R_iz_out,x2:CX+Math.cos(ascA2)*(R_iz_out+10),y2:CY+Math.sin(ascA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
+    txt(svg,'ac',CX+Math.cos(ascA2)*(R_iz_out+18),CY+Math.sin(ascA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
+    // inner MC
+    const mcA2=e2s(data2.mc,asc);
+    el('line',{x1:CX+Math.cos(mcA2)*R_iz_out,y1:CY+Math.sin(mcA2)*R_iz_out,x2:CX+Math.cos(mcA2)*(R_iz_out+10),y2:CY+Math.sin(mcA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
+    txt(svg,'mc',CX+Math.cos(mcA2)*(R_iz_out+18),CY+Math.sin(mcA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
   }
 }
 
