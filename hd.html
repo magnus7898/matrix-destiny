@@ -1,1240 +1,741 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ka">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ასტროლოგია</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400&family=Cinzel:wght@300;400;600&family=IM+Fell+English:ital@0;1&family=Noto+Sans+Georgian:wght@300;400&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<title>ადამიანის დიზაინი</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600&family=Noto+Serif+Georgian:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#04030a;--deep:#07071a;--surface:rgba(15,13,42,0.85);
-  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a20;
-  --purple:#a78bfa;--purple-d:#2d1f6e;
-  --txt:#e0d8ff;--dim:rgba(155,168,184,0.6);
-  --brd:rgba(45,31,110,0.8);
+--void:#04030a;--deep:#07050f;--surface:#0e0b1c;--raised:#161228;--card:#120f22;
+--border:rgba(160,120,70,.15);--border-h:rgba(200,160,90,.45);
+--gold:#c49550;--gold-lt:#e8c47a;--gold-dim:#7a5c28;--gold-glow:rgba(196,149,80,.12);
+--ink:#f0e8d8;--ink-mid:#a8998a;--ink-dim:#584e44;
+--violet:#6d28d9;--violet-lt:#a78bfa;--indigo-lt:#818cf8;
+--red:#c0392b;--red-lt:#f87171;--red-dim:#7a2828;
+--r:4px;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  background:var(--void);color:var(--txt);
-  font-family:'Noto Sans Georgian',sans-serif;
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:0 0 80px;overflow-x:hidden;position:relative;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.55) 0,transparent 100%),
-    radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.45) 0,transparent 100%),
-    radial-gradient(1px 1px at 60% 25%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.5) 0,transparent 100%),
-    radial-gradient(1px 1px at 50% 75%,rgba(255,255,255,.4) 0,transparent 100%),
-    radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%);
-}
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(100,40,200,.08) 0,transparent 70%),
-    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(40,80,200,.06) 0,transparent 70%);
-}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--void);color:var(--ink);
+font-family:'Noto Serif Georgian',serif;font-weight:400;line-height:1.6;font-size:15px;}
+body{background:
+radial-gradient(ellipse 100% 60% at 50% -5%,rgba(109,40,217,.1),transparent 55%),
+radial-gradient(ellipse 70% 50% at 5% 50%,rgba(109,40,217,.06),transparent 50%),
+radial-gradient(ellipse 60% 70% at 95% 90%,rgba(196,149,80,.05),transparent 50%),
+var(--void);}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+background-image:
+radial-gradient(1px 1px at 15% 20%,rgba(255,255,255,.4),transparent),
+radial-gradient(1px 1px at 80% 10%,rgba(255,255,255,.3),transparent),
+radial-gradient(1px 1px at 45% 75%,rgba(255,255,255,.25),transparent),
+radial-gradient(1.5px 1.5px at 60% 30%,rgba(255,255,255,.3),transparent),
+radial-gradient(2px 2px at 35% 50%,rgba(196,149,80,.25),transparent);}
+body::after{content:"";position:fixed;top:-20%;left:50%;transform:translateX(-50%);
+width:800px;height:400px;border-radius:50%;
+background:radial-gradient(ellipse,rgba(196,149,80,.06) 0%,transparent 70%);
+pointer-events:none;z-index:0;}
 
-/* ── HERO ── */
-.hero{position:relative;z-index:1;text-align:center;padding:40px 24px 24px;width:100%;}
-.hero-sigil{width:48px;height:48px;margin:0 auto 16px;display:block;opacity:.7}
-.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:10px;font-family:'Cinzel',serif}
-.hero-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:clamp(20px,4vw,38px);font-weight:400;letter-spacing:3px;
-  background:linear-gradient(160deg,#f5e8ba 0%,var(--gold) 35%,#9a7028 60%,#e8d5a0 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:12px;color:var(--dim);margin-top:8px}
-.hero-divider{display:flex;align-items:center;gap:14px;margin:16px auto 0;max-width:300px}
-.hero-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent)}
-.hero-gem{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:.5;flex-shrink:0}
+.page{position:relative;z-index:1;max-width:1700px;margin:0 auto;padding:44px 36px 100px;}
+
+/* ── HEADER ── */
+header{text-align:center;padding-bottom:20px;margin-bottom:16px;position:relative;}
+header::before{content:"✦  ✦  ✦";display:block;font-size:.65rem;letter-spacing:.5em;color:var(--gold-dim);margin-bottom:14px;}
+.brand{font-family:'Cinzel Decorative',serif;font-size:2.2rem;font-weight:400;letter-spacing:.08em;
+background:linear-gradient(180deg,var(--gold-lt) 0%,var(--gold) 50%,var(--gold-dim) 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+line-height:1.2;margin-bottom:8px;}
+.brand-sub{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.5em;text-transform:uppercase;color:var(--ink-dim);}
+header::after{content:"";display:block;width:280px;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:16px auto 0;}
 
 /* ── TAB BAR ── */
-.tab-bar{
-  position:relative;z-index:1;
-  display:flex;flex-wrap:wrap;justify-content:center;gap:4px;
-  margin:20px auto 0;padding:0 16px;max-width:860px;width:100%;
-}
-.tab-btn{
-  font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;
-  color:rgba(167,139,250,.55);
-  background:rgba(8,6,20,.6);
-  border:1px solid rgba(45,31,110,.4);
-  border-radius:20px;padding:8px 16px;cursor:pointer;
-  transition:all .25s;white-space:nowrap;
-}
-.tab-btn:hover{color:var(--purple);border-color:rgba(100,65,200,.6);background:rgba(20,15,50,.8);}
-.tab-btn.active{
-  color:#fff;
-  background:linear-gradient(135deg,rgba(109,40,217,.7),rgba(76,29,149,.7));
-  border-color:rgba(124,58,237,.5);
-  box-shadow:0 2px 12px rgba(109,40,217,.3);
-}
+.tab-bar{display:flex;justify-content:center;gap:6px;margin-bottom:20px;}
+.tab-btn{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+color:rgba(167,139,250,.55);background:rgba(8,6,20,.6);
+border:1px solid rgba(45,31,110,.4);border-radius:20px;padding:8px 28px;cursor:pointer;
+transition:all .25s;}
+.tab-btn:hover{color:var(--violet-lt);border-color:rgba(100,65,200,.6);}
+.tab-btn.active{color:#fff;background:linear-gradient(135deg,rgba(109,40,217,.7),rgba(76,29,149,.7));
+border-color:rgba(124,58,237,.5);box-shadow:0 2px 12px rgba(109,40,217,.3);}
 
-/* ── FORM CARD ── */
-.form-card{
-  position:relative;z-index:1;
-  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
-  border-radius:16px;padding:24px;width:100%;max-width:680px;
-  margin:16px auto 0;backdrop-filter:blur(12px);
-  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(167,139,250,.08);
-}
-.form-card::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);
-}
+/* ── FORM SHELL ── */
+.form-shell{max-width:820px;margin:0 auto 20px;
+background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
+border-radius:16px;padding:24px;backdrop-filter:blur(12px);
+box-shadow:0 8px 40px rgba(0,0,0,.5);position:relative;}
+.form-shell::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
+background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);}
 .form-section{display:none;}
 .form-section.active{display:block;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.person-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+color:var(--gold);opacity:.7;margin-bottom:10px;padding-bottom:6px;
+border-bottom:1px solid rgba(201,168,76,.15);}
+.person-label.red{color:var(--red-lt);opacity:.9;
+border-bottom-color:rgba(192,57,43,.2);}
+.person-sep{height:1px;background:rgba(45,31,110,.4);margin:14px 0;}
+.field label{display:block;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+color:var(--gold);opacity:.7;margin-bottom:5px;font-family:'Cinzel',serif;}
+.field input{width:100%;padding:9px 12px;background:rgba(10,8,30,.7);color:var(--ink);
+border:1px solid rgba(61,42,138,.6);border-radius:8px;font:inherit;font-size:13px;
+transition:border-color .2s,box-shadow .2s;outline:none;}
+.field input:focus{border-color:var(--violet-lt);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.field input::placeholder{color:rgba(155,168,184,.35);}
+.city-hint{font-size:11px;color:var(--indigo-lt);margin-top:3px;min-height:14px;}
+.tz-row{font-size:11px;color:rgba(167,139,250,.6);min-height:16px;margin-bottom:6px;}
+.btn-calc{width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff;
+border:1px solid rgba(124,58,237,.4);border-radius:10px;padding:13px;font-size:13px;
+cursor:pointer;letter-spacing:2px;font-family:'Cinzel',serif;transition:all .3s;
+box-shadow:0 4px 20px rgba(109,40,217,.3);margin-top:8px;}
+.btn-calc:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);transform:translateY(-1px);}
+.btn-calc:disabled{opacity:.4;cursor:wait;transform:none;}
+.status{font-size:.83rem;color:var(--ink-dim);margin-bottom:8px;text-align:center;min-height:16px;}
+.status.error{color:#e06060;}
+.hidden{display:none!important}
 
-.person-label{
-  font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--gold);opacity:.6;margin-bottom:10px;padding-bottom:6px;
-  border-bottom:1px solid rgba(201,168,76,.15);
-}
-.person-b-label{color:#a78bfa;opacity:.8;}
+/* ── SEC HEAD ── */
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.sec-head span{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.2em;
+text-transform:uppercase;color:var(--gold-dim);white-space:nowrap;}
+.sec-head::before{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border));}
+.sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
-.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field.wide{grid-column:span 3}
-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;font-family:'Cinzel',serif}
-input,select{
-  background:rgba(10,8,30,.7);border:1px solid rgba(61,42,138,.6);
-  border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px;
-  font-family:'Noto Sans Georgian',sans-serif;
-  width:100%;transition:border-color .2s,box-shadow .2s;
-}
-input:focus,select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
-input::placeholder{color:rgba(155,168,184,.35)}
-input[readonly]{background:rgba(6,5,18,.7);color:rgba(155,168,184,.6)}
-.city-hint{font-size:11px;color:var(--purple);margin-top:2px;min-height:14px;padding-left:2px}
-.tz-display{
-  font-size:11px;color:var(--gold);margin-bottom:12px;
-  background:rgba(6,5,18,.5);border-radius:6px;padding:5px 10px;
-  border-left:2px solid rgba(201,168,76,.3);min-height:28px;
-}
-.person-sep{height:1px;background:rgba(45,31,110,.4);margin:16px 0;}
-.gen-btn{
-  width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);
-  color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;
-  padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;
-  font-family:'Cinzel',serif;transition:all .3s;
-  box-shadow:0 4px 20px rgba(109,40,217,.3);margin-top:8px;
-}
-.gen-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);transform:translateY(-1px)}
-.gen-btn:disabled{opacity:.4;cursor:wait;transform:none}
+/* ── NATAL: bodygraph | cards | gifts ── */
+.main-layout{display:grid;grid-template-columns:1fr 440px 240px;gap:10px;margin-bottom:20px;align-items:stretch;}
+.left-col{display:flex;flex-direction:column;}
+.right-col{display:flex;flex-direction:column;}
+.gifts-col{display:flex;flex-direction:column;}
+
+
+
 
 /* ── CHART AREA ── */
-#chart-area{position:relative;z-index:1;width:100%;max-width:820px;padding:0 16px;margin-top:24px;}
-svg#wheel{width:100%;height:auto;display:block;overflow:visible}
-#wheel-wrap{width:100%;max-width:820px;margin:0 auto}
+.chart-area{flex:1;display:grid;grid-template-columns:110px 1fr 110px;
+background:var(--surface);border:1px solid var(--border);border-radius:6px;
+padding:16px;align-items:start;position:relative;overflow:hidden;}
+.chart-area::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-dim) 30%,var(--gold) 50%,var(--gold-dim) 70%,transparent);}
 
-/* ── SECTION TITLE ── */
-.sec-title{
-  font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;
-  color:var(--gold);text-transform:uppercase;text-align:center;
-  margin:28px 0 14px;display:flex;align-items:center;gap:14px;
+/* ── PLANET COLS ── */
+.planet-col{padding:4px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
+.planet-col h3{font-family:'Cinzel',serif;font-size:.5rem;font-weight:500;letter-spacing:.18em;
+text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
+border-bottom:1px solid var(--border);text-align:center;}
+.planet-col.design h3{color:var(--violet-lt);}
+.planet-col.personality h3{color:var(--indigo-lt);}
+/* standalone col boxes for P2 */
+.pcol-box{background:var(--surface);border:1px solid rgba(192,57,43,.2);border-radius:6px;
+padding:12px 8px;font-family:'JetBrains Mono',monospace;font-size:.6rem;}
+.pcol-box h3{font-family:'Cinzel',serif;font-size:.48rem;font-weight:500;letter-spacing:.15em;
+text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
+border-bottom:1px solid rgba(192,57,43,.2);text-align:center;}
+.pcol-box.p2d h3{color:var(--red-lt);}
+.pcol-box.p2p h3{color:#f8a0a0;}
+
+.prow{display:grid;grid-template-columns:14px 1fr auto;gap:3px;align-items:center;
+padding:3px 1px;border-bottom:1px solid rgba(255,255,255,.02);}
+.prow:hover{background:rgba(255,255,255,.02);border-radius:2px;}
+.prow .g{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--gold-dim);text-align:center;}
+.prow.red2 .g{color:var(--red-dim);}
+.prow .nm{color:var(--ink-dim);font-size:.56rem;}
+.prow.red2 .nm{color:#c08080;}
+.prow .gl{font-variant-numeric:tabular-nums;font-size:.68rem;}
+.prow .gl .gate{color:var(--ink);}
+.prow.red2 .gl .gate{color:var(--red-lt);}
+.prow .gl .line{color:var(--gold-dim);}
+.prow.red2 .gl .line{color:var(--red-dim);}
+
+#bodygraph,#bodygraph-syn{display:flex;align-items:center;justify-content:center;}
+#bodygraph svg,#bodygraph-syn svg{width:100%;height:auto;max-height:780px;display:block;}
+
+/* ── CARDS ── */
+.summary{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;grid-auto-rows:1fr;align-content:start;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+padding:18px 16px 16px;position:relative;overflow:hidden;
+transition:border-color .25s,transform .2s,box-shadow .25s;cursor:default;display:flex;flex-direction:column;}
+.card::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);transition:left .3s,right .3s;}
+.card:hover{border-color:var(--border-h);transform:translateY(-2px);
+box-shadow:0 6px 24px rgba(0,0,0,.4),0 0 14px var(--gold-glow);}
+.card:hover::before{left:5%;right:5%;}
+.card.hi{border-color:rgba(196,149,80,.3);}
+.card.hi::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.card .k{font-size:.56rem;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px;font-family:'Cinzel',serif;}
+.card .v{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:var(--ink);line-height:1.35;}
+.card .v.sm{font-size:1rem;}
+.card .v.xs{font-size:.85rem;font-family:'Noto Serif Georgian',serif;line-height:1.5;}
+
+/* ── GIFTS ── */
+.gifts-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;position:relative;overflow-y:auto;}
+.gifts-card::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.gift-item{font-size:.82rem;font-family:'Noto Serif Georgian',serif;color:var(--ink);padding:6px 0;border-bottom:1px solid rgba(180,140,90,.08);line-height:1.4;}
+.gift-item:last-child{border-bottom:none;}
+
+/* ── PANELS ── */
+.details-wrap{display:grid;grid-template-columns:1fr calc(440px + 10px + 240px);gap:10px;}
+.details{display:contents;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:22px 24px;position:relative;overflow:hidden;}
+.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+.panel h2{font-family:'Cinzel',serif;font-size:.65rem;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.panel h2 small{font-size:.52rem;color:var(--ink-dim);font-weight:400;}
+
+/* ── CHANNELS ── */
+.channel-list{display:flex;flex-direction:column;gap:5px;}
+.ch-item{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center;
+padding:7px 10px;background:var(--raised);border-left:2px solid var(--border);
+border-radius:0 var(--r) var(--r) 0;}
+.ch-item.design{border-left-color:var(--violet);}
+.ch-item.personality{border-left-color:var(--indigo-lt);}
+.ch-item.mixed{border-left-color:var(--gold-dim);}
+.ch-item.p2ch{border-left-color:var(--red);background:rgba(192,57,43,.05);}
+.ch-item.electromagnetic{
+border-left-color:#ffd700;
+background:linear-gradient(90deg,rgba(255,215,0,.07),rgba(109,40,217,.07));
+box-shadow:0 0 10px rgba(255,215,0,.12);
+animation:empulse 2.2s ease-in-out infinite;
 }
-.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
+@keyframes empulse{
+0%,100%{box-shadow:0 0 8px rgba(255,215,0,.12),inset 0 0 0 transparent;}
+50%{box-shadow:0 0 20px rgba(255,215,0,.3),0 0 40px rgba(109,40,217,.15);}
+}
+.ch-item .pair{font-family:'Cormorant Garamond',serif;font-size:.92rem;color:var(--ink);font-weight:500;}
+.ch-item.p2ch .pair{color:var(--red-lt);}
+.ch-item.electromagnetic .pair{color:#ffd700;}
+.ch-item .cname{color:var(--ink-mid);font-style:italic;font-size:.73rem;}
+.ch-item.p2ch .cname{color:#c08080;}
+.ch-item.electromagnetic .cname{color:#e8d080;}
+.ch-item .ctag{font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);font-family:'Cinzel',serif;}
+.ch-item.design .ctag{color:var(--violet-lt);}
+.ch-item.personality .ctag{color:var(--indigo-lt);}
+.ch-item.mixed .ctag{color:var(--gold);}
+.ch-item.p2ch .ctag{color:var(--red-lt);}
+.ch-item.electromagnetic .ctag{color:#ffd700;}
+.ch-divider{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;
+padding:8px 0 5px;margin-top:4px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:2px;}
 
-/* ── TABLES ── */
-.tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
-@media(max-width:600px){.tables-wrap{grid-template-columns:1fr}}
-.data-card{background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;}
-.data-card-title{background:rgba(167,139,250,.07);padding:9px 14px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;border-bottom:1px solid rgba(45,31,110,.5);}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{color:rgba(155,168,184,.5);padding:6px 12px;text-align:left;font-weight:400;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(45,31,110,.4)}
-td{padding:5px 12px;border-bottom:1px solid rgba(15,13,40,.8);vertical-align:middle;font-size:12px}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(19,16,58,.6)}
-.retro{color:#f87171;font-size:9px;margin-left:2px}
-.house-badge{display:inline-block;background:rgba(26,21,69,.8);border:1px solid rgba(61,42,138,.6);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--purple);font-family:'Cinzel',serif}
-.deg-val{font-family:'Cinzel',serif;font-size:11px;color:#c8d8f0;white-space:nowrap}
-.moon-sym{color:#b8d8ff;text-shadow:0 0 8px rgba(100,160,255,0.9);font-size:20px;font-family:serif}
-.p-sym{font-family:serif;font-size:18px;line-height:1;display:inline-block}
-.asp-sym{font-size:16px;font-family:serif}
-.sign-fire{color:#e05252}.sign-earth{color:#8aab6e}.sign-air{color:#89b4d4}.sign-water{color:#5b8ec4}
-.time-disabled input{opacity:.3;pointer-events:none}
+/* ── CENTERS ── */
+.centers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.center-chip{padding:7px 8px;text-align:center;background:var(--raised);border:1px solid transparent;border-radius:var(--r);font-size:.68rem;color:var(--ink-dim);transition:all .2s;}
+.center-chip.on{color:var(--ink);border-color:rgba(196,149,80,.25);background:rgba(196,149,80,.05);}
+.center-chip.on::before{content:"◆ ";color:var(--gold);font-size:.4rem;vertical-align:middle;}
+.meta-info{font-size:.68rem;color:var(--ink-dim);line-height:2;}
+.meta-info strong{color:var(--ink-mid);}
+.loading{text-align:center;padding:60px 20px;color:var(--ink-dim);font-style:italic;letter-spacing:.1em;font-size:.85rem;}
 
-/* legend */
-.legend{display:flex;gap:16px;justify-content:center;margin:8px 0 16px;flex-wrap:wrap;}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);}
-.legend-dot{width:10px;height:10px;border-radius:50%;}
+/* ── LEGEND ── */
+.legend{display:flex;gap:18px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+
+@media(max-width:1300px){.main-layout{grid-template-columns:1fr 380px 180px;}
+.syn-layout{grid-template-columns:120px 120px 1fr;}}
+@media(max-width:1000px){
+.main-layout,.syn-layout{grid-template-columns:1fr;}
+.summary{grid-template-columns:repeat(3,1fr);}
+.chart-area{grid-template-columns:1fr;}
+.planet-col{order:2;}#bodygraph,#bodygraph-syn{order:1;}
+.page{padding:28px 16px 60px;}}
+@media(max-width:700px){.summary{grid-template-columns:repeat(2,1fr);}.brand{font-size:1.5rem;}}
 </style>
 </head>
 <body>
+<div class="page">
 
-<div class="hero">
-  <svg class="hero-sigil" viewBox="0 0 56 56" fill="none">
-    <circle cx="28" cy="28" r="26.5" stroke="rgba(201,168,76,.25)" stroke-width=".5"/>
-    <circle cx="28" cy="28" r="17" stroke="rgba(201,168,76,.18)" stroke-width=".5"/>
-    <polygon points="28,3 51,43 5,43" stroke="rgba(201,168,76,.38)" stroke-width=".5" fill="none"/>
-    <polygon points="28,53 5,13 51,13" stroke="rgba(201,168,76,.38)" stroke-width=".5" fill="none"/>
-    <circle cx="28" cy="28" r="2.5" fill="rgba(201,168,76,.7)"/>
-  </svg>
-  <div class="hero-eyebrow">სულის მეცნიერება</div>
-  <h1 class="hero-title">ასტროლოგია</h1>
-  <p class="hero-sub">Astrology · Placidus Houses · Tropical Zodiac</p>
-  <div class="hero-divider"><div class="hero-line"></div><div class="hero-gem"></div><div class="hero-line"></div></div>
-</div>
+<header>
+<div class="brand">ადამიანის დიზაინი</div>
+<div class="brand-sub">Human Design Chart System</div>
+</header>
 
 <!-- TAB BAR -->
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="setMode('natal')">ნატალური</button>
-  <button class="tab-btn" onclick="setMode('synastry')">სინასტრია</button>
-  <button class="tab-btn" onclick="setMode('composite')">კომპოზიტი</button>
-  <button class="tab-btn" onclick="setMode('transit')">ტრანზიტი</button>
-  <button class="tab-btn" onclick="setMode('progression')">პროგრესია</button>
-  <button class="tab-btn" onclick="setMode('solar')">სოლარი</button>
-  <button class="tab-btn" onclick="setMode('relocation')">რელოკაცია</button>
+<button class="tab-btn active" onclick="setMode('natal')">ნატალური</button>
+<button class="tab-btn" onclick="setMode('synastry')">სინასტრია</button>
 </div>
 
-<!-- FORM CARD -->
-<div class="form-card">
+<!-- FORMS -->
+<div class="form-shell">
 
-  <!-- NATAL -->
-  <div id="form-natal" class="form-section active">
-    <div class="field wide" style="margin-bottom:10px">
-      <label>სახელი</label>
-      <input id="n-name" placeholder="შეიყვანეთ სახელი">
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="n-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="n-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="n-year" value="1990"></div>
-    </div>
-    <div class="form-grid" id="n-time-fields">
-      <div class="field"><label>საათი</label><input type="number" id="n-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="n-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="n-second" value="0" min="0" max="59"></div>
-    </div>
-    <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="n-time-unknown" onchange="toggleTU('n')" style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer">
-      <label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px;text-transform:none;cursor:pointer" for="n-time-unknown">დრო უცნობია</label>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="n-city" placeholder="თბილისი, London, Paris..." oninput="searchCity('n')">
-      <div class="city-hint" id="n-city-hint"></div>
-    </div>
-    <div class="form-grid-2" style="margin-bottom:8px">
-      <div class="field"><label>განედი</label><input type="number" id="n-lat" step="0.0001" readonly></div>
-      <div class="field"><label>გრძედი</label><input type="number" id="n-lon" step="0.0001" readonly></div>
-    </div>
-    <div class="tz-display" id="n-tz-display">⏳ ქალაქის შეყვანის შემდეგ სარტყელი განისაზღვრება</div>
-    <input type="hidden" id="n-tz" value="UTC">
-    <button class="gen-btn" onclick="generate()">✦ რუქის გენერაცია ✦</button>
-  </div>
-
-  <!-- SYNASTRY -->
-  <div id="form-synastry" class="form-section">
-    <div class="person-label">👤 პირველი პირი</div>
-    <div class="field" style="margin-bottom:8px"><label>სახელი</label><input id="s1-name" placeholder="სახელი A"></div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="s1-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="s1-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="s1-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="s1-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="s1-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="s1-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="s1-city" placeholder="ქალაქი" oninput="searchCity('s1')">
-      <div class="city-hint" id="s1-city-hint"></div>
-    </div>
-    <div class="form-grid-2" style="margin-bottom:4px">
-      <div class="field"><label>განედი</label><input type="number" id="s1-lat" step="0.0001" readonly></div>
-      <div class="field"><label>გრძედი</label><input type="number" id="s1-lon" step="0.0001" readonly></div>
-    </div>
-    <input type="hidden" id="s1-tz" value="UTC">
-    <div class="tz-display" id="s1-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">👤 მეორე პირი</div>
-    <div class="field" style="margin-bottom:8px"><label>სახელი</label><input id="s2-name" placeholder="სახელი B"></div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="s2-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="s2-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="s2-year" value="1992"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="s2-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="s2-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="s2-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="s2-city" placeholder="ქალაქი" oninput="searchCity('s2')">
-      <div class="city-hint" id="s2-city-hint"></div>
-    </div>
-    <div class="form-grid-2" style="margin-bottom:4px">
-      <div class="field"><label>განედი</label><input type="number" id="s2-lat" step="0.0001" readonly></div>
-      <div class="field"><label>გრძედი</label><input type="number" id="s2-lon" step="0.0001" readonly></div>
-    </div>
-    <input type="hidden" id="s2-tz" value="UTC">
-    <div class="tz-display" id="s2-tz-display" style="margin-bottom:8px">—</div>
-    <button class="gen-btn" onclick="generate()">✦ სინასტრიის გენერაცია ✦</button>
-  </div>
-
-  <!-- COMPOSITE -->
-  <div id="form-composite" class="form-section">
-    <div class="person-label">👤 პირველი პირი</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="c1-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="c1-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="c1-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="c1-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="c1-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="c1-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="c1-city" placeholder="ქალაქი" oninput="searchCity('c1')">
-      <div class="city-hint" id="c1-city-hint"></div>
-    </div>
-    <input type="hidden" id="c1-lat"><input type="hidden" id="c1-lon"><input type="hidden" id="c1-tz" value="UTC">
-    <div class="tz-display" id="c1-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">👤 მეორე პირი</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="c2-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="c2-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="c2-year" value="1992"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="c2-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="c2-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="c2-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="c2-city" placeholder="ქალაქი" oninput="searchCity('c2')">
-      <div class="city-hint" id="c2-city-hint"></div>
-    </div>
-    <input type="hidden" id="c2-lat"><input type="hidden" id="c2-lon"><input type="hidden" id="c2-tz" value="UTC">
-    <div class="tz-display" id="c2-tz-display" style="margin-bottom:8px">—</div>
-    <button class="gen-btn" onclick="generate()">✦ კომპოზიტის გენერაცია ✦</button>
-  </div>
-
-  <!-- TRANSIT -->
-  <div id="form-transit" class="form-section">
-    <div class="person-label">👤 ნატალური მონაცემები</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="tr-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="tr-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="tr-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="tr-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="tr-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="tr-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>დაბადების ქალაქი</label>
-      <input id="tr-city" placeholder="ქალაქი" oninput="searchCity('tr')">
-      <div class="city-hint" id="tr-city-hint"></div>
-    </div>
-    <input type="hidden" id="tr-lat"><input type="hidden" id="tr-lon"><input type="hidden" id="tr-tz" value="UTC">
-    <div class="tz-display" id="tr-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">🪐 ტრანზიტის თარიღი</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="tt-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="tt-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="tt-year" value="2025"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="tt-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="tt-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="tt-second" value="0" min="0" max="59"></div>
-    </div>
-    <button class="gen-btn" id="tr-today-btn" onclick="setToday('tt')" style="margin-top:4px;background:rgba(45,31,110,.6);font-size:11px;padding:8px;">📅 დღევანდელი თარიღი</button>
-    <button class="gen-btn" onclick="generate()" style="margin-top:6px">✦ ტრანზიტის გენერაცია ✦</button>
-  </div>
-
-  <!-- PROGRESSION -->
-  <div id="form-progression" class="form-section">
-    <div class="person-label">👤 ნატალური მონაცემები</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="pr-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="pr-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="pr-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="pr-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="pr-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="pr-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="pr-city" placeholder="ქალაქი" oninput="searchCity('pr')">
-      <div class="city-hint" id="pr-city-hint"></div>
-    </div>
-    <input type="hidden" id="pr-lat"><input type="hidden" id="pr-lon"><input type="hidden" id="pr-tz" value="UTC">
-    <div class="tz-display" id="pr-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">📅 პროგრესიის თარიღი</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="pd-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="pd-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="pd-year" value="2025"></div>
-    </div>
-    <button class="gen-btn" onclick="setToday('pd')" style="margin-top:4px;background:rgba(45,31,110,.6);font-size:11px;padding:8px;">📅 დღევანდელი თარიღი</button>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="pr-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
-    <button class="gen-btn" onclick="generate()" style="margin-top:4px">✦ პროგრესიის გენერაცია ✦</button>
-  </div>
-
-  <!-- SOLAR -->
-  <div id="form-solar" class="form-section">
-    <div class="person-label">👤 ნატალური მონაცემები</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="so-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="so-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="so-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="so-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="so-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="so-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>დაბადების ქალაქი</label>
-      <input id="so-city" placeholder="ქალაქი" oninput="searchCity('so')">
-      <div class="city-hint" id="so-city-hint"></div>
-    </div>
-    <input type="hidden" id="so-lat"><input type="hidden" id="so-lon"><input type="hidden" id="so-tz" value="UTC">
-    <div class="tz-display" id="so-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">☀️ სოლარის წელი</div>
-    <div class="form-grid-2">
-      <div class="field"><label>წელი</label><input type="number" id="sr-year" value="2025"></div>
-      <div class="field">
-        <label>ქალაქი (სოლარი)</label>
-        <input id="sr-city" placeholder="ქალაქი (სოლარისთვის)" oninput="searchCity('sr')">
-        <div class="city-hint" id="sr-city-hint"></div>
-      </div>
-    </div>
-    <input type="hidden" id="sr-lat"><input type="hidden" id="sr-lon"><input type="hidden" id="sr-tz" value="UTC">
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="so-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
-    <button class="gen-btn" onclick="generate()" style="margin-top:4px">✦ სოლარის გენერაცია ✦</button>
-  </div>
-
-  <!-- RELOCATION -->
-  <div id="form-relocation" class="form-section">
-    <div class="person-label">👤 ნატალური მონაცემები</div>
-    <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="rl-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="rl-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="rl-year" value="1990"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="rl-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="rl-minute" value="0" min="0" max="59"></div>
-      <div class="field"><label>წამი</label><input type="number" id="rl-second" value="0" min="0" max="59"></div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>დაბადების ქალაქი</label>
-      <input id="rl-birth-city" placeholder="დაბადების ქალაქი" oninput="searchCity('rl-birth')">
-      <div class="city-hint" id="rl-birth-city-hint"></div>
-    </div>
-    <input type="hidden" id="rl-birth-lat"><input type="hidden" id="rl-birth-lon"><input type="hidden" id="rl-birth-tz" value="UTC">
-    <div class="tz-display" id="rl-birth-tz-display" style="margin-bottom:8px">—</div>
-
-    <div class="person-sep"></div>
-    <div class="person-label person-b-label">📍 ახალი მდებარეობა</div>
-    <div class="field" style="margin-bottom:8px">
-      <label>ქალაქი</label>
-      <input id="rl-city" placeholder="ახალი ქალაქი" oninput="searchCity('rl')">
-      <div class="city-hint" id="rl-city-hint"></div>
-    </div>
-    <input type="hidden" id="rl-lat"><input type="hidden" id="rl-lon"><input type="hidden" id="rl-tz" value="UTC">
-    <div class="tz-display" id="rl-tz-display" style="margin-bottom:8px">—</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="rl-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
-    <button class="gen-btn" onclick="generate()">✦ რელოკაციის გენერაცია ✦</button>
-  </div>
-
-</div><!-- /form-card -->
-
-<!-- CHART OUTPUT -->
-<div id="chart-area" style="display:none">
-  <div id="mode-label" class="sec-title"></div>
-  <div id="legend-wrap" class="legend" style="display:none">
-    <div class="legend-item"><div class="legend-dot" style="background:#f9c646"></div><span id="leg-a">პირველი</span></div>
-    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span id="leg-b">მეორე</span></div>
-  </div>
-  <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
-  <div id="lunar-badge" style="display:none;text-align:center;margin:12px 16px;padding:10px 20px;background:rgba(8,6,22,.8);border:1px solid rgba(100,70,200,.4);border-radius:12px;">
-    <span style="font-size:20px;margin-right:8px">🌙</span>
-    <span id="lunar-day" style="font-family:'Cinzel',serif;font-size:13px;color:#c8d8f0;font-weight:600"></span>
-    <span style="color:rgba(150,120,220,.5);margin:0 6px">·</span>
-    <span id="lunar-pct" style="font-size:11px;color:rgba(180,150,255,.65)"></span>
-  </div>
-  <div class="sec-title">პლანეტები</div>
-  <div class="tables-wrap">
-    <div class="data-card">
-      <div class="data-card-title" id="planet-table-title">🪐 პლანეტები</div>
-      <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>სახ.</th><th>℞</th></tr></thead>
-      <tbody id="planet-tbody"></tbody></table>
-    </div>
-    <div class="data-card" id="house-card">
-      <div class="data-card-title">🏠 სახლები</div>
-      <table><thead><tr><th>სახლი</th><th>ნიშანი</th><th>გრადუსი</th></tr></thead>
-      <tbody id="house-tbody"></tbody></table>
-    </div>
-  </div>
-  <div id="planet-b-wrap" style="display:none">
-    <div class="sec-title" id="planet-b-title">🪐 მეორე პირის პლანეტები</div>
-    <div class="data-card">
-      <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>სახ.</th><th>℞</th></tr></thead>
-      <tbody id="planet-b-tbody"></tbody></table>
-    </div>
-  </div>
-  <div class="sec-title">ასპექტები</div>
-  <div class="data-card" style="margin-bottom:8px;padding:0 0 8px">
-    <div class="data-card-title" id="aspect-table-title">⚡ ასპექტები</div>
-    <table><thead><tr><th>პლანეტა 1</th><th>ასპ.</th><th>პლანეტა 2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
-    <tbody id="aspect-tbody"></tbody></table>
-  </div>
+<!-- NATAL -->
+<div id="form-natal" class="form-section active">
+<div class="form-row">
+<div class="field"><label>დღე</label><input type="number" id="n-day" value="9" min="1" max="31"></div>
+<div class="field"><label>თვე</label><input type="number" id="n-month" value="4" min="1" max="12"></div>
+<div class="field"><label>წელი</label><input type="number" id="n-year" value="1948"></div>
 </div>
+<div class="form-row">
+<div class="field"><label>საათი</label><input type="number" id="n-hour" value="10" min="0" max="23"></div>
+<div class="field"><label>წუთი</label><input type="number" id="n-minute" value="0" min="0" max="59"></div>
+<div class="field"><label>წამი</label><input type="number" id="n-second" value="0" min="0" max="59"></div>
+</div>
+<div class="field" style="margin-bottom:6px">
+<label>ქალაქი</label>
+<input id="n-city" type="text" placeholder="თბილისი, London, Paris…" oninput="searchCity('n')">
+<div class="city-hint" id="n-city-hint"></div>
+</div>
+<div class="tz-row" id="n-tz-row"></div>
+<input type="hidden" id="n-lat"><input type="hidden" id="n-lon"><input type="hidden" id="n-tz" value="UTC">
+<button type="button" class="btn-calc" onclick="generate()">✦ გრაფიკის გამოთვლა ✦</button>
+</div>
+
+<!-- SYNASTRY -->
+<div id="form-synastry" class="form-section">
+<div class="person-label">👤 პირველი პირი</div>
+<div class="form-row">
+<div class="field"><label>დღე</label><input type="number" id="s1-day" value="1" min="1" max="31"></div>
+<div class="field"><label>თვე</label><input type="number" id="s1-month" value="1" min="1" max="12"></div>
+<div class="field"><label>წელი</label><input type="number" id="s1-year" value="1990"></div>
+</div>
+<div class="form-row">
+<div class="field"><label>საათი</label><input type="number" id="s1-hour" value="12" min="0" max="23"></div>
+<div class="field"><label>წუთი</label><input type="number" id="s1-minute" value="0" min="0" max="59"></div>
+<div class="field"><label>წამი</label><input type="number" id="s1-second" value="0" min="0" max="59"></div>
+</div>
+<div class="field" style="margin-bottom:6px">
+<label>ქალაქი</label>
+<input id="s1-city" type="text" placeholder="ქალაქი" oninput="searchCity('s1')">
+<div class="city-hint" id="s1-city-hint"></div>
+</div>
+<div class="tz-row" id="s1-tz-row"></div>
+<input type="hidden" id="s1-lat"><input type="hidden" id="s1-lon"><input type="hidden" id="s1-tz" value="UTC">
+
+<div class="person-sep"></div>
+<div class="person-label red">👤 მეორე პირი</div>
+<div class="form-row">
+<div class="field"><label>დღე</label><input type="number" id="s2-day" value="1" min="1" max="31"></div>
+<div class="field"><label>თვე</label><input type="number" id="s2-month" value="1" min="1" max="12"></div>
+<div class="field"><label>წელი</label><input type="number" id="s2-year" value="1992"></div>
+</div>
+<div class="form-row">
+<div class="field"><label>საათი</label><input type="number" id="s2-hour" value="12" min="0" max="23"></div>
+<div class="field"><label>წუთი</label><input type="number" id="s2-minute" value="0" min="0" max="59"></div>
+<div class="field"><label>წამი</label><input type="number" id="s2-second" value="0" min="0" max="59"></div>
+</div>
+<div class="field" style="margin-bottom:6px">
+<label>ქალაქი</label>
+<input id="s2-city" type="text" placeholder="ქალაქი" oninput="searchCity('s2')">
+<div class="city-hint" id="s2-city-hint"></div>
+</div>
+<div class="tz-row" id="s2-tz-row"></div>
+<input type="hidden" id="s2-lat"><input type="hidden" id="s2-lon"><input type="hidden" id="s2-tz" value="UTC">
+<button type="button" class="btn-calc" onclick="generate()">✦ სინასტრიის გამოთვლა ✦</button>
+</div>
+
+</div>
+
+<div class="status" id="status"></div>
+
+<!-- ══ NATAL RESULTS ══ -->
+<section id="results-natal" class="hidden">
+<div class="main-layout">
+<div class="left-col">
+<div class="sec-head"><span>სხეულის გრაფიკა</span></div>
+<div class="chart-area">
+<div class="planet-col design" id="col-design"><h3>დიზაინი</h3></div>
+<div id="bodygraph"><div class="loading">იტვირთება…</div></div>
+<div class="planet-col personality" id="col-personality"><h3>პიროვნება</h3></div>
+</div>
+</div>
+<div class="right-col">
+<div class="sec-head"><span>სულის ბარათი</span></div>
+<div class="summary" id="summary-cards"></div>
+</div>
+<div class="gifts-col">
+<div class="sec-head"><span>სხვა ნიჭები</span></div>
+<div class="gifts-card"><div id="gifts-list"></div></div>
+</div>
+</div>
+<div class="details-wrap">
+<div class="details">
+<div class="panel">
+<h2>არხები <small id="channel-count"></small></h2>
+<div class="channel-list" id="channel-list"></div>
+</div>
+<div class="panel">
+<h2>ცენტრები</h2>
+<div class="centers-grid" id="centers-list"></div>
+<div class="meta-info" id="meta"></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ══ SYNASTRY RESULTS ══ -->
+<section id="results-synastry" class="hidden">
+<div class="legend">
+<div class="leg-item"><div class="leg-dot" style="background:var(--violet-lt)"></div>პირველი პირი</div>
+<div class="leg-item"><div class="leg-dot" style="background:var(--red-lt)"></div>მეორე პირი</div>
+<div class="leg-item"><div class="leg-dot" style="background:#ffd700"></div><span style="color:#ffd700">⚡ ელექტრომაგნეტური</span></div>
+</div>
+
+<!-- p2-design | p2-personality | [chart: p1-design | svg | p1-personality] -->
+<div class="sec-head"><span>სხეულის გრაფიკა</span></div>
+<div class="chart-area" style="grid-template-columns:110px 110px 1fr 110px 110px">
+<div class="pcol-box p2d" id="syn-p2-design" style="border:none;background:none;padding:4px 0"></div>
+<div class="pcol-box p2p" id="syn-p2-personality" style="border:none;background:none;padding:4px 0"></div>
+<div id="bodygraph-syn"><div class="loading">იტვირთება…</div></div>
+<div class="planet-col design" id="syn-p1-design"><h3>დიზაინი I</h3></div>
+<div class="planet-col personality" id="syn-p1-personality"><h3>პიროვნება I</h3></div>
+</div>
+
+<div class="panel" style="margin-bottom:20px">
+<h2>არხები <small id="syn-channel-count"></small></h2>
+<div class="channel-list" id="syn-channel-list"></div>
+</div>
+</section>
+
+</div><!-- /page -->
 
 <script>
-const BACKEND='https://astrology-production-b165.up.railway.app';
-const CX=350,CY=350,R1=270,R2=202,R3=135,R4=105;
-const R5=72; // inner ring for second person in synastry/transit
+const API_BASE="https://astrology-production-b165.up.railway.app";
+const PLANET_ORDER=["Sun","Earth","North Node","South Node","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"];
+const PLANET_GLYPH={"Sun":"☉","Earth":"⊕","Moon":"☽","North Node":"☊","South Node":"☋","Mercury":"☿","Venus":"♀","Mars":"♂","Jupiter":"♃","Saturn":"♄","Uranus":"♅","Neptune":"♆","Pluto":"♇"};
+const PLANET_KA={"Sun":"მზე","Earth":"დედამ.","Moon":"მთვარე","North Node":"ჩ.კვ.","South Node":"ს.კვ.","Mercury":"მერკ.","Venus":"ვენ.","Mars":"მარს.","Jupiter":"იუპ.","Saturn":"სატ.","Uranus":"ურ.","Neptune":"ნეპ.","Pluto":"პლ."};
+const CENTER_ORDER=["Head","Ajna","Throat","G","Heart","Solar Plexus","Spleen","Sacral","Root"];
+const CENTER_KA={"Head":"გვირგვინი","Ajna":"აჯნა","Throat":"ყელი","G":"G ცენტრი","Heart":"გული","Solar Plexus":"მზის წნული","Spleen":"ელენთა","Sacral":"საკრალური","Root":"ფუძე"};
+const TYPE_KA={"Manifestor":"მანიფესტორი","Generator":"გენერატორი","Manifesting Generator":"მანიფ. გენერატორი","Projector":"პროექტორი","Reflector":"რეფლექტორი"};
+const STRATEGY_KA={"To Inform":"ინფორმირება","To Respond":"პასუხი","To Respond, then Inform":"პასუხი→ინფ.","Wait for the Invitation":"მოიცადე მოწვევას","Wait a Lunar Cycle (28 days)":"ელოდე მთვარეს"};
+
+// All 36 HD channels [gateA, gateB, name]
+const CHANNELS=[
+[1,8,"შთაგონება"],[2,14,"განმეორებითი რიტმი"],[3,60,"მუტაცია"],[4,63,"ლოგიკა"],
+[5,15,"რიტმი"],[6,59,"შეწყვილება"],[7,31,"ალფა"],[9,52,"კონცენტრაცია"],
+[10,20,"გამოღვიძება"],[10,34,"შესწავლა"],[10,57,"სრულყოფილი ფორმა"],
+[11,56,"ცნობისმოყვარეობა"],[12,22,"გახსნილობა"],[13,33,"უძღები"],
+[16,48,"ტალღა"],[17,62,"მიმღებლობა"],[18,58,"განსჯა"],[19,49,"სინთეზი"],
+[20,34,"ქარიზმა"],[20,57,"ნეიროტალღები"],[21,45,"ფული"],[23,43,"სტრუქტურირება"],
+[24,61,"გაცნობიერება"],[25,51,"ინიციაცია"],[26,44,"დანებება"],[27,50,"შენარჩუნება"],
+[28,38,"ბრძოლა"],[29,46,"აღმოჩენა"],[30,41,"ცნობადობა"],[32,54,"ტრანსფორმაცია"],
+[34,57,"ძალაუფლება"],[35,36,"გარდამავლობა"],[37,40,"კავშირი"],[39,55,"ემოციურობა"],
+[42,53,"ჩამოყალიბება"],[47,64,"აბსტრაქცია"],
+];
 
 let currentMode='natal';
+let svgNatal=null, svgSyn=null;
+const cityTimers={};
 
-const SIGN_KA=['ვერძი','კურო','ტყუპები','კირჩხიბი','ლომი','ქალწული','სასწორი','მორიელი','მშვილდოსანი','თხის რქა','მერწყული','თევზები'];
-const ZSYM=['♈︎','♉︎','♊︎','♋︎','♌︎','♍︎','♎︎','♏︎','♐︎','♑︎','♒︎','♓︎'];
-const ZCOL=['#e05252','#8aab6e','#89b4d4','#5b8ec4','#d4602e','#7a9e6a','#7fb8d8','#4a7ab0','#c84a32','#6b9062','#90c0dc','#6688c0'];
-const ZELEMENT=['F','E','A','W','F','E','A','W','F','E','A','W'];
-const PI={
-  'მზე':{sym:'sun',color:'#f9c646'},'მთვარე':{sym:'☽',color:'#c8d8f0'},
-  'მერკური':{sym:'☿',color:'#a0c8d0'},'ვენერა':{sym:'♀',color:'#e87878'},
-  'მარსი':{sym:'♂',color:'#e84040'},'იუპიტერი':{sym:'♃',color:'#e89040'},
-  'სატურნი':{sym:'♄',color:'#c8c840'},'ურანი':{sym:'♅',color:'#50c8d8'},
-  'ნეპტუნი':{sym:'♆',color:'#6070d8'},'პლუტონი':{sym:'⯓',color:'#c050a0'},
-  'ქირონი':{sym:'⚷',color:'#d08040'},'ლილიტი':{sym:'⚸',color:'#904060'},
-  'ჩრდ. კვანძი':{sym:'☊',color:'#60c060'},'სამხ. კვანძი':{sym:'☋',color:'#c06060'},
-  'ვერტექსი':{sym:'Vx',color:'#8090d0'},'თეთრი მთვარე':{sym:'⯝',color:'#d0e8f8'},
-  'ბედის ვარსკვლავი':{sym:'⊕',color:'#f0c060'},'იუნო':{sym:'⚵',color:'#c890d0'},
-};
-const PORDER=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ქირონი','ლილიტი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი','თეთრი მთვარე','ბედის ვარსკვლავი','იუნო'];
-
-// ── UTILS ──
-function fmtDeg(deg){
-  const s=((deg%30)+30)%30,d=Math.floor(s),m=Math.floor((s-d)*60);
-  return `${d}°${String(m).padStart(2,'0')}'`;
-}
-function toRad(d){return d*Math.PI/180;}
-function e2s(ecl,asc){return toRad(-(ecl-asc))+Math.PI;}
-function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
-const NS='http://www.w3.org/2000/svg';
-function el(tag,attrs,parent){
-  const e=document.createElementNS(NS,tag);
-  for(const[k,v] of Object.entries(attrs))e.setAttribute(k,v);
-  if(parent)parent.appendChild(e);return e;
-}
-function txt(parent,s,x,y,attrs={}){
-  const t=el('text',{'text-anchor':'middle','dominant-baseline':'central',x,y,...attrs},parent);
-  t.textContent=s;return t;
-}
-function signClass(si){const e=ZELEMENT[si];return e==='F'?'sign-fire':e==='E'?'sign-earth':e==='A'?'sign-air':'sign-water';}
-function sunSVG(sz=20){
-  return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block">
-    <circle cx="11" cy="11" r="8" fill="none" stroke="#f9c646" stroke-width="2"/>
-    <circle cx="11" cy="11" r="2" fill="#f9c646"/></svg>`;
-}
-
-// ── MIDPOINT (handles 0/360 wrap) ──
-function midpoint(a,b){
-  let diff=((b-a)+360)%360;
-  if(diff>180)diff-=360;
-  return((a+diff/2)+360)%360;
-}
-
-// ── COMPOSITE CALCULATION ──
-function calcComposite(d1,d2){
-  const planets={};
-  const names=new Set([...Object.keys(d1.planets),...Object.keys(d2.planets)]);
-  for(const n of names){
-    if(!d1.planets[n]||!d2.planets[n])continue;
-    const deg=midpoint(d1.planets[n].degree,d2.planets[n].degree);
-    const si=Math.floor(deg/30)%12;
-    planets[n]={degree:deg,sign:SIGN_KA[si],house:1,retrograde:false};
-  }
-  const houses=d1.houses.map((h,i)=>midpoint(h,d2.houses[i]));
-  const asc=midpoint(d1.asc,d2.asc);
-  const mc=midpoint(d1.mc,d2.mc);
-  // assign houses
-  for(const n of Object.keys(planets)){
-    const deg=planets[n].degree;
-    for(let i=0;i<12;i++){
-      const s=houses[i],e2=houses[(i+1)%12];
-      const span=((e2-s)+360)%360;
-      const dist=((deg-s)+360)%360;
-      if(dist<span){planets[n].house=i+1;break;}
-    }
-  }
-  return{planets,houses,asc,mc,aspects:[],_timeUnknown:false};
-}
-
-// ── PROGRESSION CALCULATION ──
-// Secondary progression: natal date + (years_elapsed) days
-function progressedDate(natal,target){
-  const n=new Date(natal.year,natal.month-1,natal.day);
-  const t=new Date(target.year,target.month-1,target.day);
-  const yearsElapsed=(t-n)/(365.25*24*3600*1000);
-  const prog=new Date(n.getTime()+yearsElapsed*24*3600*1000);
-  return{year:prog.getFullYear(),month:prog.getMonth()+1,day:prog.getDate()};
-}
-
-// ── CROSS ASPECTS (synastry/transit) ──
-const ASPECTS_DEF=[
-  {name:'შეერთება',angles:[0],orb:8,sym:'☌',color:'#f9c646'},
-  {name:'ოპოზიცია',angles:[180],orb:8,sym:'☍',color:'#e89040'},
-  {name:'ტრინი',angles:[120,240],orb:7,sym:'△',color:'#a078f0'},
-  {name:'კვადრატი',angles:[90,270],orb:6,sym:'□',color:'#e84040'},
-  {name:'სექსტილი',angles:[60,300],orb:5,sym:'⚹',color:'#30c890'},
-  {name:'კვინკონსი',angles:[150,210],orb:3,sym:'⚻',color:'#9ba8b8'},
-];
-function calcCrossAspects(p1,p2){
-  const aspects=[];
-  const MAIN=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ქირონი','ჩრდ. კვანძი'];
-  const n1list=Object.keys(p1).filter(n=>MAIN.includes(n));
-  const n2list=Object.keys(p2).filter(n=>MAIN.includes(n));
-  for(const n1 of n1list){
-    for(const n2 of n2list){
-      const deg1=p1[n1].degree,deg2=p2[n2].degree;
-      // Check both directions to find the aspect
-      const raw=((deg2-deg1)+360)%360;
-      let best=null,bestOrb=999;
-      for(const asp of ASPECTS_DEF){
-        for(const target of asp.angles){
-          // Check raw angle and its supplement
-          for(const r of [raw, (360-raw)%360]){
-            const orb=Math.abs(r-target);
-            const realOrb=orb>180?360-orb:orb;
-            if(realOrb<=asp.orb&&realOrb<bestOrb){bestOrb=realOrb;best=asp;}
-          }
-        }
-      }
-      if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
-    }
-  }
-  return aspects.sort((a,b)=>a.orb-b.orb);
-}
-
-// ── MODE SWITCH ──
+// ── MODE ──
 function setMode(mode){
-  currentMode=mode;
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const modes=['natal','synastry','composite','transit','progression','solar','relocation'];
-    b.classList.toggle('active',modes[i]===mode);
-  });
-  document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('form-'+mode).classList.add('active');
-  document.getElementById('chart-area').style.display='none';
+currentMode=mode;
+document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['natal','synastry'][i]===mode));
+document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
+document.getElementById('form-'+mode).classList.add('active');
+document.getElementById('results-natal').classList.add('hidden');
+document.getElementById('results-synastry').classList.add('hidden');
+document.getElementById('status').textContent='';
 }
 
 // ── GEOCODE ──
-const cityTimers={};
 function searchCity(prefix){
-  clearTimeout(cityTimers[prefix]);
-  // handle special case rl-birth
-  const cityId=prefix+'-city', hintId=prefix+'-city-hint', latId=prefix+'-lat', lonId=prefix+'-lon', tzId=prefix+'-tz', tzDisp=prefix+'-tz-display';
-  const cityEl=document.getElementById(cityId);
-  if(!cityEl)return;
-  cityTimers[prefix]=setTimeout(async()=>{
-    const city=cityEl.value;
-    if(city.length<2)return;
-    const hint=document.getElementById(hintId);
-    hint.textContent='⏳ ძიება...';
-    try{
-      const r=await fetch(`${BACKEND}/geocode`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
-      const raw=await r.text();
-      let d;try{d=JSON.parse(raw);}catch(e){hint.textContent='❌ Error';return;}
-      if(d.error){hint.textContent='❌ '+d.error;return;}
-      const latEl=document.getElementById(latId);
-      const lonEl=document.getElementById(lonId);
-      if(latEl)latEl.value=d.lat.toFixed(4);
-      if(lonEl)lonEl.value=d.lon.toFixed(4);
-      document.getElementById(tzId).value=d.tz_name||'UTC';
-      const tzEl=document.getElementById(tzDisp);
-      if(tzEl)tzEl.textContent='🕐 '+d.tz_name+' · 📍 '+d.display;
-      hint.textContent='📍 '+d.display;
-    }catch(e){hint.textContent='❌ '+e.message;}
-  },600);
+clearTimeout(cityTimers[prefix]);
+cityTimers[prefix]=setTimeout(async()=>{
+const cityEl=document.getElementById(prefix+'-city');
+if(!cityEl)return;
+const city=cityEl.value.trim();
+const hint=document.getElementById(prefix+'-city-hint');
+if(city.length<2){hint.textContent='';return;}
+hint.textContent='⏳ ძიება…';
+try{
+const r=await fetch(API_BASE+'/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
+const d=await r.json();
+if(d.error){hint.textContent='❌ '+d.error;return;}
+document.getElementById(prefix+'-lat').value=d.lat;
+document.getElementById(prefix+'-lon').value=d.lon;
+document.getElementById(prefix+'-tz').value=d.tz_name||'UTC';
+hint.textContent='📍 '+d.display;
+const tzRow=document.getElementById(prefix+'-tz-row');
+if(tzRow)tzRow.textContent='🕐 '+d.tz_name;
+}catch(e){hint.textContent='❌ '+e.message;}
+},600);
 }
 
-function toggleTU(prefix){
-  const unk=document.getElementById(prefix+'-time-unknown').checked;
-  document.getElementById(prefix+'-time-fields').classList.toggle('time-disabled',unk);
+// ── FETCH HD ──
+function getPerson(prefix){
+const d=n=>+document.getElementById(prefix+'-'+n).value;
+const s=n=>document.getElementById(prefix+'-'+n).value;
+const day=String(d('day')).padStart(2,'0'),month=String(d('month')).padStart(2,'0');
+const h=String(d('hour')).padStart(2,'0'),min=String(d('minute')).padStart(2,'0');
+return{date:`${d('year')}-${month}-${day}`,time:`${h}:${min}`,
+lat:+s('lat'),lon:+s('lon'),tz_name:s('tz')||'UTC'};
 }
-
-function setToday(prefix){
-  const now=new Date();
-  document.getElementById(prefix+'-day').value=now.getDate();
-  document.getElementById(prefix+'-month').value=now.getMonth()+1;
-  document.getElementById(prefix+'-year').value=now.getFullYear();
-  if(document.getElementById(prefix+'-hour')){
-    document.getElementById(prefix+'-hour').value=now.getHours();
-    document.getElementById(prefix+'-minute').value=now.getMinutes();
-    if(document.getElementById(prefix+'-second'))document.getElementById(prefix+'-second').value=0;
-  }
-}
-
-// ── GET CHART DATA ──
-function getPersonData(prefix){
-  const tu=document.getElementById(prefix+'-time-unknown')?.checked||false;
-  return{
-    year:+document.getElementById(prefix+'-year').value,
-    month:+document.getElementById(prefix+'-month').value,
-    day:+document.getElementById(prefix+'-day').value,
-    hour:tu?12:+(document.getElementById(prefix+'-hour')?.value||12),
-    minute:tu?0:+(document.getElementById(prefix+'-minute')?.value||0),
-    second:tu?0:+(document.getElementById(prefix+'-second')?.value||0),
-    lat:+document.getElementById(prefix+'-lat').value,
-    lon:+document.getElementById(prefix+'-lon').value,
-    tz_name:document.getElementById(prefix+'-tz').value||'UTC',
-    time_unknown:tu,
-  };
-}
-async function fetchChart(data){
-  const r=await fetch(`${BACKEND}/chart`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  const raw=await r.text();
-  let d;try{d=JSON.parse(raw);}catch(e){throw new Error('Backend error: '+raw.slice(0,200));}
-  if(d.error)throw new Error(d.error);
-  return d;
+async function fetchHD(p){
+const r=await fetch(API_BASE+'/api/hd_chart',{method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({date:p.date,time:p.time,lat:p.lat,lon:p.lon,tz_name:p.tz_name,place:''})});
+const raw=await r.text();
+let d;try{d=JSON.parse(raw);}catch(_){throw new Error('Backend error '+r.status);}
+if(!r.ok)throw new Error(d.error||'HTTP '+r.status);
+return d;
 }
 
 // ── MAIN GENERATE ──
 async function generate(){
-  const btn=document.querySelector('.form-section.active .gen-btn:last-child');
-  if(btn){btn.disabled=true;btn.textContent='⏳ იტვირთება...';}
-  try{
-    const mode=currentMode;
-
-    if(mode==='natal'){
-      const p=getPersonData('n');
-      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
-      const d=await fetchChart(p);
-      d._timeUnknown=p.time_unknown;
-      showSingleChart(d,'ნატალური რუქა',false);
-
-    }else if(mode==='synastry'){
-      const p1=getPersonData('s1'),p2=getPersonData('s2');
-      if(!p1.lat||!p1.lon||!p2.lat||!p2.lon){alert('შეიყვანეთ ორივე ქალაქი');return;}
-      const[d1,d2]=await Promise.all([fetchChart(p1),fetchChart(p2)]);
-      const name1=document.getElementById('s1-name').value||'პირველი';
-      const name2=document.getElementById('s2-name').value||'მეორე';
-      showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects(d1.planets,d2.planets));
-
-    }else if(mode==='composite'){
-      const p1=getPersonData('c1'),p2=getPersonData('c2');
-      if(!p1.lat||!p1.lon||!p2.lat||!p2.lon){alert('შეიყვანეთ ორივე ქალაქი');return;}
-      const[d1,d2]=await Promise.all([fetchChart(p1),fetchChart(p2)]);
-      const comp=calcComposite(d1,d2);
-      showSingleChart(comp,'კომპოზიტი',false);
-
-    }else if(mode==='transit'){
-      const natal=getPersonData('tr');
-      if(!natal.lat||!natal.lon){alert('შეიყვანეთ ნატალური ქალაქი');return;}
-      const tData={
-        year:+document.getElementById('tt-year').value,month:+document.getElementById('tt-month').value,
-        day:+document.getElementById('tt-day').value,hour:+document.getElementById('tt-hour').value,
-        minute:+document.getElementById('tt-minute').value,second:+document.getElementById('tt-second').value,
-        lat:natal.lat,lon:natal.lon,tz_name:natal.tz_name,
-      };
-      const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(tData)]);
-      showDoubleChart(d1,d2,'ნატალური','ტრანზიტი','ტრანზიტი',calcCrossAspects(d1.planets,d2.planets));
-
-    }else if(mode==='progression'){
-      const natal=getPersonData('pr');
-      if(!natal.lat||!natal.lon){alert('შეიყვანეთ ქალაქი');return;}
-      const target={year:+document.getElementById('pd-year').value,month:+document.getElementById('pd-month').value,day:+document.getElementById('pd-day').value};
-      const prog=progressedDate({year:natal.year,month:natal.month,day:natal.day},target);
-      const progData={...natal,...prog};
-      const compare=document.getElementById('pr-compare')?.checked;
-      if(compare){
-        const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(progData)]);
-        showDoubleChart(d1,d2,'ნატალური','პროგრესია','პროგრესია',calcCrossAspects(d1.planets,d2.planets));
-      }else{
-        const d=await fetchChart(progData);d._timeUnknown=false;
-        showSingleChart(d,'პროგრესია',false);
-      }
-
-    }else if(mode==='solar'){
-      const natal=getPersonData('so');
-      if(!natal.lat||!natal.lon){alert('შეიყვანეთ დაბადების ქალაქი');return;}
-      const srYear=+document.getElementById('sr-year').value;
-      const srLat=+document.getElementById('sr-lat').value||natal.lat;
-      const srLon=+document.getElementById('sr-lon').value||natal.lon;
-      const srTz=document.getElementById('sr-tz').value||natal.tz_name;
-      const srData={year:srYear,month:natal.month,day:natal.day,hour:natal.hour,minute:natal.minute,second:natal.second,lat:srLat,lon:srLon,tz_name:srTz};
-      const compare=document.getElementById('so-compare')?.checked;
-      if(compare){
-        const[dN,dS]=await Promise.all([fetchChart(natal),fetchChart(srData)]);
-        showDoubleChart(dN,dS,'ნატალური',`სოლარი ${srYear}`,`სოლარი ${srYear}`,calcCrossAspects(dN.planets,dS.planets));
-      }else{
-        const d=await fetchChart(srData);d._timeUnknown=false;
-        showSingleChart(d,`სოლარი ${srYear}`,false);
-      }
-
-    }else if(mode==='relocation'){
-      const bLat=+document.getElementById('rl-birth-lat').value;
-      const bLon=+document.getElementById('rl-birth-lon').value;
-      const bTz=document.getElementById('rl-birth-tz').value||'UTC';
-      const newLat=+document.getElementById('rl-lat').value;
-      const newLon=+document.getElementById('rl-lon').value;
-      const newTz=document.getElementById('rl-tz').value||bTz;
-      if(!bLat||!bLon){alert('შეიყვანეთ დაბადების ქალაქი');return;}
-      if(!newLat||!newLon){alert('შეიყვანეთ ახალი ქალაქი');return;}
-      const natal={
-        year:+document.getElementById('rl-year').value,
-        month:+document.getElementById('rl-month').value,
-        day:+document.getElementById('rl-day').value,
-        hour:+document.getElementById('rl-hour').value,
-        minute:+document.getElementById('rl-minute').value,
-        second:+(document.getElementById('rl-second')?.value||0),
-        lat:bLat,lon:bLon,tz_name:bTz,time_unknown:false,
-      };
-      const relData={...natal,lat:newLat,lon:newLon,tz_name:newTz};
-      const compare=document.getElementById('rl-compare')?.checked;
-      if(compare){
-        const[dNatal,dReloc]=await Promise.all([fetchChart(natal),fetchChart(relData)]);
-        showDoubleChart(dNatal,dReloc,'ნატალური','რელოკაცია','რელოკაცია',calcCrossAspects(dNatal.planets,dReloc.planets));
-      }else{
-        const d=await fetchChart(relData);d._timeUnknown=false;
-        showSingleChart(d,'რელოკაცია',false);
-      }
-    }
-  }catch(e){alert('შეცდომა: '+e.message);}
-  finally{
-    if(btn){btn.disabled=false;btn.textContent=btn.textContent.replace('⏳ იტვირთება...','✦ გენერაცია ✦');}
-    const btns=document.querySelectorAll('.form-section.active .gen-btn');
-    btns.forEach(b=>{if(b.textContent.includes('გენერაცია')&&!b.textContent.includes('✦'))b.textContent='✦ გენერაცია ✦';});
-  }
+const stat=document.getElementById('status');
+const btn=document.querySelector('.form-section.active .btn-calc');
+if(btn){btn.disabled=true;btn.textContent='⏳ იტვირთება...';}
+stat.className='status';stat.textContent='იტვირთება…';
+try{
+if(currentMode==='natal'){
+const p=getPerson('n');
+if(!p.lat||!p.lon){stat.className='status error';stat.textContent='⚠ შეიყვანეთ ქალაქი';return;}
+if(!svgNatal)await loadSVG('bodygraph','natal');
+const chart=await fetchHD(p);
+renderNatal(chart);
+stat.textContent='';
+}else{
+const p1=getPerson('s1'),p2=getPerson('s2');
+if(!p1.lat||!p1.lon||!p2.lat||!p2.lon){stat.className='status error';stat.textContent='⚠ შეიყვანეთ ორივე ქალაქი';return;}
+if(!svgSyn)await loadSVG('bodygraph-syn','syn');
+const[c1,c2]=await Promise.all([fetchHD(p1),fetchHD(p2)]);
+renderSynastry(c1,c2);
+stat.textContent='';
+}
+}catch(e){stat.className='status error';stat.textContent='შეცდომა: '+e.message;}
+finally{
+if(btn){btn.disabled=false;
+btn.textContent=currentMode==='natal'?'✦ გრაფიკის გამოთვლა ✦':'✦ სინასტრიის გამოთვლა ✦';}
+}
 }
 
-function showSingleChart(data,label,dual){
-  document.getElementById('mode-label').textContent=label;
-  document.getElementById('legend-wrap').style.display='none';
-  document.getElementById('planet-b-wrap').style.display='none';
-  const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
-  const sb=document.getElementById('swap-btn');if(sb)sb.remove();
-  document.getElementById('chart-area').style.display='block';
-  drawWheel(data,null);
-  drawPlanetTable(data.planets,false,'planet-tbody');
-  drawHouseTable(data);
-  drawAspectTable(data.aspects||[]);
-  if(data.lunar)displayLunarBadge(data.lunar);
-  document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+// ── LOAD SVG ──
+async function loadSVG(containerId,which){
+const svgText=await fetch(API_BASE+'/static/human_prepared.svg').then(r=>r.text());
+const wrap=document.getElementById(containerId);
+const parser=new DOMParser();
+const imported=document.importNode(parser.parseFromString(svgText,'image/svg+xml').documentElement,true);
+wrap.innerHTML='';wrap.appendChild(imported);
+const sv=wrap.querySelector('svg');
+if(!sv)throw new Error('SVG not found');
+sv.setAttribute('preserveAspectRatio','xMidYMid meet');
+sv.removeAttribute('width');sv.removeAttribute('height');
+sv.setAttribute('viewBox','420 40 580 780');
+const ss=sv.querySelector('#hd-activation');
+if(ss){
+const sid='hd-act-'+which;
+const old=document.getElementById(sid);if(old)old.remove();
+const ds=document.createElement('style');ds.id=sid;ds.textContent=ss.textContent;
+document.head.appendChild(ds);ss.remove();
+}
+sv.querySelectorAll('.detail-part').forEach(e=>e.style.setProperty('display','none','important'));
+if(which==='natal')svgNatal=sv;else svgSyn=sv;
 }
 
-let _d1=null,_d2=null,_name1='',_name2='',_crossAsp=[];
-let _swapped=false;
-
-function showDoubleChart(d1,d2,name1,name2,label,crossAsp){
-  _d1=d1;_d2=d2;_name1=name1;_name2=name2;_crossAsp=crossAsp;_swapped=false;
-  _renderDouble(d1,d2,name1,name2,label,crossAsp);
+// ── CLEAR ──
+function clearSVG(sv){
+if(!sv)return;
+const tr=[];
+sv.classList.forEach(c=>{
+if(c.startsWith('active-')||c.startsWith('detail-on-')||c.startsWith('center-active-'))tr.push(c);
+});
+tr.forEach(c=>sv.classList.remove(c));
+sv.querySelectorAll('.detail-part').forEach(e=>e.style.setProperty('display','none','important'));
 }
 
-function swapPersons(){
-  _swapped=!_swapped;
-  const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
-  const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
-  // Recalculate cross aspects with swapped order so all aspects show
-  const crossAsp=calcCrossAspects(d1.planets,d2.planets);
-  _renderDouble(d1,d2,n1,n2,document.getElementById('mode-label').textContent,crossAsp);
+// ── NATAL RENDER ──
+function renderNatal(chart){
+clearSVG(svgNatal);
+Object.entries(chart.gate_sources).forEach(([g,src])=>{
+const gi=parseInt(g,10);
+let c=src.p&&src.d?'active-b-':src.p?'active-p-':src.d?'active-d-':null;
+if(c)svgNatal.classList.add(c+gi);
+});
+chart.defined_centers.forEach(c=>svgNatal.classList.add('center-active-'+c.replace(/ /g,'')));
+if(chart.integration?.n){
+svgNatal.classList.add('detail-on-'+chart.integration.n);
+const el=svgNatal.querySelector(`.detail-part[data-detail="${chart.integration.n}"]`);
+if(el)el.style.setProperty('display','block','important');
+}
+// gifts
+document.getElementById('gifts-list').innerHTML=(chart.other_gifts||[]).map(g=>`<div class="gift-item">${g}</div>`).join('')||'<div class="gift-item" style="color:var(--ink-dim)">—</div>';
+// cards
+const cards=[
+{k:'ტიპი',v:TYPE_KA[chart.type]||chart.type,hi:true},
+{k:'სტრატეგია',v:STRATEGY_KA[chart.strategy]||chart.strategy,sm:true},
+{k:'ავტორიტეტი',v:chart.authority||'',sm:true},
+{k:'პროფილი',v:chart.profile||'',hi:true},
+{k:"არარეალ.'მე'",v:chart.not_self||'',sm:true},
+{k:"რეალ.'მე'",v:chart.signature||'',sm:true},
+{k:'მთავარი ნიჭი',v:chart.sun_gift||'',sm:true},
+{k:'განსაზღვრება',v:chart.definition||'',sm:true},
+{k:'ინკარნ.ჯვარი',v:chart.incarnation_cross||'',xs:true},
+{k:'საკვები',v:chart.digestion||'',sm:true},
+{k:'გრძნობა',v:chart.sense||'',sm:true},
+{k:'გარემო',v:chart.environment||'',sm:true},
+{k:'მოტივაცია',v:chart.motivation||'',sm:true},
+{k:'პერსპექტივა',v:chart.perspective||'',sm:true},
+];
+document.getElementById('summary-cards').innerHTML=cards.map(c=>`<div class="card${c.hi?' hi':''}"><div class="k">${c.k}</div><div class="v${c.xs?' xs':c.sm?' sm':''}">${c.v||'—'}</div></div>`).join('');
+// planet cols
+fillPlanetCol(chart.design,chart.personality,'col-design','col-personality',false);
+// channels
+const TKA={design:'დიზაინი',personality:'პიროვნება',mixed:'შერეული'};
+document.getElementById('channel-count').textContent=chart.defined_channels.length+' არხი';
+document.getElementById('channel-list').innerHTML=chart.defined_channels.map(c=>`
+   <div class="ch-item ${c.type}">
+     <span class="pair">${c.gate_a}–${c.gate_b}</span>
+     <span class="cname">${c.name}</span>
+     <span class="ctag">${TKA[c.type]||c.type}</span>
+   </div>`).join('')||'<div style="color:var(--ink-dim);font-style:italic;font-size:.8rem">—</div>';
+// centers
+const defC=new Set(chart.defined_centers);
+document.getElementById('centers-list').innerHTML=CENTER_ORDER.map(c=>`<div class="center-chip${defC.has(c)?' on':''}">${CENTER_KA[c]||c}</div>`).join('');
+// meta
+const inp=chart.input;
+document.getElementById('meta').innerHTML=`<div><strong>დაბადება:</strong> ${inp.date} ${inp.time}</div><div><strong>ადგილი:</strong> ${inp.resolved_place}</div><div><strong>UTC:</strong> ${inp.utc_time}</div><div><strong>დიზაინი:</strong> ${chart.design_time_utc}</div>`;
+document.getElementById('results-natal').classList.remove('hidden');
+document.getElementById('results-synastry').classList.add('hidden');
+document.getElementById('results-natal').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function _renderDouble(d1,d2,name1,name2,label,crossAsp){
-  document.getElementById('mode-label').textContent=label;
-  document.getElementById('legend-wrap').style.display='flex';
-  document.getElementById('leg-a').textContent=name1;
-  document.getElementById('leg-b').textContent=name2;
-  // swap button
-  let swapBtn=document.getElementById('swap-btn');
-  if(!swapBtn){
-    swapBtn=document.createElement('button');
-    swapBtn.id='swap-btn';
-    swapBtn.onclick=swapPersons;
-    swapBtn.style.cssText='font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;background:rgba(8,6,20,.7);border:1px solid rgba(100,65,200,.4);border-radius:16px;padding:6px 14px;cursor:pointer;margin-left:12px;';
-    document.getElementById('legend-wrap').appendChild(swapBtn);
-  }
-  swapBtn.textContent=_swapped?'↩ აღდგენა':'⇄ შებრუნება';
-  document.getElementById('chart-area').style.display='block';
-  drawWheel(d1,d2);
-  drawPlanetTable(d1.planets,false,'planet-tbody');
-  document.getElementById('planet-b-wrap').style.display='block';
-  document.getElementById('planet-b-title').textContent=`🪐 ${name2} — პლანეტები`;
-  document.getElementById('planet-table-title').textContent=`🪐 ${name1} — პლანეტები`;
-  drawPlanetTable(d2.planets,true,'planet-b-tbody');
-  document.querySelector('.tables-wrap').style.display='grid';
-  drawHouseTable(d1);
-  // show both aspect tables
-  const isSyn=document.querySelector('.tab-btn.active')?.textContent?.includes('სინასტრია')||currentMode==='synastry';
-  drawAspectTable(crossAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
-  if(!isSyn){showOwnAspects(d1,d2,name1,name2);}
-  else{const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';}
-  document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+// ── SYNASTRY RENDER ──
+function renderSynastry(c1,c2){
+clearSVG(svgSyn);
+
+const p1Gates=new Set(Object.keys(c1.gate_sources).map(Number));
+const p2Gates=new Set(Object.keys(c2.gate_sources).map(Number));
+
+// Activate P1 gates (normal colors)
+  Object.entries(c1.gate_sources).forEach(([g,src])=>{
+    const gi=parseInt(g,10);
+    let cls=src.p&&src.d?'active-b-':src.p?'active-p-':src.d?'active-d-':null;
+    if(cls)svgSyn.classList.add(cls+gi);
+// Person 1 = all gates as Personality (conscious layer)
+  Object.keys(c1.gate_sources).forEach(g=>{
+    svgSyn.classList.add('active-p-'+parseInt(g,10));
+});
+
+  // Activate P2 gates — inject red style override
+  injectP2RedStyle();
+  
+  // Person 2 = all gates as Design (unconscious layer)
+Object.keys(c2.gate_sources).forEach(g=>{
+    svgSyn.classList.add('active-p2-'+parseInt(g,10));
+    svgSyn.classList.add('active-d-'+parseInt(g,10));
+});
+
+// Centers from P1
+if(c1.integration?.n){
+svgSyn.classList.add('detail-on-'+c1.integration.n);
+const el=svgSyn.querySelector(`.detail-part[data-detail="${c1.integration.n}"]`);
+if(el)el.style.setProperty('display','block','important');
 }
 
-function showOwnAspects(d1,d2,name1,name2){
-  let wrap=document.getElementById('own-aspects-wrap');
-  if(!wrap){
-    wrap=document.createElement('div');
-    wrap.id='own-aspects-wrap';
-    document.getElementById('chart-area').appendChild(wrap);
-  }
-  wrap.innerHTML=`
-    <div class="sec-title">${name1} — საკუთარი ასპექტები</div>
-    <div class="data-card" style="margin-bottom:8px;padding:0 0 8px">
-      <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
-      <tbody id="asp-p1-tbody"></tbody></table>
-    </div>
-    <div class="sec-title">${name2} — საკუთარი ასპექტები</div>
-    <div class="data-card" style="margin-bottom:8px;padding:0 0 8px">
-      <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
-      <tbody id="asp-p2-tbody"></tbody></table>
-    </div>`;
-  drawAspectTable(d1.aspects||[],'asp-p1-tbody');
-  drawAspectTable(d2.aspects||[],'asp-p2-tbody',null,null,true);
+// Planet cols
+fillPlanetCol(c1.design,c1.personality,'syn-p1-design','syn-p1-personality',false);
+fillPlanetColBox(c2.design,c2.personality,'syn-p2-design','syn-p2-personality');
+
+// Find electromagnetic channels
+const emChannels=[];
+for(const[ga,gb,name] of CHANNELS){
+const p1a=p1Gates.has(ga),p1b=p1Gates.has(gb);
+const p2a=p2Gates.has(ga),p2b=p2Gates.has(gb);
+// EM: p1 has one gate, p2 has the other (neither completes the channel alone)
+if((p1a&&!p1b&&p2b&&!p2a)||(p1b&&!p1a&&p2a&&!p2b)){
+emChannels.push({ga,gb,name});
+}
 }
 
-function displayLunarBadge(L){
-  if(!L)return;
-  const hrs=L.hours_to_next;
-  const h=Math.floor(hrs),m=Math.round((hrs-h)*60);
-  const nextStr=hrs<1?`${Math.round(hrs*60)} წთ-ში`:m>0?`${h} სთ ${m} წთ-ში`:`${h} სთ-ში`;
-  document.getElementById('lunar-day').textContent=`მთვარის მე-${L.lunar_day} დღე`;
-  document.getElementById('lunar-pct').textContent=`შემდეგი ${nextStr} · ${L.pct_elapsed}% გასული`;
-  document.getElementById('lunar-badge').style.display='block';
+// Build channel HTML
+let html='';
+const TKA={design:'I დიზაინი',personality:'I პიროვნება',mixed:'I შერეული'};
+
+if(emChannels.length){
+html+=`<div class="ch-divider" style="color:#ffd700;opacity:.8">⚡ ელექტრომაგნეტური კავშირები — ${emChannels.length}</div>`;
+emChannels.forEach(c=>{
+html+=`<div class="ch-item electromagnetic">
+       <span class="pair">${c.ga}–${c.gb}</span>
+       <span class="cname">${c.name}</span>
+       <span class="ctag">⚡ EM</span>
+     </div>`;
+});
 }
 
-// ── WHEEL DRAW ──
-function drawWheel(data1,data2){
-  const svg=document.getElementById('wheel');
-  svg.innerHTML='';
-  const asc=data1._timeUnknown?0:data1.asc;
-  const R3d=data2?193:R3;
-  const R5d=data2?105:R5;
-  const defs=el('defs',{},svg);
-  // filters
-  const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
-  el('feGaussianBlur',{stdDeviation:'3',result:'blur'},sf);
-  const fm=el('feMerge',{},sf);el('feMergeNode',{in:'blur'},fm);el('feMergeNode',{in:'SourceGraphic'},fm);
-  const mf=el('filter',{id:'moonF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
-  el('feGaussianBlur',{stdDeviation:'3',result:'blur'},mf);
-  const mfc=el('feFlood',{'flood-color':'#4090ff','flood-opacity':'0.5','result':'color'},mf);
-  el('feComposite',{in:'color',in2:'blur',operator:'in','result':'colorBlur'},mf);
-  const mfmg=el('feMerge',{},mf);el('feMergeNode',{in:'colorBlur'},mfmg);el('feMergeNode',{in:'SourceGraphic'},mfmg);
-  // bg
-  const bgG=el('radialGradient',{id:'bgG',cx:'50%',cy:'50%',r:'50%'},defs);
-  el('stop',{offset:'0%','stop-color':'#120e2a'},bgG);
-  el('stop',{offset:'100%','stop-color':'#04030e'},bgG);
-  el('rect',{width:700,height:700,fill:'url(#bgG)'},svg);
-
-  // zodiac band
-  const EFILL=['#1a0808','#081008','#08101a','#08101a','#1a0808','#081008','#08101a','#081018','#1a0808','#081008','#08101a','#081018'];
-  for(let i=0;i<12;i++){
-    const p=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
-    el('path',{d:`M${p(i*30,R1)} A${R1},${R1} 0 0,0 ${p((i+1)*30,R1)} L${p((i+1)*30,R2)} A${R2},${R2} 0 0,1 ${p(i*30,R2)} Z`,fill:EFILL[i]},svg);
-    el('path',{d:`M${p(i*30,R2)} A${R2},${R2} 0 0,0 ${p((i+1)*30,R2)}`,fill:'none',stroke:ZCOL[i],'stroke-width':2,opacity:.6},svg);
-  }
-  for(let i=0;i<12;i++){
-    const a=e2s(i*30,asc);
-    el('line',{x1:CX+Math.cos(a)*R1,y1:CY+Math.sin(a)*R1,x2:CX+Math.cos(a)*R2,y2:CY+Math.sin(a)*R2,stroke:ZCOL[i],'stroke-width':1.2,opacity:.85},svg);
-  }
-
-  // house band (narrower in dual mode)
-  if(!data1._timeUnknown&&data1.houses){
-    for(let i=0;i<12;i++){
-      const h1=data1.houses[i],h2=data1.houses[(i+1)%12];
-      const span=((h2-h1)+360)%360,la=span>180?1:0;
-      const p=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
-      el('path',{d:`M${p(h1,R2)} A${R2},${R2} 0 ${la},0 ${p(h2,R2)} L${p(h2,R3d)} A${R3d},${R3d} 0 ${la},1 ${p(h1,R3d)} Z`,fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'},svg);
-    }
-  }
-
-  // inner circle for second person (if synastry/transit)
-  const R_iz_out=data2?172:0;
-  const R_iz_in=data2?158:0;
-  if(data2){
-    // inner zodiac band fills (element tinted, darker)
-    const EFILL2=['#120606','#060a06','#060a12','#060a12','#120606','#060a06','#060a12','#060810','#120606','#060a06','#060a12','#060810'];
-    for(let i=0;i<12;i++){
-      const p=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
-      el('path',{d:`M${p(i*30,R_iz_out)} A${R_iz_out},${R_iz_out} 0 0,0 ${p((i+1)*30,R_iz_out)} L${p((i+1)*30,R_iz_in)} A${R_iz_in},${R_iz_in} 0 0,1 ${p(i*30,R_iz_in)} Z`,fill:EFILL2[i]},svg);
-      // inner edge colored border
-      el('path',{d:`M${p(i*30,R_iz_in)} A${R_iz_in},${R_iz_in} 0 0,0 ${p((i+1)*30,R_iz_in)}`,fill:'none',stroke:ZCOL[i],'stroke-width':1.2,opacity:.5},svg);
-    }
-    // divider lines inner zodiac
-    for(let i=0;i<12;i++){
-      const a=e2s(i*30,asc);
-      el('line',{x1:CX+Math.cos(a)*R_iz_out,y1:CY+Math.sin(a)*R_iz_out,x2:CX+Math.cos(a)*R_iz_in,y2:CY+Math.sin(a)*R_iz_in,stroke:ZCOL[i],'stroke-width':.9,opacity:.7},svg);
-    }
-    // inner zodiac symbols
-    const Rzs2=(R_iz_out+R_iz_in)/2;
-    for(let i=0;i<12;i++){
-      const a=e2s(i*30+15,asc);
-      const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',x:CX+Math.cos(a)*Rzs2,y:CY+Math.sin(a)*Rzs2,fill:ZCOL[i],'font-size':11,'font-family':'serif','font-weight':'bold'},svg);
-      zt.textContent=ZSYM[i];
-    }
-    // degree ticks on inner zodiac outer edge
-    for(let deg=0;deg<360;deg+=10){
-      const a=e2s(deg,asc),is30=deg%30===0;
-      el('line',{x1:CX+Math.cos(a)*R_iz_out,y1:CY+Math.sin(a)*R_iz_out,x2:CX+Math.cos(a)*(R_iz_out-(is30?8:4)),y2:CY+Math.sin(a)*(R_iz_out-(is30?8:4)),stroke:is30?'rgba(200,160,255,.7)':'rgba(120,80,180,.5)','stroke-width':is30?1:.6},svg);
-    }
-    // inner fill circle
-    el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'rgba(4,3,14,1)'},svg);
-    el('circle',{cx:CX,cy:CY,r:R5d,fill:'rgba(4,3,14,1)'},svg);
-    el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
-  }else{
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
-  }
-
-  // degree ticks
-  for(let deg=0;deg<360;deg++){
-    const a=e2s(deg,asc),co=Math.cos(a),si2=Math.sin(a);
-    const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
-    const len=is30?20:is10?13:is5?8:5;
-    const stroke=is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,0.95)':is5?'rgba(120,80,200,0.8)':'rgba(80,55,150,0.65)';
-    const sw=is30?2:is10?1.4:is5?0.9:0.5;
-    el('line',{x1:CX+co*R1,y1:CY+si2*R1,x2:CX+co*(R1-len),y2:CY+si2*(R1-len),stroke,'stroke-width':sw},svg);
-  }
-  for(let deg=0;deg<360;deg+=10){
-    if(deg%30===0)continue;
-    const a=e2s(deg,asc),nr=R1-33;
-    const nx=CX+Math.cos(a)*nr,ny=CY+Math.sin(a)*nr;
-    txt(svg,String(deg%30),nx,ny,{fill:'rgba(160,120,240,0.9)','font-size':7.5,'font-family':'serif',transform:`rotate(${(a*180/Math.PI)+90},${nx},${ny})`});
-  }
-
-  // circles
-  el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(140,90,230,0.85)','stroke-width':1.8},svg);
-  el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(100,65,200,0.8)','stroke-width':1.5},svg);
-  el('circle',{cx:CX,cy:CY,r:R3d,fill:'none',stroke:'rgba(70,45,160,0.75)','stroke-width':1.2},svg);
-  if(data2){
-    el('circle',{cx:CX,cy:CY,r:R_iz_out,fill:'none',stroke:'rgba(100,65,200,.65)','stroke-width':1},svg);
-    el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'none',stroke:'rgba(167,139,250,.45)','stroke-width':1},svg);
-    el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
-  }else{
-    el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,0.7)','stroke-width':1},svg);
-  }
-
-  // zodiac symbols outer
-  const Rzs=(R1+R2)/2;
-  for(let i=0;i<12;i++){
-    const a=e2s(i*30+15,asc);
-    const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',x:CX+Math.cos(a)*Rzs,y:CY+Math.sin(a)*Rzs,fill:ZCOL[i],'font-size':20,'font-family':'serif','font-weight':'bold'},svg);
-    zt.textContent=ZSYM[i];
-  }
-
-  // house lines + numbers
-  if(!data1._timeUnknown&&data1.houses){
-    const Rhn=(R2+R3)/2;
-    for(let i=0;i<12;i++){
-      const a=e2s(data1.houses[i],asc);
-      const isAngle=[0,3,6,9].includes(i);
-      el('line',{x1:CX+Math.cos(a)*R2,y1:CY+Math.sin(a)*R2,x2:CX+Math.cos(a)*R3d,y2:CY+Math.sin(a)*R3d,stroke:isAngle?'#e8c06e':'rgba(100,65,200,.6)','stroke-width':isAngle?2:.8},svg);
-      const next=data1.houses[(i+1)%12];
-      let mid=data1.houses[i]+((next-data1.houses[i]+360)%360)/2;
-      if(mid>=360)mid-=360;
-      const ma=e2s(mid,asc);
-      txt(svg,String(i+1),CX+Math.cos(ma)*(R2+R3d)/2,CY+Math.sin(ma)*(R2+R3d)/2,{fill:'rgba(180,150,255,0.85)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
-    }
-  }
-
-  // aspect lines — person 1 inside R5d, person 2 inside R4
-  const aspR=data2?R5d:R4;
-  if(data1.aspects){
-    for(const asp of data1.aspects){
-      if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
-      const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
-      const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
-      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
-    }
-  }
-
-
-  // draw planets helper
-  function drawPlanets(data,Rg,colorMod,isInner){
-    const present=Object.keys(data.planets);
-    const trueA={};
-    for(const n of present)trueA[n]=e2s(data.planets[n].degree,asc);
-    const sorted=[...present].sort((a,b)=>trueA[a]-trueA[b]);
-    const dispA={};
-    for(const n of present)dispA[n]=trueA[n];
-    const MINGAP=isInner?18/Rg:22/Rg;
-    for(let it=0;it<400;it++){
-      let moved=false;
-      for(let i=0;i<sorted.length;i++)for(let j=i+1;j<sorted.length;j++){
-        const a=sorted[i],b=sorted[j];let d=dispA[b]-dispA[a];
-        while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
-        if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){const push=(MINGAP-Math.abs(d))/2,dir=d>0?1:-1;dispA[a]-=push*dir;dispA[b]+=push*dir;moved=true;}
-      }
-      if(!moved)break;
-    }
-    for(const name of present){
-      const info=PI[name]||{sym:'?',color:'#fff'};
-      const tA=trueA[name];
-      const color=isInner?'#a78bfa':info.color;
-      const symColor=isInner?info.color:info.color;
-      let diff=dispA[name]-tA;
-      while(diff>Math.PI)diff-=2*Math.PI;while(diff<-Math.PI)diff+=2*Math.PI;
-      const wasMoved=Math.abs(diff)>0.015;
-      const gxy=pxy(wasMoved?dispA[name]:tA,Rg);
-      const tickR1=isInner?R_iz_out:R1+1,tickR2=isInner?R_iz_out+6:R1+9;
-      el('line',{x1:CX+Math.cos(tA)*tickR1,y1:CY+Math.sin(tA)*tickR1,x2:CX+Math.cos(tA)*tickR2,y2:CY+Math.sin(tA)*tickR2,stroke:color,'stroke-width':1.5},svg);
-      el('circle',{cx:CX+Math.cos(tA)*tickR1,cy:CY+Math.sin(tA)*tickR1,r:1.8,fill:color},svg);
-      if(wasMoved)el('line',{x1:CX+Math.cos(tA)*(tickR2),y1:CY+Math.sin(tA)*(tickR2),x2:gxy.x,y2:gxy.y,stroke:color,'stroke-width':.5,opacity:.4,'stroke-dasharray':'2 2'},svg);
-      const fsz=isInner?12:18;
-      if(name==='მზე'&&!isInner){
-        const sg2=el('g',{},svg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:10,fill:'rgba(249,198,70,0.12)'},sg2);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:8,fill:'none',stroke:'#f9c646','stroke-width':'2',filter:'url(#sunF)'},sg2);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:2,fill:'#f9c646'},sg2);
-      }else if(name==='მზე'&&isInner){
-        // small sun ☉ for inner person
-        el('circle',{cx:gxy.x,cy:gxy.y,r:6,fill:'none',stroke:'#f9c646','stroke-width':'1.5'},svg);
-        el('circle',{cx:gxy.x,cy:gxy.y,r:1.5,fill:'#f9c646'},svg);
-      }else if(name==='მთვარე'&&!isInner){
-        const mg=el('g',{filter:'url(#moonF)'},svg);
-        txt(mg,'☽',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':20,'font-family':'serif'});
-      }else{
-        txt(svg,info.sym,gxy.x,gxy.y,{fill:symColor,'font-size':fsz,'font-family':'serif'});
-      }
-      if(data.planets[name].retrograde)txt(svg,'℞',gxy.x+(isInner?8:10),gxy.y-(isInner?6:8),{fill:'#f87171','font-size':7,'font-family':'serif'});
-    }
-  }
-
-  // draw person 1 outside zodiac
-  drawPlanets(data1,R1+30,false,false);
-
-  // draw person 2 inside inner ring
-  if(data2)drawPlanets(data2,R_iz_out+18,false,true);
-
-  // ASC/MC for person 1
-  if(!data1._timeUnknown){
-    const angCol='#e8c06e';
-    const ascA=e2s(asc,asc);
-    el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),stroke:angCol,'stroke-width':2.5},svg);
-    txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),{fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-    const mcA=e2s(data1.mc,asc);
-    const mcDist=R1+50,mcR=17;
-    const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
-    el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),stroke:angCol,'stroke-width':2.5},svg);
-    el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
-    txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
-  }
-
-  // ASC/MC and houses for person 2 (inner circle) in dual mode
-  if(data2&&!data2._timeUnknown&&data2.houses){
-    const asc2=data2.asc;
-    const angCol2='#a78bfa';
-    // house lines inside inner zodiac ring
-    for(let i=0;i<12;i++){
-      const h1=data2.houses[i],h2=data2.houses[(i+1)%12];
-      const span2=((h2-h1)+360)%360,la2=span2>180?1:0;
-      const p2=(d,r)=>{const a=e2s(d,asc);return`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;};
-      el('path',{d:`M${p2(h1,R_iz_in)} A${R_iz_in},${R_iz_in} 0 ${la2},0 ${p2(h2,R_iz_in)} L${p2(h2,R5d)} A${R5d},${R5d} 0 ${la2},1 ${p2(h1,R5d)} Z`,fill:i%2?'rgba(6,4,18,.9)':'rgba(10,7,26,.9)'},svg);
-      const a2=e2s(data2.houses[i],asc);
-      const isAngle2=[0,3,6,9].includes(i);
-      el('line',{x1:CX+Math.cos(a2)*R_iz_in,y1:CY+Math.sin(a2)*R_iz_in,x2:CX+Math.cos(a2)*R5d,y2:CY+Math.sin(a2)*R5d,stroke:isAngle2?angCol2:'rgba(100,65,200,.45)','stroke-width':isAngle2?1.5:.7},svg);
-      const next2=data2.houses[(i+1)%12];
-      let mid2=data2.houses[i]+((next2-data2.houses[i]+360)%360)/2;
-      if(mid2>=360)mid2-=360;
-      const ma2=e2s(mid2,asc);
-      const Rhn2=(R_iz_in+R5d)/2;
-      txt(svg,String(i+1),CX+Math.cos(ma2)*Rhn2,CY+Math.sin(ma2)*Rhn2,{fill:'rgba(167,139,250,.75)','font-size':8,'font-family':'Cinzel,serif','font-weight':'bold'});
-    }
-    // inner ASC line
-    const ascA2=e2s(asc2,asc);
-    el('line',{x1:CX+Math.cos(ascA2)*R_iz_out,y1:CY+Math.sin(ascA2)*R_iz_out,x2:CX+Math.cos(ascA2)*(R_iz_out+10),y2:CY+Math.sin(ascA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
-    txt(svg,'ac',CX+Math.cos(ascA2)*(R_iz_out+18),CY+Math.sin(ascA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
-    // inner MC
-    const mcA2=e2s(data2.mc,asc);
-    el('line',{x1:CX+Math.cos(mcA2)*R_iz_out,y1:CY+Math.sin(mcA2)*R_iz_out,x2:CX+Math.cos(mcA2)*(R_iz_out+10),y2:CY+Math.sin(mcA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
-    txt(svg,'mc',CX+Math.cos(mcA2)*(R_iz_out+18),CY+Math.sin(mcA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
-  }
+if(c1.defined_channels.length){
+html+=`<div class="ch-divider" style="color:var(--violet-lt);opacity:.7">პირველი პირი — ${c1.defined_channels.length} არხი</div>`;
+c1.defined_channels.forEach(c=>{
+html+=`<div class="ch-item ${c.type}">
+       <span class="pair">${c.gate_a}–${c.gate_b}</span>
+       <span class="cname">${c.name}</span>
+       <span class="ctag">${TKA[c.type]||c.type}</span>
+     </div>`;
+});
 }
 
-// ── TABLES ──
-function drawPlanetTable(planets,isB,tbodyId){
-  const tbody=document.getElementById(tbodyId);
-  tbody.innerHTML='';
-  const shown=new Set();
-  const order=[...PORDER,...Object.keys(planets).filter(k=>!PORDER.includes(k))];
-  for(const name of order){
-    if(!planets[name]||shown.has(name))continue;
-    shown.add(name);
-    const info=PI[name]||{sym:'★',color:'#aaa'};
-    const d=planets[name];
-    const si=SIGN_KA.indexOf(d.sign);
-    const sCol=si>=0?ZCOL[si]:'#aaa';
-    const sc=si>=0?signClass(si):'';
-    const symCell=name==='მზე'?sunSVG(18):name==='მთვარე'?'<span class="moon-sym" style="font-size:16px">☽</span>':`<span class="p-sym" style="color:${isB?'#a78bfa':info.color};font-size:16px;font-family:serif">${info.sym}</span>`;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${symCell}</td><td style="color:${isB?'#a78bfa':info.color};font-size:11px;white-space:nowrap">${name}</td><td class="deg-val">${fmtDeg(d.degree)}</td><td><span class="${sc}" style="font-size:13px;font-family:serif">${si>=0?ZSYM[si]:''}</span> <span style="font-size:10px;color:${sCol}">${d.sign}</span></td><td><span class="house-badge" style="${isB?'border-color:rgba(167,139,250,.4);color:#a78bfa':''}">H${d.house||'?'}</span></td><td>${d.retrograde?'<span class="retro">℞</span>':''}</td>`;
-    tbody.appendChild(tr);
-  }
+if(c2.defined_channels.length){
+html+=`<div class="ch-divider" style="color:var(--red-lt);opacity:.7">მეორე პირი — ${c2.defined_channels.length} არხი</div>`;
+c2.defined_channels.forEach(c=>{
+html+=`<div class="ch-item p2ch">
+       <span class="pair">${c.gate_a}–${c.gate_b}</span>
+       <span class="cname">${c.name}</span>
+       <span class="ctag">II</span>
+     </div>`;
+});
 }
 
-function drawHouseTable(data){
-  const tbody=document.getElementById('house-tbody');
-  tbody.innerHTML='';
-  if(!data.houses){tbody.innerHTML='<tr><td colspan="3" style="color:rgba(120,100,180,.5);text-align:center;padding:12px;font-size:11px">სახლები არ არის</td></tr>';return;}
-  const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
-  const ANG={0:'AC',3:'IC',6:'DC',9:'MC'};
-  for(let i=0;i<12;i++){
-    const deg=data.houses[i];
-    const si=Math.floor(deg/30)%12;
-    const ang=ANG[i];
-    const sc=signClass(si);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="color:${ang?'#c084fc':'rgba(155,168,184,.7)'};font-family:'Cinzel',serif;font-size:11px;font-weight:${ang?'600':'400'}">${ROMAN[i]}${ang?` <span style="font-size:9px;opacity:.7">${ang}</span>`:''}</td><td><span class="${sc}" style="font-size:13px;font-family:serif">${ZSYM[si]||''}</span> <span style="font-size:10px;color:${ZCOL[si]}">${SIGN_KA[si]||''}</span></td><td class="deg-val">${fmtDeg(deg)}</td>`;
-    tbody.appendChild(tr);
-  }
+if(!html)html='<div style="color:var(--ink-dim);font-style:italic;font-size:.8rem">—</div>';
+
+const total=emChannels.length+c1.defined_channels.length+c2.defined_channels.length;
+document.getElementById('syn-channel-count').textContent=`⚡${emChannels.length} EM · ${total} სულ`;
+document.getElementById('syn-channel-list').innerHTML=html;
+
+document.getElementById('results-synastry').classList.remove('hidden');
+document.getElementById('results-natal').classList.add('hidden');
+document.getElementById('results-synastry').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function drawAspectTable(aspects,tbodyId='aspect-tbody',titleId,titleText,isB){
-  if(titleId&&titleText){const t=document.getElementById(titleId);if(t)t.textContent=titleText;}
-  const tbody=document.getElementById(tbodyId);
-  if(!tbody)return;
-  tbody.innerHTML='';
-  if(!aspects||!aspects.length){tbody.innerHTML='<tr><td colspan="5" style="color:rgba(100,80,150,.5);text-align:center;padding:16px;font-size:12px">ასპექტები არ მოიძებნა</td></tr>';return;}
-  const col=isB?'#a78bfa':null;
-  for(const asp of aspects){
-    const i1=PI[asp.p1]||{sym:'?',color:'#aaa'};
-    const i2=PI[asp.p2]||{sym:'?',color:'#aaa'};
-    const c1=col||i1.color,c2=col||i2.color;
-    const s1=asp.p1==='მზე'?sunSVG(15):`<span style="color:${c1};font-size:14px;font-family:serif">${i1.sym}</span>`;
-    const s2=asp.p2==='მზე'?sunSVG(15):`<span style="color:${c2};font-size:14px;font-family:serif">${i2.sym}</span>`;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s1} <span style="font-size:10px;color:${c1}">${asp.p1}</span></td><td><span class="asp-sym" style="color:${asp.color}">${asp.sym}</span></td><td>${s2} <span style="font-size:10px;color:${c2}">${asp.p2}</span></td><td style="color:${asp.color};font-size:10px;white-space:nowrap">${asp.type}</td><td style="color:rgba(140,100,200,.7);font-size:10px">${asp.orb}°</td>`;
-    tbody.appendChild(tr);
-  }
+// ── INJECT P2 RED CSS ──
+function injectP2RedStyle(){
+if(document.getElementById('p2-red-style'))return;
+// We override gate colors for P2 by targeting active-p2-N classes on the SVG root
+// The SVG's internal CSS uses active-p-N / active-d-N for normal colors
+// For P2, we just need a different visual signal — tint the channel lines red
+// Since we can't easily target internal SVG elements via external CSS for each gate,
+// we use a CSS filter approach on p2-activated gates via attribute selectors
+const style=document.createElement('style');
+style.id='p2-red-style';
+let css='';
+// For each gate, when active-p2-N is on the SVG, color that gate's text red
+// The SVG channels use classes like .g{N} or we rely on the SVG internal CSS
+// We'll add a subtle red glow overlay via the SVG classList
+for(let g=1;g<=64;g++){
+// Target gate number labels in the SVG that have data-gate attribute or class
+css+=`.active-p2-${g} [data-gate="${g}"] text,`+
+`.active-p2-${g} .gate-label-${g},`+
+`.active-p2-${g} [class~="g${g}n"] { fill:#f87171!important; }\n`;
+}
+style.textContent=css;
+document.head.appendChild(style);
 }
 
-// Set today's date for transit by default
-setToday('tt');
-setToday('pd');
+// ── PLANET COL HELPERS ──
+function ordered(list){return PLANET_ORDER.map(p=>list.find(x=>x.planet===p)).filter(Boolean);}
+
+function fillPlanetCol(design,personality,dId,pId,isRed){
+const cls=isRed?'red2':'';
+const row=a=>`<div class="prow ${cls}">
+   <span class="g">${PLANET_GLYPH[a.planet]||''}</span>
+   <span class="nm">${PLANET_KA[a.planet]||a.planet}</span>
+   <span class="gl"><span class="gate">${a.gate}</span>.<span class="line">${a.line}</span></span>
+ </div>`;
+document.getElementById(dId).innerHTML=`<h3>${isRed?'დიზაინი II':'დიზაინი I'}</h3>`+ordered(design).map(row).join('');
+document.getElementById(pId).innerHTML=`<h3>${isRed?'პიროვნება II':'პიროვნება I'}</h3>`+ordered(personality).map(row).join('');
+}
+
+function fillPlanetColBox(design,personality,dId,pId){
+const row=a=>`<div class="prow red2">
+   <span class="g">${PLANET_GLYPH[a.planet]||''}</span>
+   <span class="nm">${PLANET_KA[a.planet]||a.planet}</span>
+   <span class="gl"><span class="gate">${a.gate}</span>.<span class="line">${a.line}</span></span>
+ </div>`;
+document.getElementById(dId).innerHTML=`<h3>დიზაინი II</h3>`+ordered(design).map(row).join('');
+document.getElementById(pId).innerHTML=`<h3>პიროვნება II</h3>`+ordered(personality).map(row).join('');
+}
+
+// Preload natal SVG
+loadSVG('bodygraph','natal').catch(e=>{
+document.getElementById('bodygraph').innerHTML=`<div class="loading" style="color:#e06060">ვერ ჩაიტვირთა: ${e.message}</div>`;
+});
 </script>
 </body>
 </html>
