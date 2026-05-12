@@ -615,18 +615,23 @@ const ASPECTS_DEF=[
 ];
 function calcCrossAspects(p1,p2){
   const aspects=[];
-  const names1=Object.keys(p1),names2=Object.keys(p2);
   const MAIN=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ქირონი','ჩრდ. კვანძი'];
-  for(const n1 of names1.filter(n=>MAIN.includes(n))){
-    for(const n2 of names2.filter(n=>MAIN.includes(n))){
-      const d1=p1[n1].degree,d2=p2[n2].degree;
-      const raw=((d2-d1)+360)%360;
+  const n1list=Object.keys(p1).filter(n=>MAIN.includes(n));
+  const n2list=Object.keys(p2).filter(n=>MAIN.includes(n));
+  for(const n1 of n1list){
+    for(const n2 of n2list){
+      const deg1=p1[n1].degree,deg2=p2[n2].degree;
+      // Check both directions to find the aspect
+      const raw=((deg2-deg1)+360)%360;
       let best=null,bestOrb=999;
       for(const asp of ASPECTS_DEF){
         for(const target of asp.angles){
-          const orb=Math.abs(raw-target);
-          const realOrb=orb>180?360-orb:orb;
-          if(realOrb<=asp.orb&&realOrb<bestOrb){bestOrb=realOrb;best=asp;}
+          // Check raw angle and its supplement
+          for(const r of [raw, (360-raw)%360]){
+            const orb=Math.abs(r-target);
+            const realOrb=orb>180?360-orb:orb;
+            if(realOrb<=asp.orb&&realOrb<bestOrb){bestOrb=realOrb;best=asp;}
+          }
         }
       }
       if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
@@ -854,7 +859,9 @@ function swapPersons(){
   _swapped=!_swapped;
   const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
   const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
-  _renderDouble(d1,d2,n1,n2,document.getElementById('mode-label').textContent,_crossAsp);
+  // Recalculate cross aspects with swapped order so all aspects show
+  const crossAsp=calcCrossAspects(d1.planets,d2.planets);
+  _renderDouble(d1,d2,n1,n2,document.getElementById('mode-label').textContent,crossAsp);
 }
 
 function _renderDouble(d1,d2,name1,name2,label,crossAsp){
@@ -927,7 +934,7 @@ function drawWheel(data1,data2){
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
   const R3d=data2?193:R3;
-  const R5d=data2?133:R5;
+  const R5d=data2?105:R5;
   const defs=el('defs',{},svg);
   // filters
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
@@ -967,8 +974,8 @@ function drawWheel(data1,data2){
   }
 
   // inner circle for second person (if synastry/transit)
-  const R_iz_out=data2?148:0;
-  const R_iz_in=data2?136:0;
+  const R_iz_out=data2?172:0;
+  const R_iz_in=data2?158:0;
   if(data2){
     // inner zodiac band fills (element tinted, darker)
     const EFILL2=['#120606','#060a06','#060a12','#060a12','#120606','#060a06','#060a12','#060810','#120606','#060a06','#060a12','#060810'];
