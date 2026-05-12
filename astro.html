@@ -845,7 +845,7 @@ function drawWheel(data1,data2){
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
   const R3d=data2?193:R3;
-  const R5d=data2?108:R5;
+  const R5d=data2?85:R5;
   const defs=el('defs',{},svg);
   // filters
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
@@ -885,8 +885,8 @@ function drawWheel(data1,data2){
   }
 
   // inner circle for second person (if synastry/transit)
-  const R_iz_out=data2?125:0;
-  const R_iz_in=data2?R5d:0;
+  const R_iz_out=data2?148:0;
+  const R_iz_in=data2?128:0;
   if(data2){
     // inner zodiac band fills (element tinted, darker)
     const EFILL2=['#120606','#060a06','#060a12','#060a12','#120606','#060a06','#060a12','#060810','#120606','#060a06','#060a12','#060810'];
@@ -915,6 +915,7 @@ function drawWheel(data1,data2){
     }
     // inner fill circle
     el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'rgba(4,3,14,1)'},svg);
+    el('circle',{cx:CX,cy:CY,r:R5d,fill:'rgba(4,3,14,1)'},svg);
   }else{
     el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
   }
@@ -970,7 +971,7 @@ function drawWheel(data1,data2){
   }
 
   // aspect lines (inner)
-  const aspR=data2?R5d-20:R4-2;
+  const aspR=data2?R5d-15:R4-2;
   if(data1.aspects){
     for(const asp of data1.aspects){
       if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
@@ -1035,7 +1036,7 @@ function drawWheel(data1,data2){
   drawPlanets(data1,R1+30,false,false);
 
   // draw person 2 inside inner ring
-  if(data2)drawPlanets(data2,R_iz_out+16,false,true);
+  if(data2)drawPlanets(data2,R_iz_out+18,false,true);
 
   // ASC/MC
   if(!data1._timeUnknown){
