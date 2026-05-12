@@ -845,7 +845,7 @@ function drawWheel(data1,data2){
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
   const R3d=data2?193:R3;
-  const R5d=data2?143:R5;
+  const R5d=data2?105:R5;
   const defs=el('defs',{},svg);
   // filters
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
@@ -885,8 +885,8 @@ function drawWheel(data1,data2){
   }
 
   // inner circle for second person (if synastry/transit)
-  const R_iz_out=data2?182:0;
-  const R_iz_in=data2?168:0;
+  const R_iz_out=data2?140:0;
+  const R_iz_in=data2?128:0;
   if(data2){
     // inner zodiac band fills (element tinted, darker)
     const EFILL2=['#120606','#060a06','#060a12','#060a12','#120606','#060a06','#060a12','#060810','#120606','#060a06','#060a12','#060810'];
