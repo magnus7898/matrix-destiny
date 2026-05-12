@@ -844,6 +844,8 @@ function drawWheel(data1,data2){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
+  const R3d=data2?175:R3;
+  const R5d=data2?138:R5;
   const defs=el('defs',{},svg);
   // filters
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
@@ -883,9 +885,6 @@ function drawWheel(data1,data2){
   }
 
   // inner circle for second person (if synastry/transit)
-  // In dual mode: narrow house band (R3=175), bigger inner circle (R5d=138), P2 planets outside it
-  const R3d=data2?175:R3; // narrower house band in dual mode
-  const R5d=data2?138:R5; // bigger inner circle in dual mode
   if(data2){
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'rgba(12,8,28,1)'},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(167,139,250,.35)','stroke-width':1.2},svg);
