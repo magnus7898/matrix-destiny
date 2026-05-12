@@ -394,7 +394,8 @@ tr:hover td{background:rgba(19,16,58,.6)}
       <div class="field"><label>წელი</label><input type="number" id="pd-year" value="2025"></div>
     </div>
     <button class="gen-btn" onclick="setToday('pd')" style="margin-top:4px;background:rgba(45,31,110,.6);font-size:11px;padding:8px;">📅 დღევანდელი თარიღი</button>
-    <button class="gen-btn" onclick="generate()" style="margin-top:6px">✦ პროგრესიის გენერაცია ✦</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="pr-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
+    <button class="gen-btn" onclick="generate()" style="margin-top:4px">✦ პროგრესიის გენერაცია ✦</button>
   </div>
 
   <!-- SOLAR -->
@@ -429,7 +430,8 @@ tr:hover td{background:rgba(19,16,58,.6)}
       </div>
     </div>
     <input type="hidden" id="sr-lat"><input type="hidden" id="sr-lon"><input type="hidden" id="sr-tz" value="UTC">
-    <button class="gen-btn" onclick="generate()" style="margin-top:8px">✦ სოლარის გენერაცია ✦</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="so-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
+    <button class="gen-btn" onclick="generate()" style="margin-top:4px">✦ სოლარის გენერაცია ✦</button>
   </div>
 
   <!-- RELOCATION -->
@@ -462,6 +464,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
     </div>
     <input type="hidden" id="rl-lat"><input type="hidden" id="rl-lon"><input type="hidden" id="rl-tz" value="UTC">
     <div class="tz-display" id="rl-tz-display" style="margin-bottom:8px">—</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="rl-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
     <button class="gen-btn" onclick="generate()">✦ რელოკაციის გენერაცია ✦</button>
   </div>
 
@@ -762,8 +765,14 @@ async function generate(){
       const target={year:+document.getElementById('pd-year').value,month:+document.getElementById('pd-month').value,day:+document.getElementById('pd-day').value};
       const prog=progressedDate({year:natal.year,month:natal.month,day:natal.day},target);
       const progData={...natal,...prog};
-      const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(progData)]);
-      showDoubleChart(d1,d2,'ნატალური','პროგრესია','პროგრესია',calcCrossAspects(d1.planets,d2.planets));
+      const compare=document.getElementById('pr-compare')?.checked;
+      if(compare){
+        const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(progData)]);
+        showDoubleChart(d1,d2,'ნატალური','პროგრესია','პროგრესია',calcCrossAspects(d1.planets,d2.planets));
+      }else{
+        const d=await fetchChart(progData);d._timeUnknown=false;
+        showSingleChart(d,'პროგრესია',false);
+      }
 
     }else if(mode==='solar'){
       const natal=getPersonData('so');
@@ -772,11 +781,15 @@ async function generate(){
       const srLat=+document.getElementById('sr-lat').value||natal.lat;
       const srLon=+document.getElementById('sr-lon').value||natal.lon;
       const srTz=document.getElementById('sr-tz').value||natal.tz_name;
-      // Approximate solar return: same month/day in target year, natal time
       const srData={year:srYear,month:natal.month,day:natal.day,hour:natal.hour,minute:natal.minute,second:natal.second,lat:srLat,lon:srLon,tz_name:srTz};
-      const d=await fetchChart(srData);
-      d._timeUnknown=false;
-      showSingleChart(d,`სოლარი ${srYear}`,false);
+      const compare=document.getElementById('so-compare')?.checked;
+      if(compare){
+        const[dN,dS]=await Promise.all([fetchChart(natal),fetchChart(srData)]);
+        showDoubleChart(dN,dS,'ნატალური',`სოლარი ${srYear}`,`სოლარი ${srYear}`,calcCrossAspects(dN.planets,dS.planets));
+      }else{
+        const d=await fetchChart(srData);d._timeUnknown=false;
+        showSingleChart(d,`სოლარი ${srYear}`,false);
+      }
 
     }else if(mode==='relocation'){
       const bLat=+document.getElementById('rl-birth-lat').value;
@@ -797,8 +810,14 @@ async function generate(){
         lat:bLat,lon:bLon,tz_name:bTz,time_unknown:false,
       };
       const relData={...natal,lat:newLat,lon:newLon,tz_name:newTz};
-      const[dNatal,dReloc]=await Promise.all([fetchChart(natal),fetchChart(relData)]);
-      showDoubleChart(dNatal,dReloc,'ნატალური','რელოკაცია','რელოკაცია',calcCrossAspects(dNatal.planets,dReloc.planets));
+      const compare=document.getElementById('rl-compare')?.checked;
+      if(compare){
+        const[dNatal,dReloc]=await Promise.all([fetchChart(natal),fetchChart(relData)]);
+        showDoubleChart(dNatal,dReloc,'ნატალური','რელოკაცია','რელოკაცია',calcCrossAspects(dNatal.planets,dReloc.planets));
+      }else{
+        const d=await fetchChart(relData);d._timeUnknown=false;
+        showSingleChart(d,'რელოკაცია',false);
+      }
     }
   }catch(e){alert('შეცდომა: '+e.message);}
   finally{
@@ -980,6 +999,8 @@ function drawWheel(data1,data2){
     el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'rgba(4,3,14,1)'},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'rgba(4,3,14,1)'},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
+    el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
+    el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.6)','stroke-width':1},svg);
   }else{
     el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
   }
@@ -1008,6 +1029,8 @@ function drawWheel(data1,data2){
     el('circle',{cx:CX,cy:CY,r:R_iz_out,fill:'none',stroke:'rgba(100,65,200,.65)','stroke-width':1},svg);
     el('circle',{cx:CX,cy:CY,r:R_iz_in,fill:'none',stroke:'rgba(167,139,250,.45)','stroke-width':1},svg);
     el('circle',{cx:CX,cy:CY,r:R5d,fill:'none',stroke:'rgba(120,80,200,.5)','stroke-width':1.2},svg);
+    el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
+    el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.6)','stroke-width':1},svg);
   }else{
     el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,0.7)','stroke-width':1},svg);
   }
@@ -1035,8 +1058,8 @@ function drawWheel(data1,data2){
     }
   }
 
-  // aspect lines — person 1 inside R4, person 2 inside R5d
-  const aspR=R4;
+  // aspect lines — person 1 inside R5d, person 2 inside R4
+  const aspR=data2?R5d:R4;
   if(data1.aspects){
     for(const asp of data1.aspects){
       if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
@@ -1047,7 +1070,7 @@ function drawWheel(data1,data2){
   }
   // person 2 aspects inside R5d circle
   if(data2&&data2.aspects){
-    const aspR2=R5d;
+    const aspR2=R4;
     for(const asp of data2.aspects){
       if(!data2.planets[asp.p1]||!data2.planets[asp.p2])continue;
       const a1=e2s(data2.planets[asp.p1].degree,asc),a2=e2s(data2.planets[asp.p2].degree,asc);
