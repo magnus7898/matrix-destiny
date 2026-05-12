@@ -779,16 +779,26 @@ async function generate(){
       showSingleChart(d,`სოლარი ${srYear}`,false);
 
     }else if(mode==='relocation'){
-      const natal=getPersonData('rl-birth');
+      const bLat=+document.getElementById('rl-birth-lat').value;
+      const bLon=+document.getElementById('rl-birth-lon').value;
+      const bTz=document.getElementById('rl-birth-tz').value||'UTC';
       const newLat=+document.getElementById('rl-lat').value;
       const newLon=+document.getElementById('rl-lon').value;
-      const newTz=document.getElementById('rl-tz').value;
-      if(!natal.lat||!natal.lon){alert('შეიყვანეთ დაბადების ქალაქი');return;}
+      const newTz=document.getElementById('rl-tz').value||bTz;
+      if(!bLat||!bLon){alert('შეიყვანეთ დაბადების ქალაქი');return;}
       if(!newLat||!newLon){alert('შეიყვანეთ ახალი ქალაქი');return;}
+      const natal={
+        year:+document.getElementById('rl-year').value,
+        month:+document.getElementById('rl-month').value,
+        day:+document.getElementById('rl-day').value,
+        hour:+document.getElementById('rl-hour').value,
+        minute:+document.getElementById('rl-minute').value,
+        second:+(document.getElementById('rl-second')?.value||0),
+        lat:bLat,lon:bLon,tz_name:bTz,time_unknown:false,
+      };
       const relData={...natal,lat:newLat,lon:newLon,tz_name:newTz};
-      const d=await fetchChart(relData);
-      d._timeUnknown=false;
-      showSingleChart(d,'რელოკაცია',false);
+      const[dNatal,dReloc]=await Promise.all([fetchChart(natal),fetchChart(relData)]);
+      showDoubleChart(dNatal,dReloc,'ნატალური','რელოკაცია','რელოკაცია',calcCrossAspects(dNatal.planets,dReloc.planets));
     }
   }catch(e){alert('შეცდომა: '+e.message);}
   finally{
@@ -802,6 +812,8 @@ function showSingleChart(data,label,dual){
   document.getElementById('mode-label').textContent=label;
   document.getElementById('legend-wrap').style.display='none';
   document.getElementById('planet-b-wrap').style.display='none';
+  const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
+  const sb=document.getElementById('swap-btn');if(sb)sb.remove();
   document.getElementById('chart-area').style.display='block';
   drawWheel(data,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
@@ -811,22 +823,71 @@ function showSingleChart(data,label,dual){
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+let _d1=null,_d2=null,_name1='',_name2='',_crossAsp=[];
+let _swapped=false;
+
 function showDoubleChart(d1,d2,name1,name2,label,crossAsp){
+  _d1=d1;_d2=d2;_name1=name1;_name2=name2;_crossAsp=crossAsp;_swapped=false;
+  _renderDouble(d1,d2,name1,name2,label,crossAsp);
+}
+
+function swapPersons(){
+  _swapped=!_swapped;
+  const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
+  const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
+  _renderDouble(d1,d2,n1,n2,document.getElementById('mode-label').textContent,_crossAsp);
+}
+
+function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   document.getElementById('mode-label').textContent=label;
   document.getElementById('legend-wrap').style.display='flex';
   document.getElementById('leg-a').textContent=name1;
   document.getElementById('leg-b').textContent=name2;
+  // swap button
+  let swapBtn=document.getElementById('swap-btn');
+  if(!swapBtn){
+    swapBtn=document.createElement('button');
+    swapBtn.id='swap-btn';
+    swapBtn.onclick=swapPersons;
+    swapBtn.style.cssText='font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;background:rgba(8,6,20,.7);border:1px solid rgba(100,65,200,.4);border-radius:16px;padding:6px 14px;cursor:pointer;margin-left:12px;';
+    document.getElementById('legend-wrap').appendChild(swapBtn);
+  }
+  swapBtn.textContent=_swapped?'↩ აღდგენა':'⇄ შებრუნება';
   document.getElementById('chart-area').style.display='block';
   drawWheel(d1,d2);
   drawPlanetTable(d1.planets,false,'planet-tbody');
   document.getElementById('planet-b-wrap').style.display='block';
   document.getElementById('planet-b-title').textContent=`🪐 ${name2} — პლანეტები`;
   drawPlanetTable(d2.planets,true,'planet-b-tbody');
-  // Show both tables side by side
   document.querySelector('.tables-wrap').style.display='grid';
   drawHouseTable(d1);
-  drawAspectTable(crossAsp);
+  // show both aspect tables
+  drawAspectTable(crossAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
+  // person 1 own aspects
+  showOwnAspects(d1,d2,name1,name2);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showOwnAspects(d1,d2,name1,name2){
+  let wrap=document.getElementById('own-aspects-wrap');
+  if(!wrap){
+    wrap=document.createElement('div');
+    wrap.id='own-aspects-wrap';
+    document.getElementById('chart-area').appendChild(wrap);
+  }
+  wrap.innerHTML=`
+    <div class="sec-title">${name1} — საკუთარი ასპექტები</div>
+    <div class="data-card" style="margin-bottom:8px;padding:0 0 8px">
+      <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
+      <tbody id="asp-p1-tbody"></tbody></table>
+    </div>
+    <div class="sec-title">${name2} — საკუთარი ასპექტები</div>
+    <div class="data-card" style="margin-bottom:8px;padding:0 0 8px">
+      <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
+      <tbody id="asp-p2-tbody"></tbody></table>
+    </div>`;
+  drawAspectTable(d1.aspects||[],'asp-p1-tbody');
+  drawAspectTable(d2.aspects||[],'asp-p2-tbody',null,null,true);
 }
 
 function displayLunarBadge(L){
@@ -845,7 +906,7 @@ function drawWheel(data1,data2){
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
   const R3d=data2?193:R3;
-  const R5d=data2?125:R5;
+  const R5d=data2?133:R5;
   const defs=el('defs',{},svg);
   // filters
   const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
@@ -885,8 +946,8 @@ function drawWheel(data1,data2){
   }
 
   // inner circle for second person (if synastry/transit)
-  const R_iz_out=data2?160:0;
-  const R_iz_in=data2?133:0;
+  const R_iz_out=data2?148:0;
+  const R_iz_in=data2?136:0;
   if(data2){
     // inner zodiac band fills (element tinted, darker)
     const EFILL2=['#120606','#060a06','#060a12','#060a12','#120606','#060a06','#060a12','#060810','#120606','#060a06','#060a12','#060810'];
@@ -984,7 +1045,7 @@ function drawWheel(data1,data2){
   }
   // person 2 aspects inside R5d circle
   if(data2&&data2.aspects){
-    const aspR2=R5d-10;
+    const aspR2=R5d-2;
     for(const asp of data2.aspects){
       if(!data2.planets[asp.p1]||!data2.planets[asp.p2])continue;
       const a1=e2s(data2.planets[asp.p1].degree,asc),a2=e2s(data2.planets[asp.p2].degree,asc);
@@ -1133,17 +1194,21 @@ function drawHouseTable(data){
   }
 }
 
-function drawAspectTable(aspects){
-  const tbody=document.getElementById('aspect-tbody');
+function drawAspectTable(aspects,tbodyId='aspect-tbody',titleId,titleText,isB){
+  if(titleId&&titleText){const t=document.getElementById(titleId);if(t)t.textContent=titleText;}
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody)return;
   tbody.innerHTML='';
   if(!aspects||!aspects.length){tbody.innerHTML='<tr><td colspan="5" style="color:rgba(100,80,150,.5);text-align:center;padding:16px;font-size:12px">ასპექტები არ მოიძებნა</td></tr>';return;}
+  const col=isB?'#a78bfa':null;
   for(const asp of aspects){
     const i1=PI[asp.p1]||{sym:'?',color:'#aaa'};
     const i2=PI[asp.p2]||{sym:'?',color:'#aaa'};
-    const s1=asp.p1==='მზე'?sunSVG(15):`<span style="color:${i1.color};font-size:14px;font-family:serif">${i1.sym}</span>`;
-    const s2=asp.p2==='მზე'?sunSVG(15):`<span style="color:${i2.color};font-size:14px;font-family:serif">${i2.sym}</span>`;
+    const c1=col||i1.color,c2=col||i2.color;
+    const s1=asp.p1==='მზე'?sunSVG(15):`<span style="color:${c1};font-size:14px;font-family:serif">${i1.sym}</span>`;
+    const s2=asp.p2==='მზე'?sunSVG(15):`<span style="color:${c2};font-size:14px;font-family:serif">${i2.sym}</span>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s1} <span style="font-size:10px;color:${i1.color}">${asp.p1}</span></td><td><span class="asp-sym" style="color:${asp.color}">${asp.sym}</span></td><td>${s2} <span style="font-size:10px;color:${i2.color}">${asp.p2}</span></td><td style="color:${asp.color};font-size:10px;white-space:nowrap">${asp.type}</td><td style="color:rgba(140,100,200,.7);font-size:10px">${asp.orb}°</td>`;
+    tr.innerHTML=`<td>${s1} <span style="font-size:10px;color:${c1}">${asp.p1}</span></td><td><span class="asp-sym" style="color:${asp.color}">${asp.sym}</span></td><td>${s2} <span style="font-size:10px;color:${c2}">${asp.p2}</span></td><td style="color:${asp.color};font-size:10px;white-space:nowrap">${asp.type}</td><td style="color:rgba(140,100,200,.7);font-size:10px">${asp.orb}°</td>`;
     tbody.appendChild(tr);
   }
 }
