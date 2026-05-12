@@ -497,7 +497,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <div id="planet-b-wrap" style="display:none">
     <div class="sec-title" id="planet-b-title">🪐 მეორე პირის პლანეტები</div>
     <div class="data-card">
-      <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>℞</th></tr></thead>
+      <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>სახ.</th><th>℞</th></tr></thead>
       <tbody id="planet-b-tbody"></tbody></table>
     </div>
   </div>
@@ -858,13 +858,15 @@ function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   drawPlanetTable(d1.planets,false,'planet-tbody');
   document.getElementById('planet-b-wrap').style.display='block';
   document.getElementById('planet-b-title').textContent=`🪐 ${name2} — პლანეტები`;
+  document.getElementById('planet-table-title').textContent=`🪐 ${name1} — პლანეტები`;
   drawPlanetTable(d2.planets,true,'planet-b-tbody');
   document.querySelector('.tables-wrap').style.display='grid';
   drawHouseTable(d1);
   // show both aspect tables
+  const isSyn=document.querySelector('.tab-btn.active')?.textContent?.includes('სინასტრია')||currentMode==='synastry';
   drawAspectTable(crossAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
-  // person 1 own aspects
-  showOwnAspects(d1,d2,name1,name2);
+  if(!isSyn){showOwnAspects(d1,d2,name1,name2);}
+  else{const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';}
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1034,23 +1036,23 @@ function drawWheel(data1,data2){
   }
 
   // aspect lines — person 1 inside R4, person 2 inside R5d
-  const aspR=R4-2;
+  const aspR=R4;
   if(data1.aspects){
     for(const asp of data1.aspects){
       if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
       const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
       const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
-      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.9,opacity:.5,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 4'},svg);
+      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
     }
   }
   // person 2 aspects inside R5d circle
   if(data2&&data2.aspects){
-    const aspR2=R5d-2;
+    const aspR2=R5d;
     for(const asp of data2.aspects){
       if(!data2.planets[asp.p1]||!data2.planets[asp.p2])continue;
       const a1=e2s(data2.planets[asp.p1].degree,asc),a2=e2s(data2.planets[asp.p2].degree,asc);
       const p1p=pxy(a1,aspR2),p2p=pxy(a2,aspR2);
-      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.5,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'3 3'},svg);
+      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.7,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'3 3'},svg);
     }
   }
 
@@ -1172,7 +1174,7 @@ function drawPlanetTable(planets,isB,tbodyId){
     const sc=si>=0?signClass(si):'';
     const symCell=name==='მზე'?sunSVG(18):name==='მთვარე'?'<span class="moon-sym" style="font-size:16px">☽</span>':`<span class="p-sym" style="color:${isB?'#a78bfa':info.color};font-size:16px;font-family:serif">${info.sym}</span>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${symCell}</td><td style="color:${isB?'#a78bfa':info.color};font-size:11px;white-space:nowrap">${name}</td><td class="deg-val">${fmtDeg(d.degree)}</td><td><span class="${sc}" style="font-size:13px;font-family:serif">${si>=0?ZSYM[si]:''}</span> <span style="font-size:10px;color:${sCol}">${d.sign}</span></td>${!isB?`<td><span class="house-badge">${d.house||'?'}</span></td>`:''}<td>${d.retrograde?'<span class="retro">℞</span>':''}</td>`;
+    tr.innerHTML=`<td>${symCell}</td><td style="color:${isB?'#a78bfa':info.color};font-size:11px;white-space:nowrap">${name}</td><td class="deg-val">${fmtDeg(d.degree)}</td><td><span class="${sc}" style="font-size:13px;font-family:serif">${si>=0?ZSYM[si]:''}</span> <span style="font-size:10px;color:${sCol}">${d.sign}</span></td><td><span class="house-badge" style="${isB?'border-color:rgba(167,139,250,.4);color:#a78bfa':''}">H${d.house||'?'}</span></td><td>${d.retrograde?'<span class="retro">℞</span>':''}</td>`;
     tbody.appendChild(tr);
   }
 }
