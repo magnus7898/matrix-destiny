@@ -606,29 +606,31 @@ function progressedDate(natal,target){
 
 // ── CROSS ASPECTS (synastry/transit) ──
 const ASPECTS_DEF=[
-  {name:'შეერთება',angles:[0],orb:8,sym:'☌',color:'#f9c646'},
-  {name:'ოპოზიცია',angles:[180],orb:8,sym:'☍',color:'#e89040'},
-  {name:'ტრინი',angles:[120,240],orb:7,sym:'△',color:'#a078f0'},
-  {name:'კვადრატი',angles:[90,270],orb:6,sym:'□',color:'#e84040'},
-  {name:'სექსტილი',angles:[60,300],orb:5,sym:'⚹',color:'#30c890'},
-  {name:'კვინკონსი',angles:[150,210],orb:3,sym:'⚻',color:'#9ba8b8'},
+  {name:'შეერთება',angles:[0],orb:10,sym:'☌',color:'#f9c646'},
+  {name:'ოპოზიცია',angles:[180],orb:10,sym:'☍',color:'#e89040'},
+  {name:'ტრინი',angles:[120,240],orb:9,sym:'△',color:'#a078f0'},
+  {name:'კვადრატი',angles:[90,270],orb:8,sym:'□',color:'#e84040'},
+  {name:'სექსტილი',angles:[60,300],orb:6,sym:'⚹',color:'#30c890'},
+  {name:'კვინკონსი',angles:[150,210],orb:4,sym:'⚻',color:'#9ba8b8'},
+  {name:'ნახევარ-კვად.',angles:[45,315],orb:3,sym:'∠',color:'#e07050'},
+  {name:'სესქვ-კვად.',angles:[135,225],orb:3,sym:'⊼',color:'#c07050'},
 ];
 function calcCrossAspects(p1,p2){
   const aspects=[];
-  const MAIN=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ქირონი','ლილიტი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი','თეთრი მთვარე','ბედის ვარსკვლავი','იუნო'];
-  const n1list=Object.keys(p1).filter(n=>MAIN.includes(n)&&p1[n]?.degree!=null);
-  const n2list=Object.keys(p2).filter(n=>MAIN.includes(n)&&p2[n]?.degree!=null);
+  // All planets that have degree data
+  const n1list=Object.keys(p1).filter(n=>p1[n]?.degree!=null);
+  const n2list=Object.keys(p2).filter(n=>p2[n]?.degree!=null);
   for(const n1 of n1list){
     for(const n2 of n2list){
       const deg1=p1[n1].degree,deg2=p2[n2].degree;
-      // Check both directions to find the aspect
       const raw=((deg2-deg1)+360)%360;
       let best=null,bestOrb=999;
       for(const asp of ASPECTS_DEF){
         for(const target of asp.angles){
-          const orb=Math.abs(raw-target);
-          const realOrb=orb>180?360-orb:orb;
-          if(realOrb<=asp.orb&&realOrb<bestOrb){bestOrb=realOrb;best=asp;}
+          // shortest arc between raw and target
+          let diff=Math.abs(raw-target);
+          if(diff>180)diff=360-diff;
+          if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
         }
       }
       if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
