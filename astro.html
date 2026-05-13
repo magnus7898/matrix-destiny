@@ -1104,7 +1104,7 @@ function drawWheel(data1,data2,dualAsp){
   const aspR=data2?R5d:R4;
   if(data2&&dualAsp&&_origD1&&_origD2){
     // Cross-aspects: p1 always from original person 1, p2 from original person 2
-    for(const asp of _crossAsp){
+    for(const asp of dualAsp){
       const deg1=_origD1.planets[asp.p1]?.degree;
       const deg2=_origD2.planets[asp.p2]?.degree;
       if(deg1==null||deg2==null)continue;
