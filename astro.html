@@ -838,7 +838,7 @@ function showSingleChart(data,label,dual){
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
   const sb=document.getElementById('swap-btn');if(sb)sb.remove();
   document.getElementById('chart-area').style.display='block';
-  drawWheel(data,null);
+  drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
   drawAspectTable(data.aspects||[]);
@@ -879,7 +879,7 @@ function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   }
   swapBtn.textContent=_swapped?'↩ აღდგენა':'⇄ შებრუნება';
   document.getElementById('chart-area').style.display='block';
-  drawWheel(d1,d2);
+  drawWheel(d1,d2,crossAsp);
   drawPlanetTable(d1.planets,false,'planet-tbody');
   document.getElementById('planet-b-wrap').style.display='block';
   document.getElementById('planet-b-title').textContent=`🪐 ${name2} — პლანეტები`;
@@ -926,7 +926,7 @@ function displayLunarBadge(L){
 }
 
 // ── WHEEL DRAW ──
-function drawWheel(data1,data2){
+function drawWheel(data1,data2,dualAsp){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
   const asc=data1._timeUnknown?0:data1.asc;
@@ -1058,15 +1058,17 @@ function drawWheel(data1,data2){
     }
   }
 
-  // aspect lines — person 1 inside R5d, person 2 inside R4
+  // aspect lines — use cross-aspects in dual mode, natal in single mode
   const aspR=data2?R5d:R4;
-  if(data1.aspects){
-    for(const asp of data1.aspects){
-      if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
-      const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
-      const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
-      el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
-    }
+  const aspectsToShow=dualAsp||data1.aspects||[];
+  // In dual mode, aspects are between both persons' planets
+  const allPlanets=data2?{...data1.planets,...data2.planets}:data1.planets;
+  for(const asp of aspectsToShow){
+    const pl1=allPlanets[asp.p1],pl2=allPlanets[asp.p2];
+    if(!pl1||!pl2)continue;
+    const a1=e2s(pl1.degree,asc),a2=e2s(pl2.degree,asc);
+    const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
+    el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
   }
 
 
