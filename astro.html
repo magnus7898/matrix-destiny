@@ -848,9 +848,11 @@ function showSingleChart(data,label,dual){
 
 let _d1=null,_d2=null,_name1='',_name2='',_crossAsp=[];
 let _swapped=false;
+let _origD1=null,_origD2=null; // always original order
 
 function showDoubleChart(d1,d2,name1,name2,label,crossAsp){
   _d1=d1;_d2=d2;_name1=name1;_name2=name2;_crossAsp=crossAsp;_swapped=false;
+  _origD1=d1;_origD2=d2;
   _renderDouble(d1,d2,name1,name2,label,crossAsp);
 }
 
@@ -1058,13 +1060,25 @@ function drawWheel(data1,data2,dualAsp){
     }
   }
 
-  // aspect lines — natal aspects of outer person (data1)
+  // aspect lines
   const aspR=data2?R5d:R4;
-  for(const asp of (data1.aspects||[])){
-    if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
-    const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
-    const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
-    el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
+  if(data2&&dualAsp&&_origD1&&_origD2){
+    // Cross-aspects: p1 always from original person 1, p2 from original person 2
+    for(const asp of _crossAsp){
+      const deg1=_origD1.planets[asp.p1]?.degree;
+      const deg2=_origD2.planets[asp.p2]?.degree;
+      if(deg1==null||deg2==null)continue;
+      const a1=e2s(deg1,asc),a2=e2s(deg2,asc);
+      const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
+      el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.45,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
+    }
+  }else{
+    for(const asp of (data1.aspects||[])){
+      if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
+      const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
+      const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
+      el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
+    }
   }
 
 
