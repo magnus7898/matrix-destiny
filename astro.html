@@ -667,13 +667,14 @@ function isAspectVisible(asp){
 }
 
 function applyAspFilter(){
-  if(!_crossAsp.length)return;
-  const filtered=_crossAsp.filter(isAspectVisible);
-  drawAspectTable(filtered,'aspect-tbody','aspect-table-title',
-    document.getElementById('aspect-table-title').textContent);
-  // Redraw wheel with filtered aspects
+  if(!_crossAsp||!_crossAsp.length)return;
   const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
-  if(d1&&d2)drawWheel(d1,d2,filtered);
+  const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
+  // Flip labels if swapped
+  const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
+  const filtered=displayAsp.filter(isAspectVisible);
+  drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
+  if(d1&&d2)drawWheel(d1,d2,_crossAsp.filter(isAspectVisible));
 }
 // ── MODE SWITCH ──
 function setMode(mode){
@@ -918,7 +919,6 @@ function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   }
   swapBtn.textContent=_swapped?'↩ აღდგენა':'⇄ შებრუნება';
   document.getElementById('chart-area').style.display='block';
-  drawWheel(d1,d2,crossAsp);
   drawPlanetTable(d1.planets,false,'planet-tbody');
   document.getElementById('planet-b-wrap').style.display='block';
   document.getElementById('planet-b-title').textContent=`🪐 ${name2} — პლანეტები`;
@@ -926,15 +926,11 @@ function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   drawPlanetTable(d2.planets,true,'planet-b-tbody');
   document.querySelector('.tables-wrap').style.display='grid';
   drawHouseTable(d1);
-  // show both aspect tables
-  drawAspectTable(crossAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
-  // Show aspect filters
+  // Show filters, apply, draw
   document.getElementById('asp-filters').style.display='flex';
-  // Apply current filter state to table and wheel
   const filteredAsp=crossAsp.filter(isAspectVisible);
-  drawAspectTable(filteredAsp,'aspect-tbody','aspect-table-title',
-    `⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
+  drawAspectTable(filteredAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
   drawWheel(d1,d2,filteredAsp);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
