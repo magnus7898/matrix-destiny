@@ -478,6 +478,12 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span id="leg-b">მეორე</span></div>
   </div>
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div id="asp-filters" style="display:none;padding:10px 16px;background:rgba(8,6,20,.6);border:1px solid rgba(45,31,110,.4);border-radius:10px;margin:8px 0;gap:20px;flex-wrap:wrap;align-items:center;">
+    <span style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,.5)">ასპექტ ფილტრი</span>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-minor" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> მინორი (კვინტ./ნახ-სექსტ./სესქვ.)</label>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-virtual" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> ვირტუალური (ლილ./სელ./ბედ./კვანძ./AC/MC)</label>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-asteroid" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> ასტეროიდები (ქირ./იუნო)</label>
+  </div>
   <div id="lunar-badge" style="display:none;text-align:center;margin:12px 16px;padding:10px 20px;background:rgba(8,6,22,.8);border:1px solid rgba(100,70,200,.4);border-radius:12px;">
     <span style="font-size:20px;margin-right:8px">🌙</span>
     <span id="lunar-day" style="font-family:'Cinzel',serif;font-size:13px;color:#c8d8f0;font-weight:600"></span>
@@ -614,6 +620,8 @@ const ASPECTS_DEF=[
   {name:'კვინკონსი',angles:[150,210],orb:4,sym:'⚻',color:'#9ba8b8'},
   {name:'ნახევარ-კვად.',angles:[45,315],orb:3,sym:'∠',color:'#e07050'},
   {name:'სესქვ-კვად.',angles:[135,225],orb:3,sym:'⊼',color:'#c07050'},
+  {name:'კვინტილი',angles:[72,144,216,288],orb:2,sym:'Q',color:'#60c8a0',minor:true},
+  {name:'ნახ-სექსტ.',angles:[30,330],orb:2,sym:'⊾',color:'#70a0c0',minor:true},
 ];
 function calcCrossAspects(p1,p2){
   const aspects=[];
@@ -639,6 +647,34 @@ function calcCrossAspects(p1,p2){
   return aspects.sort((a,b)=>a.orb-b.orb);
 }
 
+
+// Aspect filter categories
+const VIRTUAL_PLANETS=new Set(['ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი']);
+const ASTEROID_PLANETS=new Set(['ქირონი','იუნო']);
+const MINOR_ASPECTS=new Set(['კვინტილი','ნახ-სექსტ.','ნახევარ-კვად.','სესქვ-კვად.']);
+
+function isAspectVisible(asp){
+  const fMinor=document.getElementById('f-minor')?.checked;
+  const fVirtual=document.getElementById('f-virtual')?.checked;
+  const fAsteroid=document.getElementById('f-asteroid')?.checked;
+  // Minor aspects filter
+  if(MINOR_ASPECTS.has(asp.type)&&!fMinor)return false;
+  // Virtual planets filter
+  if((VIRTUAL_PLANETS.has(asp.p1)||VIRTUAL_PLANETS.has(asp.p2))&&!fVirtual)return false;
+  // Asteroid filter
+  if((ASTEROID_PLANETS.has(asp.p1)||ASTEROID_PLANETS.has(asp.p2))&&!fAsteroid)return false;
+  return true;
+}
+
+function applyAspFilter(){
+  if(!_crossAsp.length)return;
+  const filtered=_crossAsp.filter(isAspectVisible);
+  drawAspectTable(filtered,'aspect-tbody','aspect-table-title',
+    document.getElementById('aspect-table-title').textContent);
+  // Redraw wheel with filtered aspects
+  const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
+  if(d1&&d2)drawWheel(d1,d2,filtered);
+}
 // ── MODE SWITCH ──
 function setMode(mode){
   currentMode=mode;
@@ -833,6 +869,7 @@ async function generate(){
 
 function showSingleChart(data,label,dual){
   document.getElementById('mode-label').textContent=label;
+  document.getElementById('asp-filters').style.display='none';
   document.getElementById('legend-wrap').style.display='none';
   document.getElementById('planet-b-wrap').style.display='none';
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
@@ -892,6 +929,13 @@ function _renderDouble(d1,d2,name1,name2,label,crossAsp){
   // show both aspect tables
   drawAspectTable(crossAsp,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
+  // Show aspect filters
+  document.getElementById('asp-filters').style.display='flex';
+  // Apply current filter state to table and wheel
+  const filteredAsp=crossAsp.filter(isAspectVisible);
+  drawAspectTable(filteredAsp,'aspect-tbody','aspect-table-title',
+    `⚡ ჯვარედინი ასპექტები: ${name1} × ${name2}`);
+  drawWheel(d1,d2,filteredAsp);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
