@@ -858,8 +858,8 @@ function swapPersons(){
   _swapped=!_swapped;
   const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
   const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
-  // Recalculate cross aspects with swapped order so all aspects show
-  const crossAsp=calcCrossAspects(d1.planets,d2.planets);
+  // Flip p1/p2 labels in stored aspects (same aspects, just columns swap)
+  const crossAsp=_crossAsp.map(a=>_swapped?{...a,p1:a.p2,p2:a.p1}:a);
   _renderDouble(d1,d2,n1,n2,document.getElementById('mode-label').textContent,crossAsp);
 }
 
@@ -1058,15 +1058,11 @@ function drawWheel(data1,data2,dualAsp){
     }
   }
 
-  // aspect lines — use cross-aspects in dual mode, natal in single mode
+  // aspect lines — natal aspects of outer person (data1)
   const aspR=data2?R5d:R4;
-  const aspectsToShow=dualAsp||data1.aspects||[];
-  // In dual mode, aspects are between both persons' planets
-  const allPlanets=data2?{...data1.planets,...data2.planets}:data1.planets;
-  for(const asp of aspectsToShow){
-    const pl1=allPlanets[asp.p1],pl2=allPlanets[asp.p2];
-    if(!pl1||!pl2)continue;
-    const a1=e2s(pl1.degree,asc),a2=e2s(pl2.degree,asc);
+  for(const asp of (data1.aspects||[])){
+    if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
+    const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
     const p1p=pxy(a1,aspR),p2p=pxy(a2,aspR);
     el('line',{x1:p1p.x,y1:p1p.y,x2:p2p.x,y2:p2p.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
   }
