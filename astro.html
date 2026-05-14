@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
@@ -698,22 +698,17 @@ function isAspectVisible(asp){
 }
 
 function applyAspFilter(){
-  const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
-  if(d1&&d2){
+  if(!_d1)return;
+  if(_d2){
     // Dual mode
     const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
-    // Always use full planet set (AC/MC merged) for cross aspects
-    const p1merged={..._origD1.planets,...(_origD1._aspPlanets||{})};
-    const p2merged={..._origD2.planets,...(_origD2._aspPlanets||{})};
-    _crossAsp=calcCrossAspects(p1merged,p2merged);
     const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
     const filtered=displayAsp.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
-    drawWheel(d1,d2,null);
-  }else if(d1){
-    // Single mode - only update aspect table, no wheel redraw needed
-    if(!d1._allAspects)d1._allAspects=calcAllNatalAspects(d1);
-    const filtered=d1._allAspects.filter(isAspectVisible);
+    drawWheel(_swapped?_d2:_d1,_swapped?_d1:_d2,null);
+  }else{
+    // Single mode — just filter table
+    const filtered=(_d1._allAspects||[]).filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
@@ -817,14 +812,7 @@ async function fetchChart(data){
   const raw=await r.text();
   let d;try{d=JSON.parse(raw);}catch(e){throw new Error('Backend error: '+raw.slice(0,200));}
   if(d.error)throw new Error(d.error);
-  // Inject ASC and MC as virtual planets for aspect calculation only
-  // Use _asp prefix so they don't get drawn as planet symbols on wheel
-  if(d.asc!=null&&!d._timeUnknown){
-    const ascSi=Math.floor(d.asc/30)%12;
-    d._aspPlanets=d._aspPlanets||{};
-    d._aspPlanets['AC']={degree:d.asc,sign:SIGN_KA[ascSi],house:1,retrograde:false};
-    d._aspPlanets['MC']={degree:d.mc,sign:SIGN_KA[Math.floor(d.mc/30)%12],house:10,retrograde:false};
-  }
+  // AC/MC injected into planets later in showSingleChart or showDoubleChart
   return d;
 }
 
@@ -848,7 +836,9 @@ async function generate(){
       const[d1,d2]=await Promise.all([fetchChart(p1),fetchChart(p2)]);
       const name1=document.getElementById('s1-name').value||'პირველი';
       const name2=document.getElementById('s2-name').value||'მეორე';
-      showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
+      // Inject AC/MC into both charts' planets
+      [d1,d2].forEach(d=>{if(d.asc!=null){const acSi=Math.floor(d.asc/30)%12,mcSi=Math.floor(d.mc/30)%12;d.planets['AC']={degree:d.asc,sign:SIGN_KA[acSi],house:1,retrograde:false};d.planets['MC']={degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};}});
+      showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects(d1.planets,d2.planets));
 
     }else if(mode==='composite'){
       const p1=getPersonData('c1'),p2=getPersonData('c2');
@@ -938,25 +928,24 @@ async function generate(){
 }
 
 function showSingleChart(data,label,dual){
-  _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
-  // Ensure AC/MC are in _aspPlanets (may not have been set if time_unknown at fetchChart time)
+  // Inject AC/MC directly into planets dict
   if(!data._timeUnknown&&data.asc!=null){
-    data._aspPlanets=data._aspPlanets||{};
-    if(!data._aspPlanets['AC']){const si=Math.floor(data.asc/30)%12;data._aspPlanets['AC']={degree:data.asc,sign:SIGN_KA[si],house:1,retrograde:false};}
-    if(!data._aspPlanets['MC']){const si=Math.floor(data.mc/30)%12;data._aspPlanets['MC']={degree:data.mc,sign:SIGN_KA[si],house:10,retrograde:false};}
+    const acSi=Math.floor(data.asc/30)%12,mcSi=Math.floor(data.mc/30)%12;
+    data.planets['AC']={degree:data.asc,sign:SIGN_KA[acSi],house:1,retrograde:false};
+    data.planets['MC']={degree:data.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};
   }
+  // Compute ALL aspects (main+virtual+asteroid) on frontend
+  data._allAspects=calcAllNatalAspects(data);
+  _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
   document.getElementById('mode-label').textContent=label;
   document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
-  document.getElementById('planet-b-wrap').style.display='none';
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
   const sb=document.getElementById('swap-btn');if(sb)sb.remove();
   document.getElementById('chart-area').style.display='block';
-  document.getElementById('asp-filters').style.display='block';
   drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
-  data._allAspects=calcAllNatalAspects(data);
   drawAspectTable(data._allAspects.filter(isAspectVisible));
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
