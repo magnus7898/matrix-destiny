@@ -702,6 +702,10 @@ function applyAspFilter(){
   if(d1&&d2){
     // Dual mode
     const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
+    // Always use full planet set (AC/MC merged) for cross aspects
+    const p1merged={..._origD1.planets,...(_origD1._aspPlanets||{})};
+    const p2merged={..._origD2.planets,...(_origD2._aspPlanets||{})};
+    _crossAsp=calcCrossAspects(p1merged,p2merged);
     const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
     const filtered=displayAsp.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
@@ -716,7 +720,7 @@ function applyAspFilter(){
 // Calculate all natal aspects including virtual/asteroid (frontend)
 function calcAllNatalAspects(data){
   const allP={...data.planets,...(data._aspPlanets||{})};
-  const names=Object.keys(allP);
+  const names=Object.keys(allP).filter(n=>allP[n]?.degree!=null);
   const aspects=[];
   for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){
     const n1=names[i],n2=names[j];
@@ -935,6 +939,12 @@ async function generate(){
 
 function showSingleChart(data,label,dual){
   _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
+  // Ensure AC/MC are in _aspPlanets (may not have been set if time_unknown at fetchChart time)
+  if(!data._timeUnknown&&data.asc!=null){
+    data._aspPlanets=data._aspPlanets||{};
+    if(!data._aspPlanets['AC']){const si=Math.floor(data.asc/30)%12;data._aspPlanets['AC']={degree:data.asc,sign:SIGN_KA[si],house:1,retrograde:false};}
+    if(!data._aspPlanets['MC']){const si=Math.floor(data.mc/30)%12;data._aspPlanets['MC']={degree:data.mc,sign:SIGN_KA[si],house:10,retrograde:false};}
+  }
   document.getElementById('mode-label').textContent=label;
   document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
@@ -1039,7 +1049,7 @@ function displayLunarBadge(L){
 // Draw moon arc segment — annular sector inside R1, transparent white fill
 function drawMoonArc(svg,moonDeg,asc,arcStartOffset,arcLen){
   const Rout=R1;       // outer edge = main zodiac circle
-  const Rin=R1-22;     // inner edge = same depth as degree tick lines
+  const Rin=R1-11;     // inner edge = half width
   const startDeg=moonDeg+arcStartOffset;
   const endDeg=startDeg+arcLen;
   const a1=e2s(startDeg,asc),a2=e2s(endDeg,asc);
@@ -1049,8 +1059,8 @@ function drawMoonArc(svg,moonDeg,asc,arcStartOffset,arcLen){
   const ox2=CX+Math.cos(a2)*Rout,oy2=CY+Math.sin(a2)*Rout;
   const ix2=CX+Math.cos(a2)*Rin, iy2=CY+Math.sin(a2)*Rin;
   const ix1=CX+Math.cos(a1)*Rin, iy1=CY+Math.sin(a1)*Rin;
-  // Path: outer arc CW → inner arc CCW (reversed)
-  const d=`M${ox1},${oy1} A${Rout},${Rout} 0 ${large},1 ${ox2},${oy2} L${ix2},${iy2} A${Rin},${Rin} 0 ${large},0 ${ix1},${iy1} Z`;
+  // e2s reverses direction: outer CCW (sweep=0), inner CW (sweep=1) — same as house band
+  const d=`M${ox1},${oy1} A${Rout},${Rout} 0 ${large},0 ${ox2},${oy2} L${ix2},${iy2} A${Rin},${Rin} 0 ${large},1 ${ix1},${iy1} Z`;
   el('path',{d,fill:'rgba(255,255,255,0.22)',stroke:'rgba(255,255,255,0.5)','stroke-width':0.8},svg);
 }
 
