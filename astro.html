@@ -478,11 +478,25 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span id="leg-b">მეორე</span></div>
   </div>
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
-  <div id="asp-filters" style="display:none;padding:10px 16px;background:rgba(8,6,20,.6);border:1px solid rgba(45,31,110,.4);border-radius:10px;margin:8px 0;gap:20px;flex-wrap:wrap;align-items:center;">
-    <span style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,.5)">ასპექტ ფილტრი</span>
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-minor" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> მინორი (კვინტ./ნახ-სექსტ./სესქვ.)</label>
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-virtual" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> ვირტუალური (ლილ./სელ./ბედ./კვანძ./AC/MC)</label>
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:rgba(200,170,255,.8)"><input type="checkbox" id="f-asteroid" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:13px;height:13px"> ასტეროიდები (ქირ./იუნო)</label>
+  <div id="asp-filters" style="display:none;margin:10px 0;background:rgba(8,6,20,.7);border:1px solid rgba(45,31,110,.5);border-radius:12px;padding:12px 16px;">
+    <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,.5);margin-bottom:10px">ასპექტ ფილტრი</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="f-minor" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <span style="font-size:11px;color:rgba(200,170,255,.9)">მინორი</span>
+        <span style="font-size:10px;color:rgba(150,120,200,.5)">კვინტ · ბი-კვინტ · სესქვ · ნახ-სექსტ</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="f-virtual" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <span style="font-size:11px;color:rgba(200,170,255,.9)">ვირტუალური წერტილები</span>
+        <span style="font-size:10px;color:rgba(150,120,200,.5)">ლილ · სელ · ბედ · კვანძ · Vx · AC · MC</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="f-asteroid" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <span style="font-size:11px;color:rgba(200,170,255,.9)">ასტეროიდები</span>
+        <span style="font-size:10px;color:rgba(150,120,200,.5)">ქირონი · იუნო</span>
+      </label>
+    </div>
   </div>
   <div id="lunar-badge" style="display:none;text-align:center;margin:12px 16px;padding:10px 20px;background:rgba(8,6,22,.8);border:1px solid rgba(100,70,200,.4);border-radius:12px;">
     <span style="font-size:20px;margin-right:8px">🌙</span>
@@ -540,7 +554,7 @@ const PI={
   'ვერტექსი':{sym:'Vx',color:'#8090d0'},'თეთრი მთვარე':{sym:'⯝',color:'#d0e8f8'},
   'ბედის ვარსკვლავი':{sym:'⊕',color:'#f0c060'},'იუნო':{sym:'⚵',color:'#c890d0'},
 };
-const PORDER=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ქირონი','ლილიტი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი','თეთრი მთვარე','ბედის ვარსკვლავი','იუნო'];
+const PORDER=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ჩრდ. კვანძი','სამხ. კვანძი','ქირონი','იუნო','ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ვერტექსი'];
 
 // ── UTILS ──
 function fmtDeg(deg){
@@ -597,7 +611,22 @@ function calcComposite(d1,d2){
       if(dist<span){planets[n].house=i+1;break;}
     }
   }
-  return{planets,houses,asc,mc,aspects:[],_timeUnknown:false};
+  // Calculate aspects for composite chart
+  const compAspects=[];
+  const pnames=Object.keys(planets);
+  for(let i=0;i<pnames.length;i++)for(let j=i+1;j<pnames.length;j++){
+    const n1=pnames[i],n2=pnames[j];
+    const raw=((planets[n2].degree-planets[n1].degree)+360)%360;
+    let best=null,bestOrb=999;
+    for(const asp of ASPECTS_DEF){
+      for(const target of asp.angles){
+        let diff=Math.abs(raw-target);if(diff>180)diff=360-diff;
+        if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
+      }
+    }
+    if(best)compAspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
+  }
+  return{planets,houses,asc,mc,aspects:compAspects,_timeUnknown:false};
 }
 
 // ── PROGRESSION CALCULATION ──
@@ -618,9 +647,9 @@ const ASPECTS_DEF=[
   {name:'კვადრატი',angles:[90,270],orb:8,sym:'□',color:'#e84040'},
   {name:'სექსტილი',angles:[60,300],orb:6,sym:'⚹',color:'#30c890'},
   {name:'კვინკონსი',angles:[150,210],orb:4,sym:'⚻',color:'#9ba8b8'},
-  {name:'ნახევარ-კვად.',angles:[45,315],orb:3,sym:'∠',color:'#e07050'},
-  {name:'სესქვ-კვად.',angles:[135,225],orb:3,sym:'⊼',color:'#c07050'},
-  {name:'კვინტილი',angles:[72,144,216,288],orb:2,sym:'Q',color:'#60c8a0',minor:true},
+  {name:'კვინტილი',angles:[72,288],orb:2,sym:'Q',color:'#60c8a0',minor:true},
+  {name:'ბი-კვინტილი',angles:[144,216],orb:2,sym:'bQ',color:'#50b890',minor:true},
+  {name:'სესქვ-კვად.',angles:[135,225],orb:3,sym:'⊼',color:'#c07050',minor:true},
   {name:'ნახ-სექსტ.',angles:[30,330],orb:2,sym:'⊾',color:'#70a0c0',minor:true},
 ];
 function calcCrossAspects(p1,p2){
@@ -651,7 +680,7 @@ function calcCrossAspects(p1,p2){
 // Aspect filter categories
 const VIRTUAL_PLANETS=new Set(['ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი']);
 const ASTEROID_PLANETS=new Set(['ქირონი','იუნო']);
-const MINOR_ASPECTS=new Set(['კვინტილი','ნახ-სექსტ.','ნახევარ-კვად.','სესქვ-კვად.']);
+const MINOR_ASPECTS=new Set(['კვინტილი','ბი-კვინტილი','სესქვ-კვად.','ნახ-სექსტ.']);
 
 function isAspectVisible(asp){
   const fMinor=document.getElementById('f-minor')?.checked;
