@@ -701,14 +701,20 @@ function isAspectVisible(asp){
 }
 
 function applyAspFilter(){
-  if(!_crossAsp||!_crossAsp.length)return;
   const d1=_swapped?_d2:_d1,d2=_swapped?_d1:_d2;
-  const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
-  // Flip labels if swapped
-  const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
-  const filtered=displayAsp.filter(isAspectVisible);
-  drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
-  if(d1&&d2)drawWheel(d1,d2,null);
+  if(d1&&d2){
+    // Dual mode
+    const n1=_swapped?_name2:_name1,n2=_swapped?_name1:_name2;
+    const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
+    const filtered=displayAsp.filter(isAspectVisible);
+    drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
+    drawWheel(d1,d2,null);
+  }else if(d1){
+    // Single mode - redraw with filter
+    const filtered=(d1.aspects||[]).filter(isAspectVisible);
+    drawWheel(d1,null,null);
+    drawAspectTable(filtered);
+  }
 }
 // ── MODE SWITCH ──
 function setMode(mode){
@@ -918,10 +924,12 @@ function showSingleChart(data,label,dual){
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
   const sb=document.getElementById('swap-btn');if(sb)sb.remove();
   document.getElementById('chart-area').style.display='block';
+  document.getElementById('asp-filters').style.display='block';
+  const filteredSingle=(data.aspects||[]).filter(isAspectVisible);
   drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
-  drawAspectTable(data.aspects||[]);
+  drawAspectTable(filteredSingle);
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -1014,13 +1022,21 @@ let _aspLines=[]; // track drawn aspect lines for hover
 
 function highlightAspects(planetName,isInner){
   const svg=document.getElementById('wheel');
+  // When swapped: outer ring = orig P2 (stored as p2), inner = orig P1 (stored as p1)
+  // When not swapped: outer = orig P1 (p1), inner = orig P2 (p2)
   svg.querySelectorAll('.asp-line').forEach(line=>{
-    // For dual mode: outer planet in p1, inner planet in p2
-    const matchOuter=!isInner&&line.dataset.p1===planetName;
-    const matchInner=isInner&&line.dataset.p2===planetName;
-    // For single mode: either p1 or p2
-    const matchSingle=!line.dataset.dual&&(line.dataset.p1===planetName||line.dataset.p2===planetName);
-    const inv=matchOuter||matchInner||matchSingle;
+    let inv;
+    if(line.dataset.dual){
+      if(_swapped){
+        // outer is orig P2 (line.p2), inner is orig P1 (line.p1)
+        inv=(!isInner&&line.dataset.p2===planetName)||(isInner&&line.dataset.p1===planetName);
+      }else{
+        // outer is orig P1 (line.p1), inner is orig P2 (line.p2)
+        inv=(!isInner&&line.dataset.p1===planetName)||(isInner&&line.dataset.p2===planetName);
+      }
+    }else{
+      inv=line.dataset.p1===planetName||line.dataset.p2===planetName;
+    }
     line.style.opacity=inv?'0.95':'0.04';
     line.style.strokeWidth=inv?'2':'0.4';
   });
@@ -1248,7 +1264,7 @@ function drawWheel(data1,data2,dualAsp){
       const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:14,fill:'transparent','stroke-width':0},svg);
       hit.dataset.planet=name;
       hit.dataset.inner=isInner?'1':'0';
-      hit.style.cursor='crosshair';
+      hit.style.cursor='crosshair';hit.style.pointerEvents='all';
       hit.addEventListener('mouseenter',()=>highlightAspects(name,isInner));
       hit.addEventListener('mouseleave',()=>clearHighlight());
     }
@@ -1265,13 +1281,19 @@ function drawWheel(data1,data2,dualAsp){
     const angCol='#e8c06e';
     const ascA=e2s(asc,asc);
     el('line',{x1:CX+Math.cos(ascA)*R1,y1:CY+Math.sin(ascA)*R1,x2:CX+Math.cos(ascA)*(R1+28),y2:CY+Math.sin(ascA)*(R1+28),stroke:angCol,'stroke-width':2.5},svg);
-    txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),{fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const acTxt=txt(svg,'AC',CX+Math.cos(ascA)*(R1+42),CY+Math.sin(ascA)*(R1+42),{fill:angCol,'font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const acHit=el('circle',{cx:CX+Math.cos(ascA)*(R1+42),cy:CY+Math.sin(ascA)*(R1+42),r:18,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
+    acHit.style.cursor='crosshair';acHit.style.pointerEvents='all';
+    acHit.addEventListener('mouseenter',()=>highlightAspects('AC',false));acHit.addEventListener('mouseleave',()=>clearHighlight());
     const mcA=e2s(data1.mc,asc);
     const mcDist=R1+50,mcR=17;
     const mcCX=CX+Math.cos(mcA)*mcDist,mcCY=CY+Math.sin(mcA)*mcDist;
     el('line',{x1:CX+Math.cos(mcA)*R1,y1:CY+Math.sin(mcA)*R1,x2:CX+Math.cos(mcA)*(mcDist-mcR-2),y2:CY+Math.sin(mcA)*(mcDist-mcR-2),stroke:angCol,'stroke-width':2.5},svg);
     el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(10,8,20,.95)',stroke:angCol,'stroke-width':2},svg);
     txt(svg,'MC',mcCX,mcCY,{fill:angCol,'font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const mcHit=el('circle',{cx:mcCX,cy:mcCY,r:mcR,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
+    mcHit.style.cursor='crosshair';mcHit.style.pointerEvents='all';
+    mcHit.addEventListener('mouseenter',()=>highlightAspects('MC',false));mcHit.addEventListener('mouseleave',()=>clearHighlight());
   }
 
   // ASC/MC and houses for person 2 (inner circle) in dual mode
@@ -1298,10 +1320,16 @@ function drawWheel(data1,data2,dualAsp){
     const ascA2=e2s(asc2,asc);
     el('line',{x1:CX+Math.cos(ascA2)*R_iz_out,y1:CY+Math.sin(ascA2)*R_iz_out,x2:CX+Math.cos(ascA2)*(R_iz_out+10),y2:CY+Math.sin(ascA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
     txt(svg,'ac',CX+Math.cos(ascA2)*(R_iz_out+18),CY+Math.sin(ascA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const acHit2=el('circle',{cx:CX+Math.cos(ascA2)*(R_iz_out+18),cy:CY+Math.sin(ascA2)*(R_iz_out+18),r:14,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
+    acHit2.style.cursor='crosshair';acHit2.style.pointerEvents='all';
+    acHit2.addEventListener('mouseenter',()=>highlightAspects('AC',true));acHit2.addEventListener('mouseleave',()=>clearHighlight());
     // inner MC
     const mcA2=e2s(data2.mc,asc);
     el('line',{x1:CX+Math.cos(mcA2)*R_iz_out,y1:CY+Math.sin(mcA2)*R_iz_out,x2:CX+Math.cos(mcA2)*(R_iz_out+10),y2:CY+Math.sin(mcA2)*(R_iz_out+10),stroke:angCol2,'stroke-width':1.8},svg);
     txt(svg,'mc',CX+Math.cos(mcA2)*(R_iz_out+18),CY+Math.sin(mcA2)*(R_iz_out+18),{fill:angCol2,'font-size':8,'font-weight':'bold','font-family':'Cinzel,serif'});
+    const mcHit2=el('circle',{cx:CX+Math.cos(mcA2)*(R_iz_out+18),cy:CY+Math.sin(mcA2)*(R_iz_out+18),r:14,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
+    mcHit2.style.cursor='crosshair';mcHit2.style.pointerEvents='all';
+    mcHit2.addEventListener('mouseenter',()=>highlightAspects('MC',true));mcHit2.addEventListener('mouseleave',()=>clearHighlight());
   }
 }
 
@@ -1343,12 +1371,20 @@ function drawHouseTable(data){
   }
 }
 
+const ASP_ORDER=['შეერთება','ოპოზიცია','ტრინი','კვადრატი','სექსტილი','კვინკონსი','კვინტილი','ბი-კვინტილი','სესქვ-კვად.','ნახ-სექსტ.'];
 function drawAspectTable(aspects,tbodyId='aspect-tbody',titleId,titleText,isB){
   if(titleId&&titleText){const t=document.getElementById(titleId);if(t)t.textContent=titleText;}
   const tbody=document.getElementById(tbodyId);
   if(!tbody)return;
   tbody.innerHTML='';
   if(!aspects||!aspects.length){tbody.innerHTML='<tr><td colspan="5" style="color:rgba(100,80,150,.5);text-align:center;padding:16px;font-size:12px">ასპექტები არ მოიძებნა</td></tr>';return;}
+  // Sort: first by p1 planet (PORDER), then by aspect type (ASP_ORDER)
+  aspects=[...aspects].sort((a,b)=>{
+    const pi1=(PORDER.indexOf(a.p1)+99)%99,pi2=(PORDER.indexOf(b.p1)+99)%99;
+    if(pi1!==pi2)return pi1-pi2;
+    const ai1=ASP_ORDER.indexOf(a.type),ai2=ASP_ORDER.indexOf(b.type);
+    return ai1-ai2;
+  });
   const col=isB?'#a78bfa':null;
   for(const asp of aspects){
     const i1=PI[asp.p1]||{sym:'?',color:'#aaa'};
