@@ -674,7 +674,7 @@ function applyAspFilter(){
   const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
   const filtered=displayAsp.filter(isAspectVisible);
   drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
-  if(d1&&d2)drawWheel(d1,d2,_crossAsp.filter(isAspectVisible));
+  if(d1&&d2)drawWheel(d1,d2,null);
 }
 // ── MODE SWITCH ──
 function setMode(mode){
@@ -1102,9 +1102,9 @@ function drawWheel(data1,data2,dualAsp){
 
   // aspect lines
   const aspR=data2?R5d:R4;
-  if(data2&&dualAsp&&_origD1&&_origD2){
-    // Cross-aspects: p1 always from original person 1, p2 from original person 2
-    for(const asp of dualAsp){
+  if(data2&&_origD1&&_origD2&&_crossAsp){
+    // Always use original _crossAsp labels + current filter state for lines
+    for(const asp of _crossAsp.filter(isAspectVisible)){
       const deg1=_origD1.planets[asp.p1]?.degree;
       const deg2=_origD2.planets[asp.p2]?.degree;
       if(deg1==null||deg2==null)continue;
