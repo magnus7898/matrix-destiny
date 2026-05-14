@@ -708,7 +708,8 @@ function applyAspFilter(){
     drawWheel(d1,d2,null);
   }else if(d1){
     // Single mode - only update aspect table, no wheel redraw needed
-    const filtered=(d1._allAspects||d1.aspects||[]).filter(isAspectVisible);
+    if(!d1._allAspects)d1._allAspects=calcAllNatalAspects(d1);
+    const filtered=d1._allAspects.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
@@ -1035,17 +1036,22 @@ function displayLunarBadge(L){
 }
 
 
-// Draw moon position arc (time-unknown range or progression movement)
-function drawMoonArc(svg,moonDeg,asc,arcStartOffset,arcLen,R,color){
+// Draw moon arc segment — annular sector inside R1, transparent white fill
+function drawMoonArc(svg,moonDeg,asc,arcStartOffset,arcLen){
+  const Rout=R1;       // outer edge = main zodiac circle
+  const Rin=R1-22;     // inner edge = same depth as degree tick lines
   const startDeg=moonDeg+arcStartOffset;
   const endDeg=startDeg+arcLen;
   const a1=e2s(startDeg,asc),a2=e2s(endDeg,asc);
   const large=arcLen>180?1:0;
-  const x1=CX+Math.cos(a1)*R,y1=CY+Math.sin(a1)*R;
-  const x2=CX+Math.cos(a2)*R,y2=CY+Math.sin(a2)*R;
-  // Note: e2s reverses direction so sweep flag flips
-  el('path',{d:`M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2}`,fill:'none',stroke:color,'stroke-width':5,opacity:.35,'stroke-linecap':'round'},svg);
-  el('path',{d:`M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2}`,fill:'none',stroke:color,'stroke-width':2,opacity:.7,'stroke-linecap':'round'},svg);
+  // Four corners of the annular sector
+  const ox1=CX+Math.cos(a1)*Rout,oy1=CY+Math.sin(a1)*Rout;
+  const ox2=CX+Math.cos(a2)*Rout,oy2=CY+Math.sin(a2)*Rout;
+  const ix2=CX+Math.cos(a2)*Rin, iy2=CY+Math.sin(a2)*Rin;
+  const ix1=CX+Math.cos(a1)*Rin, iy1=CY+Math.sin(a1)*Rin;
+  // Path: outer arc CW → inner arc CCW (reversed)
+  const d=`M${ox1},${oy1} A${Rout},${Rout} 0 ${large},1 ${ox2},${oy2} L${ix2},${iy2} A${Rin},${Rin} 0 ${large},0 ${ix1},${iy1} Z`;
+  el('path',{d,fill:'rgba(255,255,255,0.22)',stroke:'rgba(255,255,255,0.5)','stroke-width':0.8},svg);
 }
 
 // ── WHEEL DRAW ──
@@ -1308,13 +1314,12 @@ function drawWheel(data1,data2,dualAsp){
   if(data1.planets['მთვარე']){
     const moonDeg=data1.planets['მთვარე'].degree;
     const MOON_DAILY=13.2; // avg degrees per day
-    const arcR=R1+18;
     if(data1._timeUnknown){
       // Arc centered on noon moon — range across full day
-      drawMoonArc(svg,moonDeg,asc,-MOON_DAILY/2,MOON_DAILY,arcR,'#6090d8');
+      drawMoonArc(svg,moonDeg,asc,-MOON_DAILY/2,MOON_DAILY);
     }else if(data1._isProgression){
       // Arc from progressed moon forward ~13° (1 year of movement)
-      drawMoonArc(svg,moonDeg,asc,0,MOON_DAILY,arcR,'#8080e0');
+      drawMoonArc(svg,moonDeg,asc,0,MOON_DAILY);
     }
   }
 
