@@ -551,10 +551,12 @@ const PI={
   'ნეპტუნი':{sym:'♆',color:'#6070d8'},'პლუტონი':{sym:'⯓',color:'#c050a0'},
   'ქირონი':{sym:'⚷',color:'#d08040'},'ლილიტი':{sym:'⚸',color:'#904060'},
   'ჩრდ. კვანძი':{sym:'☊',color:'#60c060'},'სამხ. კვანძი':{sym:'☋',color:'#c06060'},
-  'ვერტექსი':{sym:'Vx',color:'#8090d0'},'თეთრი მთვარე':{sym:'⯝',color:'#d0e8f8'},
+  'ვერტექსი':{sym:'Vx',color:'#8090d0'},
+  'AC':{sym:'AC',color:'#e8c06e'},
+  'MC':{sym:'MC',color:'#e8c06e'},'თეთრი მთვარე':{sym:'⯝',color:'#d0e8f8'},
   'ბედის ვარსკვლავი':{sym:'⊕',color:'#f0c060'},'იუნო':{sym:'⚵',color:'#c890d0'},
 };
-const PORDER=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ჩრდ. კვანძი','სამხ. კვანძი','ქირონი','იუნო','ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ვერტექსი'];
+const PORDER=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი','ჩრდ. კვანძი','სამხ. კვანძი','ქირონი','იუნო','ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ვერტექსი','AC','MC'];
 
 // ── UTILS ──
 function fmtDeg(deg){
@@ -678,7 +680,7 @@ function calcCrossAspects(p1,p2){
 
 
 // Aspect filter categories
-const VIRTUAL_PLANETS=new Set(['ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი']);
+const VIRTUAL_PLANETS=new Set(['ლილიტი','თეთრი მთვარე','ბედის ვარსკვლავი','ჩრდ. კვანძი','სამხ. კვანძი','ვერტექსი','AC','MC']);
 const ASTEROID_PLANETS=new Set(['ქირონი','იუნო']);
 const MINOR_ASPECTS=new Set(['კვინტილი','ბი-კვინტილი','სესქვ-კვად.','ნახ-სექსტ.']);
 
@@ -785,6 +787,15 @@ async function fetchChart(data){
   const raw=await r.text();
   let d;try{d=JSON.parse(raw);}catch(e){throw new Error('Backend error: '+raw.slice(0,200));}
   if(d.error)throw new Error(d.error);
+  // Inject ASC and MC into planets for aspect calculation
+  if(d.asc!=null&&!d.time_unknown){
+    const ascSi=Math.floor(d.asc/30)%12;
+    d.planets['AC']={degree:d.asc,sign:SIGN_KA[ascSi],house:1,retrograde:false};
+  }
+  if(d.mc!=null&&!d.time_unknown){
+    const mcSi=Math.floor(d.mc/30)%12;
+    d.planets['MC']={degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};
+  }
   return d;
 }
 
@@ -997,6 +1008,34 @@ function displayLunarBadge(L){
 }
 
 // ── WHEEL DRAW ──
+let _aspLines=[]; // track drawn aspect lines for hover
+
+function highlightAspects(planetName){
+  const svg=document.getElementById('wheel');
+  // Fade all lines then show only those involving this planet
+  svg.querySelectorAll('.asp-line').forEach(line=>{
+    const inv=line.dataset.p1===planetName||line.dataset.p2===planetName;
+    line.style.opacity=inv?'0.9':'0.05';
+    line.style.strokeWidth=inv?'1.8':'0.5';
+  });
+  // Highlight planet row in table
+  document.querySelectorAll('#aspect-tbody tr,#planet-tbody tr,#planet-b-tbody tr').forEach(tr=>{
+    const txt=tr.textContent;
+    tr.style.opacity=txt.includes(planetName)||!planetName?'1':'0.3';
+  });
+}
+
+function clearHighlight(){
+  const svg=document.getElementById('wheel');
+  svg.querySelectorAll('.asp-line').forEach(line=>{
+    line.style.opacity='0.45';
+    line.style.strokeWidth='0.8';
+  });
+  document.querySelectorAll('#aspect-tbody tr,#planet-tbody tr,#planet-b-tbody tr').forEach(tr=>{
+    tr.style.opacity='1';
+  });
+}
+
 function drawWheel(data1,data2,dualAsp){
   const svg=document.getElementById('wheel');
   svg.innerHTML='';
@@ -1139,14 +1178,16 @@ function drawWheel(data1,data2,dualAsp){
       if(deg1==null||deg2==null)continue;
       const a1=e2s(deg1,asc),a2=e2s(deg2,asc);
       const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
-      el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.45,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
+      const ln=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.45,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
+      ln.dataset.p1=asp.p1;ln.dataset.p2=asp.p2;
     }
   }else{
     for(const asp of (data1.aspects||[])){
       if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
       const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
       const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
-      el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3'},svg);
+      const ln2=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
+      ln2.dataset.p1=asp.p1;ln2.dataset.p2=asp.p2;
     }
   }
 
@@ -1199,6 +1240,13 @@ function drawWheel(data1,data2,dualAsp){
         txt(svg,info.sym,gxy.x,gxy.y,{fill:symColor,'font-size':fsz,'font-family':'serif'});
       }
       if(data.planets[name].retrograde)txt(svg,'℞',gxy.x+(isInner?8:10),gxy.y-(isInner?6:8),{fill:'#f87171','font-size':7,'font-family':'serif'});
+      // Hover hit area for aspect highlighting
+      const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:14,fill:'transparent','stroke-width':0},svg);
+      hit.dataset.planet=name;
+      hit.dataset.inner=isInner?'1':'0';
+      hit.style.cursor='default';
+      hit.addEventListener('mouseenter',()=>highlightAspects(name));
+      hit.addEventListener('mouseleave',()=>clearHighlight());
     }
   }
 
