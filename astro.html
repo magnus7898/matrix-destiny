@@ -708,10 +708,30 @@ function applyAspFilter(){
     drawWheel(d1,d2,null);
   }else if(d1){
     // Single mode - only update aspect table, no wheel redraw needed
-    const filtered=(d1.aspects||[]).filter(isAspectVisible);
+    const filtered=(d1._allAspects||d1.aspects||[]).filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
+// Calculate all natal aspects including virtual/asteroid (frontend)
+function calcAllNatalAspects(data){
+  const allP={...data.planets,...(data._aspPlanets||{})};
+  const names=Object.keys(allP);
+  const aspects=[];
+  for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){
+    const n1=names[i],n2=names[j];
+    const deg1=allP[n1]?.degree,deg2=allP[n2]?.degree;
+    if(deg1==null||deg2==null)continue;
+    const raw=((deg2-deg1)+360)%360;
+    let best=null,bestOrb=999;
+    for(const asp of ASPECTS_DEF)for(const target of asp.angles){
+      let diff=Math.abs(raw-target);if(diff>180)diff=360-diff;
+      if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
+    }
+    if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
+  }
+  return aspects;
+}
+
 // ── MODE SWITCH ──
 function setMode(mode){
   currentMode=mode;
@@ -855,7 +875,7 @@ async function generate(){
         const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(progData)]);
         showDoubleChart(d1,d2,'ნატალური','პროგრესია','პროგრესია',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
       }else{
-        const d=await fetchChart(progData);d._timeUnknown=false;
+        const d=await fetchChart(progData);d._timeUnknown=false;d._isProgression=true;
         showSingleChart(d,'პროგრესია',false);
       }
 
@@ -925,7 +945,8 @@ function showSingleChart(data,label,dual){
   drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
-  drawAspectTable((data.aspects||[]).filter(isAspectVisible));
+  data._allAspects=calcAllNatalAspects(data);
+  drawAspectTable(data._allAspects.filter(isAspectVisible));
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -1011,6 +1032,20 @@ function displayLunarBadge(L){
   document.getElementById('lunar-day').textContent=`მთვარის მე-${L.lunar_day} დღე`;
   document.getElementById('lunar-pct').textContent=`შემდეგი ${nextStr} · ${L.pct_elapsed}% გასული`;
   document.getElementById('lunar-badge').style.display='block';
+}
+
+
+// Draw moon position arc (time-unknown range or progression movement)
+function drawMoonArc(svg,moonDeg,asc,arcStartOffset,arcLen,R,color){
+  const startDeg=moonDeg+arcStartOffset;
+  const endDeg=startDeg+arcLen;
+  const a1=e2s(startDeg,asc),a2=e2s(endDeg,asc);
+  const large=arcLen>180?1:0;
+  const x1=CX+Math.cos(a1)*R,y1=CY+Math.sin(a1)*R;
+  const x2=CX+Math.cos(a2)*R,y2=CY+Math.sin(a2)*R;
+  // Note: e2s reverses direction so sweep flag flips
+  el('path',{d:`M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2}`,fill:'none',stroke:color,'stroke-width':5,opacity:.35,'stroke-linecap':'round'},svg);
+  el('path',{d:`M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2}`,fill:'none',stroke:color,'stroke-width':2,opacity:.7,'stroke-linecap':'round'},svg);
 }
 
 // ── WHEEL DRAW ──
@@ -1268,6 +1303,20 @@ function drawWheel(data1,data2,dualAsp){
 
   // draw person 1 outside zodiac
   drawPlanets(data1,R1+30,false,false);
+
+  // Moon arc: time-unknown range (~13° centered) or progression 1-year movement (~13° from start)
+  if(data1.planets['მთვარე']){
+    const moonDeg=data1.planets['მთვარე'].degree;
+    const MOON_DAILY=13.2; // avg degrees per day
+    const arcR=R1+18;
+    if(data1._timeUnknown){
+      // Arc centered on noon moon — range across full day
+      drawMoonArc(svg,moonDeg,asc,-MOON_DAILY/2,MOON_DAILY,arcR,'#6090d8');
+    }else if(data1._isProgression){
+      // Arc from progressed moon forward ~13° (1 year of movement)
+      drawMoonArc(svg,moonDeg,asc,0,MOON_DAILY,arcR,'#8080e0');
+    }
+  }
 
   // draw person 2 inside inner ring
   if(data2)drawPlanets(data2,R_iz_out+18,false,true);
