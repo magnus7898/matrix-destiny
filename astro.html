@@ -657,11 +657,14 @@ const ASPECTS_DEF=[
 function calcCrossAspects(p1,p2){
   const aspects=[];
   // All planets that have degree data
-  const n1list=Object.keys(p1).filter(n=>p1[n]?.degree!=null);
-  const n2list=Object.keys(p2).filter(n=>p2[n]?.degree!=null);
+  // Merge regular planets with ASC/MC virtual planets
+  const p1all={...p1,...(arguments[0]._aspPlanets||{})};
+  const p2all={...p2,...(arguments[1]._aspPlanets||{})};
+  const n1list=Object.keys(p1all).filter(n=>p1all[n]?.degree!=null);
+  const n2list=Object.keys(p2all).filter(n=>p2all[n]?.degree!=null);
   for(const n1 of n1list){
     for(const n2 of n2list){
-      const deg1=p1[n1].degree,deg2=p2[n2].degree;
+      const deg1=p1all[n1].degree,deg2=p2all[n2].degree;
       const raw=((deg2-deg1)+360)%360;
       let best=null,bestOrb=999;
       for(const asp of ASPECTS_DEF){
@@ -787,14 +790,13 @@ async function fetchChart(data){
   const raw=await r.text();
   let d;try{d=JSON.parse(raw);}catch(e){throw new Error('Backend error: '+raw.slice(0,200));}
   if(d.error)throw new Error(d.error);
-  // Inject ASC and MC into planets for aspect calculation
-  if(d.asc!=null&&!d.time_unknown){
+  // Inject ASC and MC as virtual planets for aspect calculation only
+  // Use _asp prefix so they don't get drawn as planet symbols on wheel
+  if(d.asc!=null&&!d._timeUnknown){
     const ascSi=Math.floor(d.asc/30)%12;
-    d.planets['AC']={degree:d.asc,sign:SIGN_KA[ascSi],house:1,retrograde:false};
-  }
-  if(d.mc!=null&&!d.time_unknown){
-    const mcSi=Math.floor(d.mc/30)%12;
-    d.planets['MC']={degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};
+    d._aspPlanets=d._aspPlanets||{};
+    d._aspPlanets['AC']={degree:d.asc,sign:SIGN_KA[ascSi],house:1,retrograde:false};
+    d._aspPlanets['MC']={degree:d.mc,sign:SIGN_KA[Math.floor(d.mc/30)%12],house:10,retrograde:false};
   }
   return d;
 }
@@ -1010,18 +1012,20 @@ function displayLunarBadge(L){
 // ── WHEEL DRAW ──
 let _aspLines=[]; // track drawn aspect lines for hover
 
-function highlightAspects(planetName){
+function highlightAspects(planetName,isInner){
   const svg=document.getElementById('wheel');
-  // Fade all lines then show only those involving this planet
   svg.querySelectorAll('.asp-line').forEach(line=>{
-    const inv=line.dataset.p1===planetName||line.dataset.p2===planetName;
-    line.style.opacity=inv?'0.9':'0.05';
-    line.style.strokeWidth=inv?'1.8':'0.5';
+    // For dual mode: outer planet in p1, inner planet in p2
+    const matchOuter=!isInner&&line.dataset.p1===planetName;
+    const matchInner=isInner&&line.dataset.p2===planetName;
+    // For single mode: either p1 or p2
+    const matchSingle=!line.dataset.dual&&(line.dataset.p1===planetName||line.dataset.p2===planetName);
+    const inv=matchOuter||matchInner||matchSingle;
+    line.style.opacity=inv?'0.95':'0.04';
+    line.style.strokeWidth=inv?'2':'0.4';
   });
-  // Highlight planet row in table
-  document.querySelectorAll('#aspect-tbody tr,#planet-tbody tr,#planet-b-tbody tr').forEach(tr=>{
-    const txt=tr.textContent;
-    tr.style.opacity=txt.includes(planetName)||!planetName?'1':'0.3';
+  document.querySelectorAll('#aspect-tbody tr').forEach(tr=>{
+    tr.style.opacity=tr.textContent.includes(planetName)?'1':'0.25';
   });
 }
 
@@ -1173,13 +1177,13 @@ function drawWheel(data1,data2,dualAsp){
   if(data2&&_origD1&&_origD2&&_crossAsp){
     // Always use original _crossAsp labels + current filter state for lines
     for(const asp of _crossAsp.filter(isAspectVisible)){
-      const deg1=_origD1.planets[asp.p1]?.degree;
-      const deg2=_origD2.planets[asp.p2]?.degree;
+      const deg1=(_origD1.planets[asp.p1]??_origD1._aspPlanets?.[asp.p1])?.degree??_origD1.planets[asp.p1]?.degree;
+      const deg2=(_origD2.planets[asp.p2]??_origD2._aspPlanets?.[asp.p2])?.degree??_origD2.planets[asp.p2]?.degree;
       if(deg1==null||deg2==null)continue;
       const a1=e2s(deg1,asc),a2=e2s(deg2,asc);
       const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
       const ln=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.45,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
-      ln.dataset.p1=asp.p1;ln.dataset.p2=asp.p2;
+      ln.dataset.p1=asp.p1;ln.dataset.p2=asp.p2;ln.dataset.dual='1';
     }
   }else{
     for(const asp of (data1.aspects||[])){
@@ -1244,8 +1248,8 @@ function drawWheel(data1,data2,dualAsp){
       const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:14,fill:'transparent','stroke-width':0},svg);
       hit.dataset.planet=name;
       hit.dataset.inner=isInner?'1':'0';
-      hit.style.cursor='default';
-      hit.addEventListener('mouseenter',()=>highlightAspects(name));
+      hit.style.cursor='crosshair';
+      hit.addEventListener('mouseenter',()=>highlightAspects(name,isInner));
       hit.addEventListener('mouseleave',()=>clearHighlight());
     }
   }
