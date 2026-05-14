@@ -707,10 +707,9 @@ function applyAspFilter(){
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
     drawWheel(d1,d2,null);
   }else if(d1){
-    // Single mode - redraw with filter
+    // Single mode - only update aspect table, no wheel redraw needed
     const filtered=(d1.aspects||[]).filter(isAspectVisible);
-    drawWheel(d1,null,null);
-    drawAspectTable(filtered);
+    drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
 // ── MODE SWITCH ──
@@ -914,19 +913,19 @@ async function generate(){
 }
 
 function showSingleChart(data,label,dual){
+  _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
   document.getElementById('mode-label').textContent=label;
-  document.getElementById('asp-filters').style.display='none';
+  document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
   document.getElementById('planet-b-wrap').style.display='none';
   const ow=document.getElementById('own-aspects-wrap');if(ow)ow.innerHTML='';
   const sb=document.getElementById('swap-btn');if(sb)sb.remove();
   document.getElementById('chart-area').style.display='block';
   document.getElementById('asp-filters').style.display='block';
-  const filteredSingle=(data.aspects||[]).filter(isAspectVisible);
   drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
-  drawAspectTable(filteredSingle);
+  drawAspectTable((data.aspects||[]).filter(isAspectVisible));
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
