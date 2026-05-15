@@ -482,17 +482,17 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,.5);margin-bottom:10px">ასპექტ ფილტრი</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-minor" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-minor" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">მინორი</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">კვინტ · ბი-კვინტ · სესქვ · ნახ-სექსტ</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-virtual" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-virtual" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">ვირტუალური წერტილები</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">ლილ · სელ · ბედ · კვანძ · Vx · AC · MC</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-asteroid" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-asteroid" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">ასტეროიდები</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">ქირონი · იუნო</span>
       </label>
@@ -707,32 +707,39 @@ function applyAspFilter(){
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
     drawWheel(_swapped?_d2:_d1,_swapped?_d1:_d2,null);
   }else{
-    // Single mode — recompute if needed, filter, update table
+    // Single mode — filter precomputed aspects
     if(!_d1._allAspects||!_d1._allAspects.length)_d1._allAspects=calcAllNatalAspects(_d1);
-    const allCount=_d1._allAspects.length;
     const filtered=_d1._allAspects.filter(isAspectVisible);
-    // Debug: show count in title
-    const titleEl=document.getElementById('aspect-table-title');
-    if(titleEl)titleEl.textContent=`⚡ ასპექტები (${filtered.length}/${allCount})`;
-    drawAspectTable(filtered,'aspect-tbody',null,null,false);
+    drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ასპექტები — სულ ${filtered.length}`,false);
   }
 }
-// Calculate all natal aspects including virtual/asteroid (frontend)
+// Build full natal aspect list: backend aspects + AC/MC aspects computed frontend
 function calcAllNatalAspects(data){
-  const allP={...data.planets,...(data._aspPlanets||{})};
-  const names=Object.keys(allP).filter(n=>allP[n]?.degree!=null);
+  const allP={...data.planets};
+  // Always inject AC/MC from chart data (not from _aspPlanets)
+  if(!data._timeUnknown&&data.asc!=null){
+    allP['AC']={degree:data.asc,sign:SIGN_KA[Math.floor(data.asc/30)%12],house:1,retrograde:false};
+  }
+  if(!data._timeUnknown&&data.mc!=null){
+    allP['MC']={degree:data.mc,sign:SIGN_KA[Math.floor(data.mc/30)%12],house:10,retrograde:false};
+  }
+  const names=Object.keys(allP).filter(n=>{const d=allP[n];return d&&d.degree!=null&&!isNaN(Number(d.degree));});
   const aspects=[];
-  for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){
-    const n1=names[i],n2=names[j];
-    const deg1=allP[n1]?.degree,deg2=allP[n2]?.degree;
-    if(deg1==null||deg2==null)continue;
-    const raw=((deg2-deg1)+360)%360;
-    let best=null,bestOrb=999;
-    for(const asp of ASPECTS_DEF)for(const target of asp.angles){
-      let diff=Math.abs(raw-target);if(diff>180)diff=360-diff;
-      if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
+  for(let i=0;i<names.length;i++){
+    for(let j=i+1;j<names.length;j++){
+      const n1=names[i],n2=names[j];
+      const deg1=Number(allP[n1].degree),deg2=Number(allP[n2].degree);
+      const raw=((deg2-deg1)+360)%360;
+      let best=null,bestOrb=999;
+      for(const asp of ASPECTS_DEF){
+        for(const target of asp.angles){
+          let diff=Math.abs(raw-target);
+          if(diff>180)diff=360-diff;
+          if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
+        }
+      }
+      if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
     }
-    if(best)aspects.push({p1:n1,p2:n2,type:best.name,sym:best.sym,color:best.color,orb:Math.round(bestOrb*100)/100,angle:best.angles[0]});
   }
   return aspects;
 }
@@ -933,12 +940,7 @@ async function generate(){
 }
 
 function showSingleChart(data,label,dual){
-  // Inject AC/MC into _aspPlanets (NOT data.planets to avoid duplicate wheel symbols)
-  if(!data._timeUnknown&&data.asc!=null){
-    const acSi=Math.floor(data.asc/30)%12,mcSi=Math.floor(data.mc/30)%12;
-    data._aspPlanets={'AC':{degree:data.asc,sign:SIGN_KA[acSi],house:1,retrograde:false},'MC':{degree:data.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false}};
-  }
-  // Compute ALL aspects (main+virtual+asteroid) on frontend
+  // Compute ALL aspects (main+virtual+asteroid) including AC/MC
   data._allAspects=calcAllNatalAspects(data);
   _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
   document.getElementById('mode-label').textContent=label;
@@ -951,9 +953,7 @@ function showSingleChart(data,label,dual){
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
   const initFiltered=data._allAspects.filter(isAspectVisible);
-  const titleEl2=document.getElementById('aspect-table-title');
-  if(titleEl2)titleEl2.textContent=`⚡ ასპექტები (${initFiltered.length}/${data._allAspects.length})`;
-  drawAspectTable(initFiltered);
+  drawAspectTable(initFiltered,'aspect-tbody','aspect-table-title',`⚡ ასპექტები — სულ ${initFiltered.length}`);
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -1457,6 +1457,15 @@ function drawAspectTable(aspects,tbodyId='aspect-tbody',titleId,titleText,isB){
 // Set today's date for transit by default
 setToday('tt');
 setToday('pd');
+
+// Attach filter listeners
+['f-minor','f-virtual','f-asteroid'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    el.addEventListener('change',applyAspFilter);
+    el.addEventListener('click',applyAspFilter);
+  }
+});
 </script>
 </body>
 </html>
