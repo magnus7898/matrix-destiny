@@ -705,12 +705,13 @@ function applyAspFilter(){
     const displayAsp=_swapped?_crossAsp.map(a=>({...a,p1:a.p2,p2:a.p1})):_crossAsp;
     const filtered=displayAsp.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
-    drawWheel(_swapped?_d2:_d1,_swapped?_d1:_d2,null);
+    drawWheel(_swapped?_d2:_d1,_swapped?_d1:_d2,filtered);
   }else{
-    // Single mode — filter precomputed aspects
+    // Single mode — filter and redraw both table and wheel
     if(!_d1._allAspects||!_d1._allAspects.length)_d1._allAspects=calcAllNatalAspects(_d1);
     const filtered=_d1._allAspects.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ასპექტები — სულ ${filtered.length}`,false);
+    drawWheel(_d1,null,filtered);
   }
 }
 // Build full natal aspect list: backend aspects + AC/MC aspects computed frontend
@@ -1231,27 +1232,31 @@ function drawWheel(data1,data2,dualAsp){
     }
   }
 
-  // aspect lines
+  // aspect lines — dualAsp overrides when provided (filtered); fallback to chart aspects
   const aspR=data2?R5d:R4;
-  if(data2&&_origD1&&_origD2&&_crossAsp){
-    // Always use original _crossAsp labels + current filter state for lines
-    for(const asp of _crossAsp.filter(isAspectVisible)){
-      const deg1=(_origD1.planets[asp.p1]??_origD1._aspPlanets?.[asp.p1])?.degree;
-      const deg2=(_origD2.planets[asp.p2]??_origD2._aspPlanets?.[asp.p2])?.degree;
-      if(deg1==null||deg2==null)continue;
-      const a1=e2s(deg1,asc),a2=e2s(deg2,asc);
-      const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
-      const ln=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.45,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
-      ln.dataset.p1=asp.p1;ln.dataset.p2=asp.p2;ln.dataset.dual='1';
+  const allPlanetsForLines=data2?{...(data1.planets||{}),...(data2.planets||{})}:(data1.planets||{});
+  const lineAspects=dualAsp!=null?dualAsp:(data2&&_origD1&&_origD2?_crossAsp.filter(isAspectVisible):data1._allAspects?data1._allAspects.filter(isAspectVisible):(data1.aspects||[]));
+  for(const asp of lineAspects){
+    let deg1,deg2;
+    if(data2&&_origD1&&_origD2){
+      deg1=(_origD1.planets[asp.p1]??_origD1._aspPlanets?.[asp.p1])?.degree;
+      deg2=(_origD2.planets[asp.p2]??_origD2._aspPlanets?.[asp.p2])?.degree;
+    }else{
+      const p=allPlanetsForLines;
+      deg1=p[asp.p1]?.degree;
+      deg2=p[asp.p2]?.degree;
+      // AC/MC fallback
+      if(deg1==null&&asp.p1==='AC')deg1=data1.asc;
+      if(deg1==null&&asp.p1==='MC')deg1=data1.mc;
+      if(deg2==null&&asp.p2==='AC')deg2=data1.asc;
+      if(deg2==null&&asp.p2==='MC')deg2=data1.mc;
     }
-  }else{
-    for(const asp of (data1.aspects||[])){
-      if(!data1.planets[asp.p1]||!data1.planets[asp.p2])continue;
-      const a1=e2s(data1.planets[asp.p1].degree,asc),a2=e2s(data1.planets[asp.p2].degree,asc);
-      const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
-      const ln2=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.4,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
-      ln2.dataset.p1=asp.p1;ln2.dataset.p2=asp.p2;
-    }
+    if(deg1==null||deg2==null)continue;
+    const a1=e2s(deg1,asc),a2=e2s(deg2,asc);
+    const pp1=pxy(a1,aspR),pp2=pxy(a2,aspR);
+    const ln=el('line',{x1:pp1.x,y1:pp1.y,x2:pp2.x,y2:pp2.y,stroke:asp.color,'stroke-width':0.8,opacity:.43,'stroke-dasharray':asp.angle===90||asp.angle===180?'':'4 3','class':'asp-line'},svg);
+    ln.dataset.p1=asp.p1;ln.dataset.p2=asp.p2;
+    if(data2)ln.dataset.dual='1';
   }
 
 
