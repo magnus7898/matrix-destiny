@@ -1079,19 +1079,34 @@ function initAcgMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© OpenStreetMap',maxZoom:18
   }).addTo(_acgMap);
+  // Click marker
+  let _acgMarker=null;
   _acgMap.on('click',async function(e){
     const lat=e.latlng.lat,lon=e.latlng.lng;
     if(!_acgBirthData)return;
-    document.getElementById('acg-reloc-title').textContent=`⏳ ${lat.toFixed(2)}°, ${lon.toFixed(2)}° — გამოთვლა...`;
-    document.getElementById('acg-wheel-section').style.display='block';
-    document.getElementById('acg-wheel-section').scrollIntoView({behavior:'smooth',block:'start'});
+    if(_acgMarker)_acgMap.removeLayer(_acgMarker);
+    _acgMarker=L.circleMarker([lat,lon],{radius:7,color:'#f9c646',fillColor:'#f9c646',fillOpacity:.8,weight:2}).addTo(_acgMap);
+    _acgMarker.bindPopup(`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°<br>⏳ გამოთვლა...`).openPopup();
     const relData={..._acgBirthData,lat,lon,tz_name:'UTC'};
-    const d=await fetchChart(relData);
-    d._timeUnknown=false;
-    document.getElementById('acg-reloc-title').textContent=`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
-    // Inject into main wheel and tables
-    document.getElementById('wheel-wrap').style.display='block';
-    showSingleChart(d,`🗺️ რელოკაცია ${lat.toFixed(1)}° ${lon.toFixed(1)}°`,false);
+    try{
+      const d=await fetchChart(relData);
+      d._timeUnknown=false;
+      _acgMarker.setPopupContent(`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+      // Show wheel BELOW map without hiding the map
+      document.getElementById('acg-wheel-section').style.display='block';
+      document.getElementById('acg-reloc-title').textContent=`📍 რელოკაცია: ${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
+      document.getElementById('wheel-wrap').style.display='block';
+      // Directly draw wheel and tables (without hiding acg-section)
+      d._allAspects=calcAllNatalAspects(d);
+      _d1=d;_d2=null;_crossAsp=[];_swapped=false;_origD1=d;_origD2=null;
+      if(d.asc!=null){const acSi=Math.floor(d.asc/30)%12,mcSi=Math.floor(d.mc/30)%12;d._aspPlanets={'AC':{degree:d.asc,sign:SIGN_KA[acSi],house:1,retrograde:false},'MC':{degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false}};}
+      d._allAspects=calcAllNatalAspects(d);
+      drawWheel(d,null,null);
+      drawPlanetTable(d.planets,false,'planet-tbody');
+      drawHouseTable(d);
+      drawAspectTable(d._allAspects.filter(isAspectVisible));
+      document.getElementById('acg-wheel-section').scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(err){_acgMarker.setPopupContent('❌ '+err.message);}
   });
 }
 
@@ -1135,11 +1150,25 @@ function drawAcgLines(chartData,birthLon){
       acPts.push([lat,acLon]);
       dcPts.push([lat,dcLon]);
     }
+    // Split at antimeridian to avoid crossing the map
+    function splitAtMeridian(pts){
+      const segs=[[pts[0]]];
+      for(let k=1;k<pts.length;k++){
+        const prev=pts[k-1][1],curr=pts[k][1];
+        if(Math.abs(curr-prev)>90){segs.push([]);}
+        segs[segs.length-1].push(pts[k]);
+      }
+      return segs.filter(s=>s.length>1);
+    }
     if(acPts.length>1){
-      const ac=L.polyline(acPts,{color:info.color,weight:2,opacity:.85}).addTo(_acgMap);
-      ac._acgLine=true;ac.bindTooltip(`${pName} AC`,{sticky:true});
-      const dc=L.polyline(dcPts,{color:info.color,weight:1.5,opacity:.7,dashArray:'6 2'}).addTo(_acgMap);
-      dc._acgLine=true;dc.bindTooltip(`${pName} DC`,{sticky:true});
+      splitAtMeridian(acPts).forEach(seg=>{
+        const ac=L.polyline(seg,{color:info.color,weight:2.5,opacity:.9}).addTo(_acgMap);
+        ac._acgLine=true;ac.bindTooltip(`${pName} AC ☉`,{sticky:true,permanent:false});
+      });
+      splitAtMeridian(dcPts).forEach(seg=>{
+        const dc=L.polyline(seg,{color:info.color,weight:1.8,opacity:.7,dashArray:'8 3'}).addTo(_acgMap);
+        dc._acgLine=true;dc.bindTooltip(`${pName} DC`,{sticky:true});
+      });
     }
     // Legend item
     const item=document.createElement('div');
