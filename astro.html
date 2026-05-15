@@ -193,6 +193,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <button class="tab-btn" onclick="setMode('progression')">პროგრესია</button>
   <button class="tab-btn" onclick="setMode('solar')">სოლარი</button>
   <button class="tab-btn" onclick="setMode('relocation')">რელოკაცია</button>
+  <button class="tab-btn" onclick="setMode('draconic')">დრაკონი</button>
 </div>
 
 <!-- FORM CARD -->
@@ -466,6 +467,39 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="tz-display" id="rl-tz-display" style="margin-bottom:8px">—</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px"><input type="checkbox" id="rl-compare" style="accent-color:#7c3aed;width:14px;height:14px"><label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px">ნატალურთან შედარება</label></div>
     <button class="gen-btn" onclick="generate()">✦ რელოკაციის გენერაცია ✦</button>
+  </div>
+
+
+  <!-- DRACONIC -->
+  <div id="form-draconic" class="form-section">
+    <div class="person-label">🐉 დრაკონული რუქა</div>
+    <div class="field wide" style="margin-bottom:10px">
+      <label>სახელი</label>
+      <input id="dr-name" placeholder="სახელი">
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>დღე</label><input type="number" id="dr-day" value="1" min="1" max="31"></div>
+      <div class="field"><label>თვე</label><input type="number" id="dr-month" value="1" min="1" max="12"></div>
+      <div class="field"><label>წელი</label><input type="number" id="dr-year" value="1990"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>საათი</label><input type="number" id="dr-hour" value="12" min="0" max="23"></div>
+      <div class="field"><label>წუთი</label><input type="number" id="dr-minute" value="0" min="0" max="59"></div>
+      <div class="field"><label>წამი</label><input type="number" id="dr-second" value="0" min="0" max="59"></div>
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <label>ქალაქი</label>
+      <input id="dr-city" placeholder="ქალაქი" oninput="searchCity('dr')">
+      <div class="city-hint" id="dr-city-hint"></div>
+    </div>
+    <div class="form-grid-2" style="margin-bottom:4px">
+      <div class="field"><label>განედი</label><input type="number" id="dr-lat" step="0.0001" readonly></div>
+      <div class="field"><label>გრძედი</label><input type="number" id="dr-lon" step="0.0001" readonly></div>
+    </div>
+    <input type="hidden" id="dr-tz" value="UTC">
+    <div class="tz-display" id="dr-tz-display">—</div>
+    <p style="font-size:10px;color:rgba(150,120,220,.6);margin:8px 0;font-style:italic">☊ ჩრდილოეთი კვანძი → ვერძი 0° · ყველა პლანეტი შესაბამისად გადაინაცვლებს</p>
+    <button class="gen-btn" onclick="generate()" style="margin-top:6px">✦ დრაკონული გენერაცია ✦</button>
   </div>
 
 </div><!-- /form-card -->
@@ -749,7 +783,7 @@ function calcAllNatalAspects(data){
 function setMode(mode){
   currentMode=mode;
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const modes=['natal','synastry','composite','transit','progression','solar','relocation'];
+    const modes=['natal','synastry','composite','transit','progression','solar','relocation','draconic'];
     b.classList.toggle('active',modes[i]===mode);
   });
   document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
@@ -829,6 +863,37 @@ async function fetchChart(data){
   return d;
 }
 
+
+// ── DRACONIC CHART ──
+function calcDraconicChart(data){
+  const nn=data.planets['ჩრდ. კვანძი']?.degree;
+  if(nn==null){alert('ჩრდილოეთი კვანძი ვერ მოიძებნა');return null;}
+  const shift=d=>((d-nn)+360)%360;
+  const draco={...data,planets:{},aspects:[],_dracoNN:nn};
+  // Shift all planets
+  for(const[name,p] of Object.entries(data.planets)){
+    const newDeg=shift(p.degree);
+    const si=Math.floor(newDeg/30)%12;
+    draco.planets[name]={...p,degree:newDeg,sign:SIGN_KA[si]};
+  }
+  // Shift ASC, MC, houses
+  if(data.asc!=null)draco.asc=shift(data.asc);
+  if(data.mc!=null)draco.mc=shift(data.mc);
+  if(data.houses)draco.houses=data.houses.map(h=>shift(h));
+  // Update house assignments for planets
+  for(const name of Object.keys(draco.planets)){
+    const deg=draco.planets[name].degree;
+    if(draco.houses){
+      for(let i=0;i<12;i++){
+        const s=draco.houses[i],e2=draco.houses[(i+1)%12];
+        const span=((e2-s)+360)%360;
+        const dist=((deg-s)+360)%360;
+        if(dist<span){draco.planets[name].house=i+1;break;}
+      }
+    }
+  }
+  return draco;
+}
 // ── MAIN GENERATE ──
 async function generate(){
   const btn=document.querySelector('.form-section.active .gen-btn:last-child');
@@ -930,6 +995,16 @@ async function generate(){
       }else{
         const d=await fetchChart(relData);d._timeUnknown=false;
         showSingleChart(d,'რელოკაცია',false);
+      }
+    }else if(mode==='draconic'){
+      const p=getPersonData('dr');
+      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
+      const d=await fetchChart(p);
+      d._timeUnknown=false;
+      const draco=calcDraconicChart(d);
+      if(draco){
+        const name=document.getElementById('dr-name').value||'დრაკონული';
+        showSingleChart(draco,`🐉 ${name} — დრაკონული`,false);
       }
     }
   }catch(e){alert('შეცდომა: '+e.message);}
