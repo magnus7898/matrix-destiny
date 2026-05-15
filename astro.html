@@ -643,12 +643,12 @@ function progressedDate(natal,target){
 
 // ── CROSS ASPECTS (synastry/transit) ──
 const ASPECTS_DEF=[
-  {name:'შეერთება',angles:[0],orb:10,sym:'☌',color:'#f9c646'},
-  {name:'ოპოზიცია',angles:[180],orb:10,sym:'☍',color:'#e89040'},
-  {name:'ტრინი',angles:[120,240],orb:9,sym:'△',color:'#a078f0'},
-  {name:'კვადრატი',angles:[90,270],orb:8,sym:'□',color:'#e84040'},
-  {name:'სექსტილი',angles:[60,300],orb:6,sym:'⚹',color:'#30c890'},
-  {name:'კვინკონსი',angles:[150,210],orb:4,sym:'⚻',color:'#9ba8b8'},
+  {name:'შეერთება',angles:[0],orb:12,sym:'☌',color:'#f9c646'},
+  {name:'ოპოზიცია',angles:[180],orb:12,sym:'☍',color:'#e89040'},
+  {name:'ტრინი',angles:[120,240],orb:10,sym:'△',color:'#a078f0'},
+  {name:'კვადრატი',angles:[90,270],orb:10,sym:'□',color:'#e84040'},
+  {name:'სექსტილი',angles:[60,300],orb:8,sym:'⚹',color:'#30c890'},
+  {name:'კვინკონსი',angles:[150,210],orb:6,sym:'⚻',color:'#9ba8b8'},
   {name:'კვინტილი',angles:[72,288],orb:2,sym:'Q',color:'#60c8a0',minor:true},
   {name:'ბი-კვინტილი',angles:[144,216],orb:2,sym:'bQ',color:'#50b890',minor:true},
   {name:'სესქვ-კვად.',angles:[135,225],orb:3,sym:'⊼',color:'#c07050',minor:true},
@@ -709,7 +709,11 @@ function applyAspFilter(){
   }else{
     // Single mode — recompute if needed, filter, update table
     if(!_d1._allAspects||!_d1._allAspects.length)_d1._allAspects=calcAllNatalAspects(_d1);
+    const allCount=_d1._allAspects.length;
     const filtered=_d1._allAspects.filter(isAspectVisible);
+    // Debug: show count in title
+    const titleEl=document.getElementById('aspect-table-title');
+    if(titleEl)titleEl.textContent=`⚡ ასპექტები (${filtered.length}/${allCount})`;
     drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
@@ -946,7 +950,10 @@ function showSingleChart(data,label,dual){
   drawWheel(data,null,null);
   drawPlanetTable(data.planets,false,'planet-tbody');
   drawHouseTable(data);
-  drawAspectTable(data._allAspects.filter(isAspectVisible));
+  const initFiltered=data._allAspects.filter(isAspectVisible);
+  const titleEl2=document.getElementById('aspect-table-title');
+  if(titleEl2)titleEl2.textContent=`⚡ ასპექტები (${initFiltered.length}/${data._allAspects.length})`;
+  drawAspectTable(initFiltered);
   if(data.lunar)displayLunarBadge(data.lunar);
   document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
