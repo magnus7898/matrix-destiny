@@ -954,23 +954,19 @@ function plutoPassedTarget(deg1,deg2,target){
 }
 
 async function findPastLifeDate(targetDeg, resultEl, birthYear){
-  resultEl.innerHTML='<span style="color:#a78bfa">🔍 ძებნა წარსულ ინკარნაციაში...</span>';
+  resultEl.innerHTML='<span style="color:#a78bfa">🔍 ისტორიული ძებნა...</span>';
   const si=Math.floor(targetDeg/30)%12;
   const deg=Math.floor(targetDeg%30),mn=Math.floor((targetDeg%1)*60);
   const targetLabel=`${ZSYM[si]} ${deg}°${String(mn).padStart(2,'0')}' ${SIGN_KA[si]}`;
-
-  // Search BEFORE birth year (past life must be before current life)
   const searchEnd=(birthYear||2000)-1;
 
-  // Step 1: Scan every 5 years from 1700 to searchEnd
   const years=[];
   for(let y=1700;y<=searchEnd;y+=5)years.push(y);
-  if(!years.length){resultEl.innerHTML='<span style="color:#f87171">⚠️ სამშობიარო წელი ძალიან ადრეა</span>';return;}
+  if(!years.length){resultEl.textContent='⚠️ სამშობიარო წელი ძალიან ადრეა';return null;}
 
-  resultEl.innerHTML=`<span style="color:#a78bfa">🔍 ისტორიული სკანირება 1700–${searchEnd}...</span>`;
+  resultEl.innerHTML='<span style="color:#a78bfa">🔍 სკანირება 1700–'+searchEnd+'...</span>';
   const degs=await Promise.all(years.map(y=>fetchPlutoAt(y)));
 
-  // Find the LAST bracket before searchEnd where Pluto was at targetDeg
   let bracket=null;
   for(let i=degs.length-2;i>=0;i--){
     const d1=degs[i],d2=degs[i+1];
@@ -980,17 +976,10 @@ async function findPastLifeDate(targetDeg, resultEl, birthYear){
     const toTarget=((targetDeg-d1)+360)%360;
     if(toTarget<=motion){bracket=[years[i],years[i+1]];break;}
   }
+  if(!bracket){resultEl.textContent='⚠️ 1700 წლამდე პერიოდში ვერ მოიძებნა';return null;}
 
-  if(!bracket){
-    // Pluto wasn't there in this range — go back one full orbit (~248 yrs)
-    resultEl.innerHTML=`<span style="color:#a78bfa">🔍 სრული ორბიტა უკან...</span>`;
-    const prevOccurrence=searchEnd-248;
-    bracket=[prevOccurrence-5,prevOccurrence+5];
-  }
-
-  // Step 2: Narrow to year
-  resultEl.innerHTML=`<span style="color:#a78bfa">🔍 წლის დადგენა (${bracket[0]}–${bracket[1]})...</span>`;
-  const yr0=Math.max(1600,bracket[0]-2),yr1=Math.min(searchEnd,bracket[1]+2);
+  resultEl.innerHTML='<span style="color:#a78bfa">🔍 წლის დადგენა ('+bracket[0]+'–'+bracket[1]+')...</span>';
+  const yr0=Math.max(1600,bracket[0]-1),yr1=Math.min(searchEnd,bracket[1]+1);
   const yearRange=[];for(let y=yr0;y<=yr1;y++)yearRange.push(y);
   const yearDegs=await Promise.all(yearRange.map(y=>fetchPlutoAt(y)));
   let bestYear=yr0,bestOrb=999;
@@ -1000,8 +989,7 @@ async function findPastLifeDate(targetDeg, resultEl, birthYear){
     if(orb<bestOrb){bestOrb=orb;bestYear=yearRange[i];}
   }
 
-  // Step 3: Month
-  resultEl.innerHTML=`<span style="color:#a78bfa">🔍 თვის დადგენა (${bestYear})...</span>`;
+  resultEl.innerHTML='<span style="color:#a78bfa">🔍 თვის დადგენა ('+bestYear+')...</span>';
   const monthDegs=await Promise.all([1,2,3,4,5,6,7,8,9,10,11,12].map(m=>fetchPlutoAt(bestYear,m)));
   let bestMonth=6,bestMOrb=999;
   const MONTHS=['იანვ','თებ','მარ','აპრ','მაის','ივნ','ივლ','აგვ','სექ','ოქტ','ნოემ','დეკ'];
@@ -1011,19 +999,13 @@ async function findPastLifeDate(targetDeg, resultEl, birthYear){
     if(orb<bestMOrb){bestMOrb=orb;bestMonth=m+1;}
   }
 
-  const century=Math.floor(Math.abs(bestYear)/100)+1;
-  const eraNote=bestYear<0?`ძვ.წ. ${Math.abs(bestYear)} წ.`:
-    bestYear<1800?`${bestYear} წ. (${century} საუკუნე)`:
-    `${bestYear} წ.`;
-
-  resultEl.innerHTML=`
-    <div style="margin-top:8px;padding:12px;background:rgba(80,20,120,.3);border-radius:10px;border-left:3px solid #c050a0">
-      <div style="font-size:10px;color:rgba(167,139,250,.6);margin-bottom:6px;letter-spacing:2px;font-family:Cinzel,serif">🔮 წარსული ინკარნაცია</div>
-      <div style="font-size:11px;color:#c8b8f0;margin-bottom:4px">პლუტო <strong style="color:#c050a0">${targetLabel}</strong>–ზე ბოლოს იყო:</div>
-      <div style="font-size:16px;color:#f9c646;font-family:Cinzel,serif;margin:6px 0"><strong>${MONTHS[bestMonth-1]}. ${Math.abs(bestYear)}</strong></div>
-      <div style="font-size:10px;color:rgba(150,130,200,.7)">${eraNote} · სიზუსტე: ±${Math.round(bestMOrb*10)/10}°</div>
-      <div style="font-size:10px;color:rgba(120,100,180,.6);margin-top:4px">დაბადებამდე: ~${(birthYear||2000)-bestYear} წელი</div>
-    </div>`;
+  resultEl.innerHTML=`<div style="padding:8px;background:rgba(80,20,120,.3);border-radius:8px;border-left:3px solid #c050a0;font-size:11px;color:#c8b8f0;line-height:1.8">
+    🔮 <strong>წარსული ინკარნაცია</strong><br>
+    პლუტო <span style="color:#c050a0">${targetLabel}</span>–ზე:<br>
+    <span style="font-size:14px;color:#f9c646;font-family:Cinzel,serif">${MONTHS[bestMonth-1]}. ${bestYear}</span>
+    <span style="font-size:10px;color:rgba(150,130,200,.6)"> · ±${Math.round(bestMOrb*10)/10}° · ${(birthYear||2000)-bestYear} წელი დაბადებამდე</span>
+  </div>`;
+  return {year:bestYear,month:bestMonth};
 }
 
 // ── MAIN GENERATE ──
@@ -1180,9 +1162,19 @@ async function generate(){
         <div id="${plRId}"></div>`;
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
       // 3. Search for past life date
-      await findPastLifeDate(dracoPl.degree, document.getElementById(plRId), p.year);
-      const name=document.getElementById('pl-name').value||'';
-      document.getElementById('mode-label').textContent=`🔮 ${name} — წარსული სიცოცხლე`;
+      const plResult=await findPastLifeDate(dracoPl.degree, document.getElementById(plRId), p.year);
+      if(plResult){
+        // Fetch and show the historical chart for the found date
+        const histData=await fetchChart({year:plResult.year,month:plResult.month,day:15,hour:12,minute:0,second:0,lat:p.lat,lon:p.lon,tz_name:p.tz_name});
+        histData._timeUnknown=false;
+        histData._pastLifeYear=plResult.year;
+        const name=document.getElementById('pl-name').value||'';
+        showSingleChart(histData,`🔮 ${name} — ინკარნაცია ${plResult.year}`,false);
+        // Re-inject the past life result below the wheel
+        let pw=document.getElementById('past-life-wrap');
+        if(!pw){pw=document.createElement('div');pw.id='past-life-wrap';pw.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(pw);}
+        pw.innerHTML=document.getElementById(plRId)?.outerHTML||'';
+      }
         }
   }catch(e){alert('შეცდომა: '+e.message);}
   finally{
