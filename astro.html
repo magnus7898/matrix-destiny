@@ -194,6 +194,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <button class="tab-btn" onclick="setMode('solar')">სოლარი</button>
   <button class="tab-btn" onclick="setMode('relocation')">რელოკაცია</button>
   <button class="tab-btn" onclick="setMode('draconic')">დრაკონი</button>
+  <button class="tab-btn" onclick="setMode('pastlife')">წარსული სიცოცხლე</button>
 </div>
 
 <!-- FORM CARD -->
@@ -502,6 +503,39 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <button class="gen-btn" onclick="generate()" style="margin-top:6px">✦ დრაკონული გენერაცია ✦</button>
   </div>
 
+
+  <!-- PAST LIFE -->
+  <div id="form-pastlife" class="form-section">
+    <div class="person-label">🔮 წარსული სიცოცხლის ინკარნაცია</div>
+    <div class="field wide" style="margin-bottom:10px">
+      <label>სახელი</label>
+      <input id="pl-name" placeholder="სახელი">
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>დღე</label><input type="number" id="pl-day" value="1" min="1" max="31"></div>
+      <div class="field"><label>თვე</label><input type="number" id="pl-month" value="1" min="1" max="12"></div>
+      <div class="field"><label>წელი</label><input type="number" id="pl-year" value="1990"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>საათი</label><input type="number" id="pl-hour" value="12" min="0" max="23"></div>
+      <div class="field"><label>წუთი</label><input type="number" id="pl-minute" value="0" min="0" max="59"></div>
+      <div class="field"><label>წამი</label><input type="number" id="pl-second" value="0" min="0" max="59"></div>
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <label>ქალაქი</label>
+      <input id="pl-city" placeholder="ქალაქი" oninput="searchCity('pl')">
+      <div class="city-hint" id="pl-city-hint"></div>
+    </div>
+    <div class="form-grid-2" style="margin-bottom:4px">
+      <div class="field"><label>განედი</label><input type="number" id="pl-lat" step="0.0001" readonly></div>
+      <div class="field"><label>გრძედი</label><input type="number" id="pl-lon" step="0.0001" readonly></div>
+    </div>
+    <input type="hidden" id="pl-tz" value="UTC">
+    <div class="tz-display" id="pl-tz-display">—</div>
+    <p style="font-size:10px;color:rgba(150,120,220,.6);margin:8px 0;font-style:italic">☊ დრაკონული პლუტო → ეპოქა, როცა რეალური პლუტო იყო იმ ადგილას დაბადებამდე</p>
+    <button class="gen-btn" onclick="generate()" style="margin-top:6px">🔮 ინკარნაციის ძებნა</button>
+  </div>
+
 </div><!-- /form-card -->
 
 <!-- CHART OUTPUT -->
@@ -783,7 +817,7 @@ function calcAllNatalAspects(data){
 function setMode(mode){
   currentMode=mode;
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const modes=['natal','synastry','composite','transit','progression','solar','relocation','draconic'];
+    const modes=['natal','synastry','composite','transit','progression','solar','relocation','draconic','pastlife'];
     b.classList.toggle('active',modes[i]===mode);
   });
   document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
@@ -1118,7 +1152,38 @@ async function generate(){
           document.getElementById('pl-btn').onclick=()=>findPastLifeDate(dracoPl.degree,document.getElementById(plRId),p.year||d.year);
         }
       }
-    }
+    }else if(mode==='pastlife'){
+      const p=getPersonData('pl');
+      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
+      // 1. Fetch natal chart and compute draconic
+      const d=await fetchChart(p);
+      d._timeUnknown=false;
+      const draco=calcDraconicChart(d);
+      if(!draco)return;
+      const dracoPl=draco.planets['პლუტონი'];
+      if(!dracoPl){alert('პლუტო ვერ მოიძებნა');return;}
+      const si=Math.floor(dracoPl.degree/30)%12;
+      const deg=Math.floor(dracoPl.degree%30),mn=Math.floor((dracoPl.degree%1)*60);
+      // 2. Show searching state
+      document.getElementById('chart-area').style.display='block';
+      document.getElementById('asp-filters').style.display='none';
+      document.getElementById('mode-label').textContent='🔮 ინკარნაციის ძებნა...';
+      document.getElementById('legend-wrap').style.display='none';
+      document.getElementById('planet-b-wrap').style.display='none';
+      const sb=document.getElementById('swap-btn');if(sb)sb.remove();
+      // Show draconic pluto info while searching
+      let plWrap=document.getElementById('past-life-wrap');
+      if(!plWrap){plWrap=document.createElement('div');plWrap.id='past-life-wrap';plWrap.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(plWrap);}
+      const plRId='pl-result-direct';
+      plWrap.innerHTML=`<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;color:rgba(167,139,250,.7);margin-bottom:8px">🔮 წარსული სიცოცხლე</div>
+        <div style="font-size:12px;color:#c8b8f0;margin-bottom:10px">დრაკონული პლუტო: <strong style="color:#c050a0">${ZSYM[si]} ${deg}°${String(mn).padStart(2,'0')}' ${SIGN_KA[si]}</strong></div>
+        <div id="${plRId}"></div>`;
+      document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+      // 3. Search for past life date
+      await findPastLifeDate(dracoPl.degree, document.getElementById(plRId), p.year);
+      const name=document.getElementById('pl-name').value||'';
+      document.getElementById('mode-label').textContent=`🔮 ${name} — წარსული სიცოცხლე`;
+        }
   }catch(e){alert('შეცდომა: '+e.message);}
   finally{
     if(btn){btn.disabled=false;btn.textContent=btn.textContent.replace('⏳ იტვირთება...','✦ გენერაცია ✦');}
