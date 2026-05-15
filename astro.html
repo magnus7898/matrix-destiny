@@ -1169,7 +1169,6 @@ async function generate(){
       const[d1,d2]=await Promise.all([fetchChart(p1),fetchChart(p2)]);
       const name1=document.getElementById('s1-name').value||'პირველი';
       const name2=document.getElementById('s2-name').value||'მეორე';
-      // Inject AC/MC into _aspPlanets for aspects (not planets to avoid duplicates)
       [d1,d2].forEach(d=>{if(d.asc!=null){const acSi=Math.floor(d.asc/30)%12,mcSi=Math.floor(d.mc/30)%12;d._aspPlanets={'AC':{degree:d.asc,sign:SIGN_KA[acSi],house:1,retrograde:false},'MC':{degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false}};}});
       showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
 
@@ -1183,12 +1182,7 @@ async function generate(){
     }else if(mode==='transit'){
       const natal=getPersonData('tr');
       if(!natal.lat||!natal.lon){alert('შეიყვანეთ ნატალური ქალაქი');return;}
-      const tData={
-        year:+document.getElementById('tt-year').value,month:+document.getElementById('tt-month').value,
-        day:+document.getElementById('tt-day').value,hour:+document.getElementById('tt-hour').value,
-        minute:+document.getElementById('tt-minute').value,second:+document.getElementById('tt-second').value,
-        lat:natal.lat,lon:natal.lon,tz_name:natal.tz_name,
-      };
+      const tData={year:+document.getElementById('tt-year').value,month:+document.getElementById('tt-month').value,day:+document.getElementById('tt-day').value,hour:+document.getElementById('tt-hour').value,minute:+document.getElementById('tt-minute').value,second:+document.getElementById('tt-second').value,lat:natal.lat,lon:natal.lon,tz_name:natal.tz_name};
       const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(tData)]);
       showDoubleChart(d1,d2,'ნატალური','ტრანზიტი','ტრანზიტი',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
 
@@ -1198,8 +1192,7 @@ async function generate(){
       const target={year:+document.getElementById('pd-year').value,month:+document.getElementById('pd-month').value,day:+document.getElementById('pd-day').value};
       const prog=progressedDate({year:natal.year,month:natal.month,day:natal.day},target);
       const progData={...natal,...prog};
-      const compare=document.getElementById('pr-compare')?.checked;
-      if(compare){
+      if(document.getElementById('pr-compare')?.checked){
         const[d1,d2]=await Promise.all([fetchChart(natal),fetchChart(progData)]);
         showDoubleChart(d1,d2,'ნატალური','პროგრესია','პროგრესია',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
       }else{
@@ -1215,8 +1208,7 @@ async function generate(){
       const srLon=+document.getElementById('sr-lon').value||natal.lon;
       const srTz=document.getElementById('sr-tz').value||natal.tz_name;
       const srData={year:srYear,month:natal.month,day:natal.day,hour:natal.hour,minute:natal.minute,second:natal.second,lat:srLat,lon:srLon,tz_name:srTz};
-      const compare=document.getElementById('so-compare')?.checked;
-      if(compare){
+      if(document.getElementById('so-compare')?.checked){
         const[dN,dS]=await Promise.all([fetchChart(natal),fetchChart(srData)]);
         showDoubleChart(dN,dS,'ნატალური',`სოლარი ${srYear}`,`სოლარი ${srYear}`,calcCrossAspects({...dN.planets,...(dN._aspPlanets||{})},{...dS.planets,...(dS._aspPlanets||{})}));
       }else{
@@ -1225,98 +1217,60 @@ async function generate(){
       }
 
     }else if(mode==='relocation'){
-      const bLat=+document.getElementById('rl-birth-lat').value;
-      const bLon=+document.getElementById('rl-birth-lon').value;
-      const bTz=document.getElementById('rl-birth-tz').value||'UTC';
-      const newLat=+document.getElementById('rl-lat').value;
-      const newLon=+document.getElementById('rl-lon').value;
-      const newTz=document.getElementById('rl-tz').value||bTz;
+      const bLat=+document.getElementById('rl-birth-lat').value,bLon=+document.getElementById('rl-birth-lon').value,bTz=document.getElementById('rl-birth-tz').value||'UTC';
+      const newLat=+document.getElementById('rl-lat').value,newLon=+document.getElementById('rl-lon').value,newTz=document.getElementById('rl-tz').value||bTz;
       if(!bLat||!bLon){alert('შეიყვანეთ დაბადების ქალაქი');return;}
       if(!newLat||!newLon){alert('შეიყვანეთ ახალი ქალაქი');return;}
-      const natal={
-        year:+document.getElementById('rl-year').value,
-        month:+document.getElementById('rl-month').value,
-        day:+document.getElementById('rl-day').value,
-        hour:+document.getElementById('rl-hour').value,
-        minute:+document.getElementById('rl-minute').value,
-        second:+(document.getElementById('rl-second')?.value||0),
-        lat:bLat,lon:bLon,tz_name:bTz,time_unknown:false,
-      };
+      const natal={year:+document.getElementById('rl-year').value,month:+document.getElementById('rl-month').value,day:+document.getElementById('rl-day').value,hour:+document.getElementById('rl-hour').value,minute:+document.getElementById('rl-minute').value,second:+(document.getElementById('rl-second')?.value||0),lat:bLat,lon:bLon,tz_name:bTz,time_unknown:false};
       const relData={...natal,lat:newLat,lon:newLon,tz_name:newTz};
-      const compare=document.getElementById('rl-compare')?.checked;
-      if(compare){
+      if(document.getElementById('rl-compare')?.checked){
         const[dNatal,dReloc]=await Promise.all([fetchChart(natal),fetchChart(relData)]);
         showDoubleChart(dNatal,dReloc,'ნატალური','რელოკაცია','რელოკაცია',calcCrossAspects({...dNatal.planets,...(dNatal._aspPlanets||{})},{...dReloc.planets,...(dReloc._aspPlanets||{})}));
       }else{
         const d=await fetchChart(relData);d._timeUnknown=false;
         showSingleChart(d,'რელოკაცია',false);
       }
+
     }else if(mode==='draconic'){
       const p=getPersonData('dr');
       if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
-      const d=await fetchChart(p);
-      d._timeUnknown=false;
+      const d=await fetchChart(p);d._timeUnknown=false;
       const draco=calcDraconicChart(d);
       if(draco){
         const name=document.getElementById('dr-name').value||'დრაკონული';
         showSingleChart(draco,`🐉 ${name} — დრაკონული`,false);
-        // Past life finder
-        const dracoPl3=draco.planets['პლუტონი'];
-        if(dracoPl3){
-          const si=Math.floor(dracoPl3.degree/30)%12;
-          const deg=Math.floor(dracoPl3.degree%30),min=Math.floor((dracoPl3.degree%1)*60);
+        const dracoPl=draco.planets['პლუტონი'];
+        if(dracoPl){
+          const si=Math.floor(dracoPl.degree/30)%12;
+          const deg=Math.floor(dracoPl.degree%30),mn=Math.floor((dracoPl.degree%1)*60);
           let plWrap=document.getElementById('past-life-wrap');
           if(!plWrap){plWrap=document.createElement('div');plWrap.id='past-life-wrap';plWrap.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(plWrap);}
           const plRId='pl-result-'+Date.now();
           plWrap.innerHTML=`<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;color:rgba(167,139,250,.7);margin-bottom:8px">🔮 წარსული სიცოცხლე</div>
-            <div style="font-size:12px;color:#c8b8f0;margin-bottom:10px">დრაკონული პლუტო: <strong style="color:#c050a0">${ZSYM[si]} ${deg}${String(min).padStart(2,'0')}' ${SIGN_KA[si]}</strong></div>
-            <button id="pl-btn" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;background:rgba(80,30,150,.5);border:1px solid rgba(120,50,200,.4);color:#c8b8f0;border-radius:8px;padding:6px 14px;cursor:pointer;">✦ წარსული სიცოცხლის ეპოქის დადგენა</button>
-            <div id="${plRId}" style="font-size:12px;color:#c8b8f0;line-height:1.8;margin-top:10px;"></div>`;
-          document.getElementById('pl-btn').onclick=()=>findPastLifeDate(dracoPl2.degree,document.getElementById(plRId),p.year||d.year);
+            <div style="font-size:12px;color:#c8b8f0;margin-bottom:10px">დრაკონული პლუტო: <strong style="color:#c050a0">${ZSYM[si]} ${deg}°${String(mn).padStart(2,'0')}' ${SIGN_KA[si]}</strong></div>
+            <button id="pl-btn" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;background:rgba(80,30,150,.5);border:1px solid rgba(120,50,200,.4);color:#c8b8f0;border-radius:8px;padding:6px 14px;cursor:pointer;">✦ წარსული სიცოცხლის ეპოქა</button>
+            <div id="${plRId}" style="margin-top:10px"></div>`;
+          document.getElementById('pl-btn').onclick=()=>findPastLifeDate(dracoPl.degree,document.getElementById(plRId),p.year);
         }
       }
+
     }else if(mode==='pastlife'){
       const p=getPersonData('pl');
       if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
-    }else if(mode==='astrocartography'){
-      const p=getPersonData('acg');
-      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
-      const dACG=await fetchChart(p);
-      dACG._timeUnknown=false;
-      _acgBirthData=p;_acgChartData=dACG;
-      // Setup chart-area
-      document.getElementById('chart-area').style.display='block';
-      document.getElementById('mode-label').textContent=`🗺️ ${document.getElementById('acg-name').value||''} — ასტროკარტოგრაფია`;
-      document.getElementById('legend-wrap').style.display='none';
-      document.getElementById('wheel-wrap').style.display='none';
-      document.getElementById('acg-section').style.display='block';
-      document.getElementById('acg-wheel-section').style.display='none';
-      const sbACG=document.getElementById('swap-btn');if(sbACG)sbACG.remove();
-      // Init map and draw
-      setTimeout(()=>{
-        initAcgMap();
-        _acgMap.invalidateSize();
-        drawAcgLines(dACG,p.lon);
-      },100);
-      document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
-    
-      // 1. Fetch natal chart and compute draconic
-      const dPL=await fetchChart(p);
-      dPL._timeUnknown=false;
-      const draco=calcDraconicChart(dPL);
+      const d=await fetchChart(p);d._timeUnknown=false;
+      const draco=calcDraconicChart(d);
       if(!draco)return;
-      const dracoPl2=draco.planets['პლუტონი'];
-      if(!dracoPl2){alert('პლუტო ვერ მოიძებნა');return;}
-      const si=Math.floor(dracoPl3.degree/30)%12;
-      const deg=Math.floor(dracoPl3.degree%30),mn=Math.floor((dracoPl3.degree%1)*60);
-      // 2. Show searching state
+      const dracoPl=draco.planets['პლუტონი'];
+      if(!dracoPl){alert('პლუტო ვერ მოიძებნა');return;}
+      const si=Math.floor(dracoPl.degree/30)%12;
+      const deg=Math.floor(dracoPl.degree%30),mn=Math.floor((dracoPl.degree%1)*60);
       document.getElementById('chart-area').style.display='block';
       document.getElementById('asp-filters').style.display='none';
       document.getElementById('mode-label').textContent='🔮 ინკარნაციის ძებნა...';
       document.getElementById('legend-wrap').style.display='none';
       document.getElementById('planet-b-wrap').style.display='none';
-      const sbPL=document.getElementById('swap-btn');if(sbPL)sbPL.remove();
-      // Show draconic pluto info while searching
+      document.getElementById('wheel-wrap').style.display='none';
+      document.getElementById('acg-section').style.display='none';
       let plWrap=document.getElementById('past-life-wrap');
       if(!plWrap){plWrap=document.createElement('div');plWrap.id='past-life-wrap';plWrap.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(plWrap);}
       const plRId='pl-result-direct';
@@ -1324,26 +1278,36 @@ async function generate(){
         <div style="font-size:12px;color:#c8b8f0;margin-bottom:10px">დრაკონული პლუტო: <strong style="color:#c050a0">${ZSYM[si]} ${deg}°${String(mn).padStart(2,'0')}' ${SIGN_KA[si]}</strong></div>
         <div id="${plRId}"></div>`;
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
-      // 3. Search for past life date
-      const plResult=await findPastLifeDate(dracoPl2.degree, document.getElementById(plRId), p.year);
+      const plResult=await findPastLifeDate(dracoPl.degree,document.getElementById(plRId),p.year);
       if(plResult){
-        // Fetch and show the historical chart for the found date
         const histData=await fetchChart({year:plResult.year,month:plResult.month,day:15,hour:12,minute:0,second:0,lat:p.lat,lon:p.lon,tz_name:p.tz_name});
         histData._timeUnknown=false;
-        histData._pastLifeYear=plResult.year;
         const name=document.getElementById('pl-name').value||'';
         showSingleChart(histData,`🔮 ${name} — ინკარნაცია ${plResult.year}`,false);
-        // Re-inject the past life result below the wheel
         let pw=document.getElementById('past-life-wrap');
         if(!pw){pw=document.createElement('div');pw.id='past-life-wrap';pw.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(pw);}
-        pw.innerHTML=document.getElementById(plRId)?.outerHTML||'';
+        pw.innerHTML=document.getElementById(plRId)?.innerHTML||'';
       }
-        }
-  }catch(e){alert('შეცდომა: '+e.message);}
+
+    }else if(mode==='astrocartography'){
+      const p=getPersonData('acg');
+      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
+      const dACG=await fetchChart(p);dACG._timeUnknown=false;
+      _acgBirthData=p;_acgChartData=dACG;
+      document.getElementById('chart-area').style.display='block';
+      document.getElementById('mode-label').textContent=`🗺️ ${document.getElementById('acg-name').value||''} — ასტროკარტოგრაფია`;
+      document.getElementById('legend-wrap').style.display='none';
+      document.getElementById('wheel-wrap').style.display='none';
+      document.getElementById('acg-section').style.display='block';
+      document.getElementById('acg-wheel-section').style.display='none';
+      document.getElementById('asp-filters').style.display='none';
+      const sbACG=document.getElementById('swap-btn');if(sbACG)sbACG.remove();
+      setTimeout(()=>{initAcgMap();_acgMap.invalidateSize();drawAcgLines(dACG,p.lon);},150);
+      document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }catch(e){alert('შეცდომა: '+e.message);console.error(e);}
   finally{
     if(btn){btn.disabled=false;btn.textContent=btn.textContent.replace('⏳ იტვირთება...','✦ გენერაცია ✦');}
-    const btns=document.querySelectorAll('.form-section.active .gen-btn');
-    btns.forEach(b=>{if(b.textContent.includes('გენერაცია')&&!b.textContent.includes('✦'))b.textContent='✦ გენერაცია ✦';});
   }
 }
 
