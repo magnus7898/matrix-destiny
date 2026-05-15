@@ -1261,10 +1261,10 @@ async function generate(){
         const name=document.getElementById('dr-name').value||'დრაკონული';
         showSingleChart(draco,`🐉 ${name} — დრაკონული`,false);
         // Past life finder
-        const dracoPl=draco.planets['პლუტონი'];
-        if(dracoPl){
-          const si=Math.floor(dracoPl.degree/30)%12;
-          const deg=Math.floor(dracoPl.degree%30),min=Math.floor((dracoPl.degree%1)*60);
+        const dracoPl3=draco.planets['პლუტონი'];
+        if(dracoPl3){
+          const si=Math.floor(dracoPl3.degree/30)%12;
+          const deg=Math.floor(dracoPl3.degree%30),min=Math.floor((dracoPl3.degree%1)*60);
           let plWrap=document.getElementById('past-life-wrap');
           if(!plWrap){plWrap=document.createElement('div');plWrap.id='past-life-wrap';plWrap.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(plWrap);}
           const plRId='pl-result-'+Date.now();
@@ -1272,7 +1272,7 @@ async function generate(){
             <div style="font-size:12px;color:#c8b8f0;margin-bottom:10px">დრაკონული პლუტო: <strong style="color:#c050a0">${ZSYM[si]} ${deg}${String(min).padStart(2,'0')}' ${SIGN_KA[si]}</strong></div>
             <button id="pl-btn" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;background:rgba(80,30,150,.5);border:1px solid rgba(120,50,200,.4);color:#c8b8f0;border-radius:8px;padding:6px 14px;cursor:pointer;">✦ წარსული სიცოცხლის ეპოქის დადგენა</button>
             <div id="${plRId}" style="font-size:12px;color:#c8b8f0;line-height:1.8;margin-top:10px;"></div>`;
-          document.getElementById('pl-btn').onclick=()=>findPastLifeDate(dracoPl.degree,document.getElementById(plRId),p.year||d.year);
+          document.getElementById('pl-btn').onclick=()=>findPastLifeDate(dracoPl2.degree,document.getElementById(plRId),p.year||d.year);
         }
       }
     }else if(mode==='pastlife'){
@@ -1281,9 +1281,9 @@ async function generate(){
     }else if(mode==='astrocartography'){
       const p=getPersonData('acg');
       if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
-      const d=await fetchChart(p);
-      d._timeUnknown=false;
-      _acgBirthData=p;_acgChartData=d;
+      const dACG=await fetchChart(p);
+      dACG._timeUnknown=false;
+      _acgBirthData=p;_acgChartData=dACG;
       // Setup chart-area
       document.getElementById('chart-area').style.display='block';
       document.getElementById('mode-label').textContent=`🗺️ ${document.getElementById('acg-name').value||''} — ასტროკარტოგრაფია`;
@@ -1291,31 +1291,31 @@ async function generate(){
       document.getElementById('wheel-wrap').style.display='none';
       document.getElementById('acg-section').style.display='block';
       document.getElementById('acg-wheel-section').style.display='none';
-      const sb=document.getElementById('swap-btn');if(sb)sb.remove();
+      const sbACG=document.getElementById('swap-btn');if(sbACG)sbACG.remove();
       // Init map and draw
       setTimeout(()=>{
         initAcgMap();
         _acgMap.invalidateSize();
-        drawAcgLines(d,p.lon);
+        drawAcgLines(dACG,p.lon);
       },100);
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
     
       // 1. Fetch natal chart and compute draconic
-      const d=await fetchChart(p);
-      d._timeUnknown=false;
-      const draco=calcDraconicChart(d);
+      const dPL=await fetchChart(p);
+      dPL._timeUnknown=false;
+      const draco=calcDraconicChart(dPL);
       if(!draco)return;
-      const dracoPl=draco.planets['პლუტონი'];
-      if(!dracoPl){alert('პლუტო ვერ მოიძებნა');return;}
-      const si=Math.floor(dracoPl.degree/30)%12;
-      const deg=Math.floor(dracoPl.degree%30),mn=Math.floor((dracoPl.degree%1)*60);
+      const dracoPl2=draco.planets['პლუტონი'];
+      if(!dracoPl2){alert('პლუტო ვერ მოიძებნა');return;}
+      const si=Math.floor(dracoPl3.degree/30)%12;
+      const deg=Math.floor(dracoPl3.degree%30),mn=Math.floor((dracoPl3.degree%1)*60);
       // 2. Show searching state
       document.getElementById('chart-area').style.display='block';
       document.getElementById('asp-filters').style.display='none';
       document.getElementById('mode-label').textContent='🔮 ინკარნაციის ძებნა...';
       document.getElementById('legend-wrap').style.display='none';
       document.getElementById('planet-b-wrap').style.display='none';
-      const sb=document.getElementById('swap-btn');if(sb)sb.remove();
+      const sbPL=document.getElementById('swap-btn');if(sbPL)sbPL.remove();
       // Show draconic pluto info while searching
       let plWrap=document.getElementById('past-life-wrap');
       if(!plWrap){plWrap=document.createElement('div');plWrap.id='past-life-wrap';plWrap.style.cssText='margin:12px 0;padding:14px 18px;background:rgba(8,6,20,.8);border:1px solid rgba(100,30,180,.4);border-radius:12px;';document.getElementById('chart-area').appendChild(plWrap);}
@@ -1325,7 +1325,7 @@ async function generate(){
         <div id="${plRId}"></div>`;
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
       // 3. Search for past life date
-      const plResult=await findPastLifeDate(dracoPl.degree, document.getElementById(plRId), p.year);
+      const plResult=await findPastLifeDate(dracoPl2.degree, document.getElementById(plRId), p.year);
       if(plResult){
         // Fetch and show the historical chart for the found date
         const histData=await fetchChart({year:plResult.year,month:plResult.month,day:15,hour:12,minute:0,second:0,lat:p.lat,lon:p.lon,tz_name:p.tz_name});
