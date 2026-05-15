@@ -170,11 +170,14 @@ tr:hover td{background:rgba(19,16,58,.6)}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
+.acg-tip{background:rgba(8,6,20,.92)!important;border:1px solid rgba(100,65,200,.5)!important;color:#c8b8f0!important;font-family:"Noto Sans Georgian",sans-serif!important;font-size:11px!important;padding:4px 8px!important;border-radius:6px!important;}
+.acg-tip::before{display:none!important;}
 #acg-map{width:100%;height:520px;border-radius:12px;border:1px solid rgba(45,31,110,.5);margin-bottom:16px;background:#04030e;}
 .acg-legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px;padding:10px 14px;background:rgba(8,6,20,.7);border-radius:10px;border:1px solid rgba(45,31,110,.4);}
 .acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
 #acg-wheel-section{display:none;}
+.acg-tip{background:rgba(8,6,20,.9);color:#e0d8ff;border:1px solid rgba(100,65,200,.4);border-radius:6px;font-family:'Noto Sans Georgian',sans-serif;font-size:11px;}
 </style>
 </head>
 <body>
@@ -554,18 +557,18 @@ tr:hover td{background:rgba(19,16,58,.6)}
       <label>სახელი</label><input id="acg-name" placeholder="სახელი">
     </div>
     <div class="form-grid">
-      <div class="field"><label>დღე</label><input type="number" id="acg-day" value="1" min="1" max="31"></div>
-      <div class="field"><label>თვე</label><input type="number" id="acg-month" value="1" min="1" max="12"></div>
-      <div class="field"><label>წელი</label><input type="number" id="acg-year" value="1990"></div>
+      <div class="field"><label>დღე</label><input type="number" id="acg-day" oninput="scheduleAcgUpdate()" value="1" min="1" max="31"></div>
+      <div class="field"><label>თვე</label><input type="number" id="acg-month" oninput="scheduleAcgUpdate()" value="1" min="1" max="12"></div>
+      <div class="field"><label>წელი</label><input type="number" id="acg-year" oninput="scheduleAcgUpdate()" value="1990"></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>საათი</label><input type="number" id="acg-hour" value="12" min="0" max="23"></div>
-      <div class="field"><label>წუთი</label><input type="number" id="acg-minute" value="0" min="0" max="59"></div>
+      <div class="field"><label>საათი</label><input type="number" id="acg-hour" oninput="scheduleAcgUpdate()" value="12" min="0" max="23"></div>
+      <div class="field"><label>წუთი</label><input type="number" id="acg-minute" oninput="scheduleAcgUpdate()" value="0" min="0" max="59"></div>
       <div class="field"><label>წამი</label><input type="number" id="acg-second" value="0" min="0" max="59"></div>
     </div>
     <div class="field" style="margin-bottom:8px">
       <label>დაბადების ქალაქი</label>
-      <input id="acg-city" placeholder="ქალაქი" oninput="searchCity('acg')">
+      <input id="acg-city" placeholder="ქალაქი" oninput="searchCity('acg');scheduleAcgUpdate()">
       <div class="city-hint" id="acg-city-hint"></div>
     </div>
     <div class="form-grid-2" style="margin-bottom:4px">
@@ -1086,12 +1089,24 @@ function initAcgMap(){
     if(!_acgBirthData)return;
     if(_acgMarker)_acgMap.removeLayer(_acgMarker);
     _acgMarker=L.circleMarker([lat,lon],{radius:7,color:'#f9c646',fillColor:'#f9c646',fillOpacity:.8,weight:2}).addTo(_acgMap);
-    _acgMarker.bindPopup(`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°<br>⏳ გამოთვლა...`).openPopup();
+    _acgMarker.bindPopup(`<div style="font-family:sans-serif;font-size:12px">📍 <b>${lat.toFixed(2)}°, ${lon.toFixed(2)}°</b><br><span style="color:#888">⏳ გამოთვლა...</span></div>`).openPopup();
     const relData={..._acgBirthData,lat,lon,tz_name:'UTC'};
     try{
       const d=await fetchChart(relData);
       d._timeUnknown=false;
-      _acgMarker.setPopupContent(`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+      // Build angle summary
+      const angleInfo=[];
+      const MAIN_P=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ნეპტუნი','პლუტონი'];
+      MAIN_P.forEach(pn=>{
+        const p=d.planets[pn];if(!p)return;
+        const h=p.house;
+        if(h===1)angleInfo.push(`${PI[pn]?.sym||pn} AC (I)`);
+        else if(h===4)angleInfo.push(`${PI[pn]?.sym||pn} IC (IV)`);
+        else if(h===7)angleInfo.push(`${PI[pn]?.sym||pn} DC (VII)`);
+        else if(h===10)angleInfo.push(`${PI[pn]?.sym||pn} MC (X)`);
+      });
+      const angleStr=angleInfo.length?'<br>📐 '+angleInfo.join(' · '):'';
+      _acgMarker.setPopupContent(`<div style="font-family:sans-serif;font-size:12px">📍 <b>${lat.toFixed(2)}°, ${lon.toFixed(2)}°</b>${angleStr}</div>`);
       // Show wheel BELOW map without hiding the map
       document.getElementById('acg-wheel-section').style.display='block';
       document.getElementById('acg-reloc-title').textContent=`📍 რელოკაცია: ${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
@@ -1112,70 +1127,124 @@ function initAcgMap(){
 
 function drawAcgLines(chartData,birthLon){
   if(!_acgMap)return;
-  // Clear old lines
   _acgMap.eachLayer(l=>{if(l._acgLine)_acgMap.removeLayer(l);});
+
   const PLANETS=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
+  const PSYM={'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂','იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'};
   const legend=document.getElementById('acg-legend');
   legend.innerHTML='';
-  const mcDeg=chartData.mc; // MC ecliptic longitude
-  const {ra:mcRA}=ecl2eq(mcDeg);
-  // GST in degrees: RAMC = GST + birthLon → GST = RAMC - birthLon
-  const GST=((mcRA-birthLon)+360)%360;
+
+  // RAMC = RA of the MC (convert MC ecliptic longitude to RA)
+  const {ra:RAMC}=ecl2eq(chartData.mc);
+  // GST at birth moment: RAMC = GST + birthLon → GST = RAMC - birthLon
+  const GST=((RAMC-birthLon)+360)%360;
+
+  function normLon(l){return((l%360)+360)%360-180;} // normalize to -180/+180
+
+  function splitLine(pts){
+    // Split at antimeridian jumps
+    const segs=[[pts[0]]];
+    for(let k=1;k<pts.length;k++){
+      const dl=Math.abs(pts[k][1]-pts[k-1][1]);
+      if(dl>90)segs.push([]);
+      segs[segs.length-1].push(pts[k]);
+    }
+    return segs.filter(s=>s.length>1);
+  }
+
+  function addLabel(latlng,text,color){
+    const icon=L.divIcon({html:`<div style="color:${color};font-size:10px;font-family:serif;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000;pointer-events:none">${text}</div>`,className:'',iconAnchor:[0,0]});
+    const m=L.marker(latlng,{icon,interactive:false});
+    m._acgLine=true;
+    m.addTo(_acgMap);
+  }
 
   PLANETS.forEach(pName=>{
     const p=chartData.planets[pName];if(!p)return;
     const info=PI[pName]||{color:'#aaa'};
+    const col=info.color;
+    const sym=PSYM[pName]||pName[0];
     const {ra,dec}=ecl2eq(p.degree);
-    // MC line longitude
-    const mcLon=((ra-GST)+360)%360-180;
-    const icLon=((mcLon+180)+360)%360-180;
 
-    // Draw MC line (vertical)
-    const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:info.color,weight:1.5,opacity:.75,dashArray:'4 3'}).addTo(_acgMap);
-    mcLine._acgLine=true;
-    mcLine.bindTooltip(`${pName} MC`,{sticky:true});
-    // Draw IC line
-    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:info.color,weight:1,opacity:.5,dashArray:'2 4'}).addTo(_acgMap);
-    icLine._acgLine=true;
-    icLine.bindTooltip(`${pName} IC`,{sticky:true});
+    // MC line: where planet's RA = GST + lon → lon = RA - GST
+    const mcLon=normLon(ra-GST);
+    // IC: opposite
+    const icLon=normLon(mcLon+180);
 
-    // Draw AC/DC curved lines
+    // Draw MC vertical line
+    const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:col,weight:2,opacity:.8,dashArray:'4 3'});
+    mcLine._acgLine=true;mcLine.addTo(_acgMap);
+    mcLine.bindTooltip(`${pName} MC (10H)`,{sticky:true,className:'acg-tip'});
+    addLabel([40,mcLon],`${sym}MC`,col);
+
+    // Draw IC vertical line
+    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.55,dashArray:'2 5'});
+    icLine._acgLine=true;icLine.addTo(_acgMap);
+    icLine.bindTooltip(`${pName} IC (4H)`,{sticky:true});
+    addLabel([-40,icLon],`${sym}IC`,col);
+
+    // AC/DC curves: for each latitude, find longitude where planet is on horizon
     const acPts=[],dcPts=[];
-    for(let lat=-80;lat<=80;lat+=2){
+    for(let lat=-80;lat<=80;lat+=1){
       const cosH=-Math.tan(lat*RAD)*Math.tan(dec*RAD);
-      if(Math.abs(cosH)>1)continue; // circumpolar
-      const H=Math.acos(cosH)*DEG;
-      const acLon=((ra-H-GST)+360)%360-180;
-      const dcLon=((ra+H-GST)+360)%360-180;
-      acPts.push([lat,acLon]);
-      dcPts.push([lat,dcLon]);
+      if(Math.abs(cosH)>1)continue; // circumpolar — no rising/setting
+      const H=Math.acos(Math.max(-1,Math.min(1,cosH)))*DEG;
+      acPts.push([lat,normLon(ra-H-GST)]);
+      dcPts.push([lat,normLon(ra+H-GST)]);
     }
-    // Split at antimeridian to avoid crossing the map
-    function splitAtMeridian(pts){
-      const segs=[[pts[0]]];
-      for(let k=1;k<pts.length;k++){
-        const prev=pts[k-1][1],curr=pts[k][1];
-        if(Math.abs(curr-prev)>90){segs.push([]);}
-        segs[segs.length-1].push(pts[k]);
-      }
-      return segs.filter(s=>s.length>1);
-    }
-    if(acPts.length>1){
-      splitAtMeridian(acPts).forEach(seg=>{
-        const ac=L.polyline(seg,{color:info.color,weight:2.5,opacity:.9}).addTo(_acgMap);
-        ac._acgLine=true;ac.bindTooltip(`${pName} AC ☉`,{sticky:true,permanent:false});
+
+    if(acPts.length>2){
+      splitLine(acPts).forEach(seg=>{
+        const ac=L.polyline(seg,{color:col,weight:2.5,opacity:.9});
+        ac._acgLine=true;ac.addTo(_acgMap);
+        ac.bindTooltip(`${pName} AC (1H — ← ამოდის)`,{sticky:true});
       });
-      splitAtMeridian(dcPts).forEach(seg=>{
-        const dc=L.polyline(seg,{color:info.color,weight:1.8,opacity:.7,dashArray:'8 3'}).addTo(_acgMap);
-        dc._acgLine=true;dc.bindTooltip(`${pName} DC`,{sticky:true});
+      // Label at equator crossing
+      const mid=acPts[Math.floor(acPts.length/2)];
+      if(mid)addLabel([0,mid[1]],`${sym}AC`,col);
+
+      splitLine(dcPts).forEach(seg=>{
+        const dc=L.polyline(seg,{color:col,weight:1.8,opacity:.7,dashArray:'8 3'});
+        dc._acgLine=true;dc.addTo(_acgMap);
+        dc.bindTooltip(`${pName} DC (7H — → ჩადის)`,{sticky:true});
       });
+      const mid2=dcPts[Math.floor(dcPts.length/2)];
+      if(mid2)addLabel([0,mid2[1]],`${sym}DC`,col);
     }
-    // Legend item
+
+    // Legend
     const item=document.createElement('div');
     item.className='acg-legend-item';
-    item.innerHTML=`<div class="acg-legend-dot" style="background:${info.color}"></div><span>${pName}</span>`;
+    item.innerHTML=`<span style="color:${col};font-family:serif;font-size:14px">${sym}</span><span>${pName}</span><span style="opacity:.5;font-size:9px">MC IC AC DC</span>`;
     legend.appendChild(item);
   });
+}
+
+
+let _acgTimer=null;
+function scheduleAcgUpdate(){
+  clearTimeout(_acgTimer);
+  _acgTimer=setTimeout(async()=>{
+    const lat=+document.getElementById('acg-lat').value;
+    const lon=+document.getElementById('acg-lon').value;
+    if(!lat||!lon)return; // city not geocoded yet
+    const p=getPersonData('acg');
+    if(!p.lat||!p.lon)return;
+    try{
+      const d=await fetchChart(p);
+      d._timeUnknown=false;
+      _acgBirthData=p;_acgChartData=d;
+      // Show map if not already visible
+      document.getElementById('chart-area').style.display='block';
+      document.getElementById('acg-section').style.display='block';
+      document.getElementById('wheel-wrap').style.display='none';
+      document.getElementById('mode-label').textContent='🗺️ ასტროკარტოგრაფია';
+      document.getElementById('legend-wrap').style.display='none';
+      document.getElementById('asp-filters').style.display='none';
+      if(!_acgMap){setTimeout(()=>{initAcgMap();_acgMap.invalidateSize();drawAcgLines(d,p.lon);},150);}
+      else{drawAcgLines(d,p.lon);}
+    }catch(e){}
+  },1200); // wait 1.2s after last input
 }
 
 // ── MAIN GENERATE ──
