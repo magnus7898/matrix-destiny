@@ -482,17 +482,17 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,.5);margin-bottom:10px">ასპექტ ფილტრი</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-minor" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-minor" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">მინორი</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">კვინტ · ბი-კვინტ · სესქვ · ნახ-სექსტ</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-virtual" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-virtual" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">ვირტუალური წერტილები</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">ლილ · სელ · ბედ · კვანძ · Vx · AC · MC</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="f-asteroid" onchange="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
+        <input type="checkbox" id="f-asteroid" onclick="applyAspFilter()" style="accent-color:#7c3aed;width:14px;height:14px;cursor:pointer">
         <span style="font-size:11px;color:rgba(200,170,255,.9)">ასტეროიდები</span>
         <span style="font-size:10px;color:rgba(150,120,200,.5)">ქირონი · იუნო</span>
       </label>
@@ -707,8 +707,9 @@ function applyAspFilter(){
     drawAspectTable(filtered,'aspect-tbody','aspect-table-title',`⚡ ჯვარედინი ასპექტები: ${n1} × ${n2}`);
     drawWheel(_swapped?_d2:_d1,_swapped?_d1:_d2,null);
   }else{
-    // Single mode — just filter table
-    const filtered=(_d1._allAspects||[]).filter(isAspectVisible);
+    // Single mode — recompute if needed, filter, update table
+    if(!_d1._allAspects||!_d1._allAspects.length)_d1._allAspects=calcAllNatalAspects(_d1);
+    const filtered=_d1._allAspects.filter(isAspectVisible);
     drawAspectTable(filtered,'aspect-tbody',null,null,false);
   }
 }
@@ -836,9 +837,9 @@ async function generate(){
       const[d1,d2]=await Promise.all([fetchChart(p1),fetchChart(p2)]);
       const name1=document.getElementById('s1-name').value||'პირველი';
       const name2=document.getElementById('s2-name').value||'მეორე';
-      // Inject AC/MC into both charts' planets
-      [d1,d2].forEach(d=>{if(d.asc!=null){const acSi=Math.floor(d.asc/30)%12,mcSi=Math.floor(d.mc/30)%12;d.planets['AC']={degree:d.asc,sign:SIGN_KA[acSi],house:1,retrograde:false};d.planets['MC']={degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};}});
-      showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects(d1.planets,d2.planets));
+      // Inject AC/MC into _aspPlanets for aspects (not planets to avoid duplicates)
+      [d1,d2].forEach(d=>{if(d.asc!=null){const acSi=Math.floor(d.asc/30)%12,mcSi=Math.floor(d.mc/30)%12;d._aspPlanets={'AC':{degree:d.asc,sign:SIGN_KA[acSi],house:1,retrograde:false},'MC':{degree:d.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false}};}});
+      showDoubleChart(d1,d2,name1,name2,'სინასტრია',calcCrossAspects({...d1.planets,...(d1._aspPlanets||{})},{...d2.planets,...(d2._aspPlanets||{})}));
 
     }else if(mode==='composite'){
       const p1=getPersonData('c1'),p2=getPersonData('c2');
@@ -928,11 +929,10 @@ async function generate(){
 }
 
 function showSingleChart(data,label,dual){
-  // Inject AC/MC directly into planets dict
+  // Inject AC/MC into _aspPlanets (NOT data.planets to avoid duplicate wheel symbols)
   if(!data._timeUnknown&&data.asc!=null){
     const acSi=Math.floor(data.asc/30)%12,mcSi=Math.floor(data.mc/30)%12;
-    data.planets['AC']={degree:data.asc,sign:SIGN_KA[acSi],house:1,retrograde:false};
-    data.planets['MC']={degree:data.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false};
+    data._aspPlanets={'AC':{degree:data.asc,sign:SIGN_KA[acSi],house:1,retrograde:false},'MC':{degree:data.mc,sign:SIGN_KA[mcSi],house:10,retrograde:false}};
   }
   // Compute ALL aspects (main+virtual+asteroid) on frontend
   data._allAspects=calcAllNatalAspects(data);
