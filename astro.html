@@ -167,6 +167,15 @@ tr:hover td{background:rgba(19,16,58,.6)}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);}
 .legend-dot{width:10px;height:10px;border-radius:50%;}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+#acg-map{width:100%;height:520px;border-radius:12px;border:1px solid rgba(45,31,110,.5);margin-bottom:16px;background:#04030e;}
+.acg-legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px;padding:10px 14px;background:rgba(8,6,20,.7);border-radius:10px;border:1px solid rgba(45,31,110,.4);}
+.acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
+.acg-legend-dot{width:12px;height:3px;border-radius:2px;}
+#acg-wheel-section{display:none;}
+</style>
 </head>
 <body>
 
@@ -195,6 +204,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <button class="tab-btn" onclick="setMode('relocation')">რელოკაცია</button>
   <button class="tab-btn" onclick="setMode('draconic')">დრაკონი</button>
   <button class="tab-btn" onclick="setMode('pastlife')">წარსული სიცოცხლე</button>
+  <button class="tab-btn" onclick="setMode('astrocartography')">ასტროკარტოგ.</button>
 </div>
 
 <!-- FORM CARD -->
@@ -536,6 +546,37 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <button class="gen-btn" onclick="generate()" style="margin-top:6px">🔮 ინკარნაციის ძებნა</button>
   </div>
 
+
+  <!-- ASTROCARTOGRAPHY -->
+  <div id="form-astrocartography" class="form-section">
+    <div class="person-label">🗺️ ასტროკარტოგრაფია</div>
+    <div class="field wide" style="margin-bottom:10px">
+      <label>სახელი</label><input id="acg-name" placeholder="სახელი">
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>დღე</label><input type="number" id="acg-day" value="1" min="1" max="31"></div>
+      <div class="field"><label>თვე</label><input type="number" id="acg-month" value="1" min="1" max="12"></div>
+      <div class="field"><label>წელი</label><input type="number" id="acg-year" value="1990"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>საათი</label><input type="number" id="acg-hour" value="12" min="0" max="23"></div>
+      <div class="field"><label>წუთი</label><input type="number" id="acg-minute" value="0" min="0" max="59"></div>
+      <div class="field"><label>წამი</label><input type="number" id="acg-second" value="0" min="0" max="59"></div>
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <label>დაბადების ქალაქი</label>
+      <input id="acg-city" placeholder="ქალაქი" oninput="searchCity('acg')">
+      <div class="city-hint" id="acg-city-hint"></div>
+    </div>
+    <div class="form-grid-2" style="margin-bottom:4px">
+      <div class="field"><label>განედი</label><input type="number" id="acg-lat" step="0.0001" readonly></div>
+      <div class="field"><label>გრძედი</label><input type="number" id="acg-lon" step="0.0001" readonly></div>
+    </div>
+    <input type="hidden" id="acg-tz" value="UTC">
+    <div class="tz-display" id="acg-tz-display">—</div>
+    <p style="font-size:10px;color:rgba(150,120,220,.6);margin:8px 0;font-style:italic">🗺️ რუქაზე კლიკი → ავტომატური რელოკაციის რუქა</p>
+    <button class="gen-btn" onclick="generate()">✦ ასტროკარტოგრაფიის გენერაცია ✦</button>
+  </div>
 </div><!-- /form-card -->
 
 <!-- CHART OUTPUT -->
@@ -546,6 +587,15 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span id="leg-b">მეორე</span></div>
   </div>
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <!-- Astrocartography map -->
+  <div id="acg-section" style="display:none">
+    <div id="acg-map"></div>
+    <div id="acg-legend" class="acg-legend"></div>
+  </div>
+  <!-- Relocation wheel (shown on map click) -->
+  <div id="acg-wheel-section">
+    <div class="sec-title" id="acg-reloc-title"></div>
+  </div>
   <div id="asp-filters" style="display:none;margin:10px 0;background:rgba(8,6,20,.7);border:1px solid rgba(45,31,110,.5);border-radius:12px;padding:12px 16px;">
     <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,.5);margin-bottom:10px">ასპექტ ფილტრი</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
@@ -817,7 +867,7 @@ function calcAllNatalAspects(data){
 function setMode(mode){
   currentMode=mode;
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const modes=['natal','synastry','composite','transit','progression','solar','relocation','draconic','pastlife'];
+    const modes=['natal','synastry','composite','transit','progression','solar','relocation','draconic','pastlife','astrocartography'];
     b.classList.toggle('active',modes[i]===mode);
   });
   document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
@@ -1008,6 +1058,97 @@ async function findPastLifeDate(targetDeg, resultEl, birthYear){
   return {year:bestYear,month:bestMonth};
 }
 
+
+// ── ASTROCARTOGRAPHY ──
+let _acgMap=null,_acgBirthData=null,_acgChartData=null;
+
+const RAD=Math.PI/180,DEG=180/Math.PI;
+const EPS=23.4392911*RAD; // obliquity
+
+function ecl2eq(lon){
+  // ecliptic longitude (deg) → {ra,dec} in degrees
+  const l=lon*RAD;
+  const ra=Math.atan2(Math.sin(l)*Math.cos(EPS),Math.cos(l))*DEG;
+  const dec=Math.asin(Math.sin(l)*Math.sin(EPS))*DEG;
+  return{ra:((ra%360)+360)%360,dec};
+}
+
+function initAcgMap(){
+  if(_acgMap)return;
+  _acgMap=L.map('acg-map',{center:[30,0],zoom:2,minZoom:2});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:18
+  }).addTo(_acgMap);
+  _acgMap.on('click',async function(e){
+    const lat=e.latlng.lat,lon=e.latlng.lng;
+    if(!_acgBirthData)return;
+    document.getElementById('acg-reloc-title').textContent=`⏳ ${lat.toFixed(2)}°, ${lon.toFixed(2)}° — გამოთვლა...`;
+    document.getElementById('acg-wheel-section').style.display='block';
+    document.getElementById('acg-wheel-section').scrollIntoView({behavior:'smooth',block:'start'});
+    const relData={..._acgBirthData,lat,lon,tz_name:'UTC'};
+    const d=await fetchChart(relData);
+    d._timeUnknown=false;
+    document.getElementById('acg-reloc-title').textContent=`📍 ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+    // Inject into main wheel and tables
+    document.getElementById('wheel-wrap').style.display='block';
+    showSingleChart(d,`🗺️ რელოკაცია ${lat.toFixed(1)}° ${lon.toFixed(1)}°`,false);
+  });
+}
+
+function drawAcgLines(chartData,birthLon){
+  if(!_acgMap)return;
+  // Clear old lines
+  _acgMap.eachLayer(l=>{if(l._acgLine)_acgMap.removeLayer(l);});
+  const PLANETS=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
+  const legend=document.getElementById('acg-legend');
+  legend.innerHTML='';
+  const mcDeg=chartData.mc; // MC ecliptic longitude
+  const {ra:mcRA}=ecl2eq(mcDeg);
+  // GST in degrees: RAMC = GST + birthLon → GST = RAMC - birthLon
+  const GST=((mcRA-birthLon)+360)%360;
+
+  PLANETS.forEach(pName=>{
+    const p=chartData.planets[pName];if(!p)return;
+    const info=PI[pName]||{color:'#aaa'};
+    const {ra,dec}=ecl2eq(p.degree);
+    // MC line longitude
+    const mcLon=((ra-GST)+360)%360-180;
+    const icLon=((mcLon+180)+360)%360-180;
+
+    // Draw MC line (vertical)
+    const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:info.color,weight:1.5,opacity:.75,dashArray:'4 3'}).addTo(_acgMap);
+    mcLine._acgLine=true;
+    mcLine.bindTooltip(`${pName} MC`,{sticky:true});
+    // Draw IC line
+    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:info.color,weight:1,opacity:.5,dashArray:'2 4'}).addTo(_acgMap);
+    icLine._acgLine=true;
+    icLine.bindTooltip(`${pName} IC`,{sticky:true});
+
+    // Draw AC/DC curved lines
+    const acPts=[],dcPts=[];
+    for(let lat=-80;lat<=80;lat+=2){
+      const cosH=-Math.tan(lat*RAD)*Math.tan(dec*RAD);
+      if(Math.abs(cosH)>1)continue; // circumpolar
+      const H=Math.acos(cosH)*DEG;
+      const acLon=((ra-H-GST)+360)%360-180;
+      const dcLon=((ra+H-GST)+360)%360-180;
+      acPts.push([lat,acLon]);
+      dcPts.push([lat,dcLon]);
+    }
+    if(acPts.length>1){
+      const ac=L.polyline(acPts,{color:info.color,weight:2,opacity:.85}).addTo(_acgMap);
+      ac._acgLine=true;ac.bindTooltip(`${pName} AC`,{sticky:true});
+      const dc=L.polyline(dcPts,{color:info.color,weight:1.5,opacity:.7,dashArray:'6 2'}).addTo(_acgMap);
+      dc._acgLine=true;dc.bindTooltip(`${pName} DC`,{sticky:true});
+    }
+    // Legend item
+    const item=document.createElement('div');
+    item.className='acg-legend-item';
+    item.innerHTML=`<div class="acg-legend-dot" style="background:${info.color}"></div><span>${pName}</span>`;
+    legend.appendChild(item);
+  });
+}
+
 // ── MAIN GENERATE ──
 async function generate(){
   const btn=document.querySelector('.form-section.active .gen-btn:last-child');
@@ -1137,6 +1278,28 @@ async function generate(){
     }else if(mode==='pastlife'){
       const p=getPersonData('pl');
       if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
+    }else if(mode==='astrocartography'){
+      const p=getPersonData('acg');
+      if(!p.lat||!p.lon){alert('შეიყვანეთ ქალაქი');return;}
+      const d=await fetchChart(p);
+      d._timeUnknown=false;
+      _acgBirthData=p;_acgChartData=d;
+      // Setup chart-area
+      document.getElementById('chart-area').style.display='block';
+      document.getElementById('mode-label').textContent=`🗺️ ${document.getElementById('acg-name').value||''} — ასტროკარტოგრაფია`;
+      document.getElementById('legend-wrap').style.display='none';
+      document.getElementById('wheel-wrap').style.display='none';
+      document.getElementById('acg-section').style.display='block';
+      document.getElementById('acg-wheel-section').style.display='none';
+      const sb=document.getElementById('swap-btn');if(sb)sb.remove();
+      // Init map and draw
+      setTimeout(()=>{
+        initAcgMap();
+        _acgMap.invalidateSize();
+        drawAcgLines(d,p.lon);
+      },100);
+      document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
+    
       // 1. Fetch natal chart and compute draconic
       const d=await fetchChart(p);
       d._timeUnknown=false;
@@ -1188,6 +1351,8 @@ function showSingleChart(data,label,dual){
   // Compute ALL aspects (main+virtual+asteroid) including AC/MC
   data._allAspects=calcAllNatalAspects(data);
   _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
+  document.getElementById('acg-section').style.display='none';
+  document.getElementById('wheel-wrap').style.display='block';
   document.getElementById('mode-label').textContent=label;
   document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
