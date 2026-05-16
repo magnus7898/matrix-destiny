@@ -1501,8 +1501,8 @@ async function generate(){
       document.getElementById('acg-wheel-section').style.display='none';
       document.getElementById('asp-filters').style.display='none';
       const sbACG=document.getElementById('swap-btn');if(sbACG)sbACG.remove();
-      document.getElementById('chart-area').style.cssText='max-width:100%;padding:0;width:100%;margin:0';
-      setTimeout(()=>{initAcgMap();_acgMap.invalidateSize();drawAcgLines(dACG,p.lon);},150);
+      document.body.style.overflow='hidden';
+      setTimeout(()=>{initAcgMap();_acgMap.invalidateSize();drawAcgLines(dACG,p.lon);},200);
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
     }
   }catch(e){alert('შეცდომა: '+e.message);console.error(e);}
@@ -1517,7 +1517,7 @@ function showSingleChart(data,label,dual){
   _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
   document.getElementById('acg-section').style.display='none';
   document.getElementById('wheel-wrap').style.display='block';
-  document.getElementById('chart-area').style.cssText='';
+  document.body.style.overflow='';
   document.getElementById('mode-label').textContent=label;
   document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
