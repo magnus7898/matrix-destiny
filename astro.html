@@ -1172,7 +1172,7 @@ function updateOutsideLabels(){
       const pt=_acgMap.latLngToContainerPoint([lat,0]);
       const y=pt.y;
       if(y<0||y>mapH)return;
-      const lbl=`<div style="position:absolute;top:${y}px;transform:translateY(-50%);color:${col};font-size:9px;font-family:Cinzel,serif;font-weight:bold;white-space:nowrap;padding:0 2px">${sym}${type}</div>`;
+      const lbl=`<div style="position:absolute;top:${y}px;transform:translateY(-50%);writing-mode:vertical-rl;color:${col};font-size:9px;font-family:Cinzel,serif;font-weight:bold;white-space:nowrap;padding:0 2px">${sym}${type}</div>`;
       if(type==='AC'&&lft)lft.innerHTML+=lbl;
       if(type==='DC'&&rgt)rgt.innerHTML+=lbl;
     });
