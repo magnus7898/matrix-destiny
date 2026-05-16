@@ -1263,25 +1263,14 @@ function drawAcgLines(chartData,birthLon){
         ac._acgLine=true;ac.addTo(_acgMap);
         ac.bindTooltip(`${sym} ${pName} AC`,{sticky:true});
       });
-      // Label AC near top and bottom
-      const topAC=acPts.find(p=>p[0]>=50);
-      const botAC=[...acPts].reverse().find(p=>p[0]<=-50);
-      const midAC=acPts[Math.floor(acPts.length/2)];
-      if(topAC)lineLabel(topAC[1],topAC[0],`${sym}AC`,col);
-      else if(midAC)lineLabel(midAC[1],midAC[0],`${sym}AC`,col);
-      if(botAC)lineLabel(botAC[1],botAC[0],`${sym}AC`,col);
+
 
       splitLine(dcPts).forEach(seg=>{
         const dc=L.polyline(seg,{color:col,weight:2,opacity:.9});
         dc._acgLine=true;dc.addTo(_acgMap);
         dc.bindTooltip(`${sym} ${pName} DC`,{sticky:true});
       });
-      const topDC=dcPts.find(p=>p[0]>=50);
-      const botDC=[...dcPts].reverse().find(p=>p[0]<=-50);
-      const midDC=dcPts[Math.floor(dcPts.length/2)];
-      if(topDC)lineLabel(topDC[1],topDC[0],`${sym}DC`,col);
-      else if(midDC)lineLabel(midDC[1],midDC[0],`${sym}DC`,col);
-      if(botDC)lineLabel(botDC[1],botDC[0],`${sym}DC`,col);
+
     }
 
     // Store for outside labels
