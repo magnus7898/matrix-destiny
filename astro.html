@@ -33,6 +33,7 @@ body::before{
     radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.35) 0,transparent 100%),
     radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%);
 }
+body:has(#acg-section[style*='flex']){overflow:hidden;padding:0;}
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
@@ -1500,6 +1501,7 @@ async function generate(){
       document.getElementById('acg-wheel-section').style.display='none';
       document.getElementById('asp-filters').style.display='none';
       const sbACG=document.getElementById('swap-btn');if(sbACG)sbACG.remove();
+      document.getElementById('chart-area').style.cssText='max-width:100%;padding:0;width:100%;margin:0';
       setTimeout(()=>{initAcgMap();_acgMap.invalidateSize();drawAcgLines(dACG,p.lon);},150);
       document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
     }
@@ -1515,6 +1517,7 @@ function showSingleChart(data,label,dual){
   _d1=data;_d2=null;_crossAsp=[];_swapped=false;_origD1=data;_origD2=null;
   document.getElementById('acg-section').style.display='none';
   document.getElementById('wheel-wrap').style.display='block';
+  document.getElementById('chart-area').style.cssText='';
   document.getElementById('mode-label').textContent=label;
   document.getElementById('asp-filters').style.display='block';
   document.getElementById('legend-wrap').style.display='none';
