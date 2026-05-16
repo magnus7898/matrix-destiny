@@ -177,16 +177,12 @@ tr:hover td{background:rgba(19,16,58,.6)}
 .acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
 #acg-wheel-section{display:none;}
-#acg-section{
-  position:fixed;top:0;left:0;width:100vw;height:100vh;
-  z-index:9999;background:#fff;display:flex;flex-direction:column;
-}
-#acg-section .acg-map-wrap{flex:1;position:relative;overflow:hidden;}
-#acg-section #acg-map{position:absolute;inset:0;}
-#acg-labels-top{position:relative;height:28px;background:rgba(255,255,255,.92);border-bottom:1px solid #ddd;z-index:1000;overflow:hidden;pointer-events:none;}
-#acg-labels-bot{position:relative;height:28px;background:rgba(255,255,255,.92);border-top:1px solid #ddd;z-index:1000;overflow:hidden;pointer-events:none;}
-#acg-close-btn{position:absolute;top:8px;right:12px;z-index:10001;font-family:Cinzel,serif;font-size:11px;background:rgba(20,15,50,.85);color:#fff;border:1px solid rgba(100,65,200,.5);border-radius:20px;padding:6px 16px;cursor:pointer;}
-.acg-legend{flex-wrap:wrap;background:rgba(255,255,255,.92);padding:6px 12px;border-top:1px solid #eee;gap:12px;overflow-x:auto;flex-shrink:0;}
+#acg-section{width:100vw;position:relative;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;}
+#acg-section .acg-map-wrap{position:relative;width:100%;height:100vh;}
+#acg-section #acg-map{position:absolute;inset:0;border-radius:0;border:none;}
+#acg-labels-top{height:28px;background:rgba(255,255,255,.95);border-bottom:1px solid #ddd;overflow:hidden;pointer-events:none;position:relative;z-index:500;}
+#acg-labels-bot{height:28px;background:rgba(255,255,255,.95);border-top:1px solid #ddd;overflow:hidden;pointer-events:none;position:relative;}
+.acg-legend{flex-wrap:wrap;background:rgba(8,6,20,.85);padding:8px 16px;gap:12px;overflow-x:auto;}
 .acg-tip{background:rgba(8,6,20,.9);color:#e0d8ff;border:1px solid rgba(100,65,200,.4);border-radius:6px;font-family:'Noto Sans Georgian',sans-serif;font-size:11px;}
 </style>
 </head>
@@ -602,7 +598,6 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
   <!-- Astrocartography map -->
   <div id="acg-section" style="display:none">
-    <button id="acg-close-btn" onclick="document.getElementById('acg-section').style.display='none';document.getElementById('chart-area').scrollIntoView()">✕ დახურვა</button>
     <div id="acg-labels-top"></div>
     <div class="acg-map-wrap">
       <div id="acg-map"></div>
