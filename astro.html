@@ -1089,9 +1089,8 @@ function ecl2eq(lon){
 function initAcgMap(){
   if(_acgMap)return;
   _acgMap=L.map('acg-map',{center:[30,0],zoom:2,minZoom:2});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_matter_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19,subdomains:'abcd'}).addTo(_acgMap);
-  // Add city labels layer on top
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19,subdomains:'abcd',pane:'shadowPane'}).addTo(_acgMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19,subdomains:'abcd'}).addTo(_acgMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19,subdomains:'abcd',pane:'shadowPane'}).addTo(_acgMap);
   // Click marker
   let _acgMarker=null;
   _acgLineData=[];
