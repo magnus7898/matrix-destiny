@@ -1207,22 +1207,40 @@ function updateOutsideLabels(){
   const acEl=document.getElementById('acg-labels-ac');
   const dcEl=document.getElementById('acg-labels-dc');
   if(!mcEl)return;
-  mcEl.innerHTML='';icEl.innerHTML='';acEl.innerHTML='';dcEl.innerHTML='';
+  mcEl.innerHTML='';icEl.innerHTML='';if(acEl)acEl.innerHTML='';if(dcEl)dcEl.innerHTML='';
+
   const mapW=_acgMap.getContainer().offsetWidth;
   const mapH=_acgMap.getContainer().offsetHeight;
+  const bounds=_acgMap.getBounds();
+  const minLon=bounds.getWest(),maxLon=bounds.getEast();
+  const minLat=bounds.getSouth(),maxLat=bounds.getNorth();
 
-  _acgLineData.forEach(({type,lon,lat,col,sym})=>{
+  _acgLineData.forEach(({type,lon,pts,col,sym,pName})=>{
     if(type==='MC'||type==='IC'){
+      // Find pixel X for this longitude
       const pt=_acgMap.latLngToContainerPoint([0,lon]);
       if(pt.x<0||pt.x>mapW)return;
       const el=type==='MC'?mcEl:icEl;
-      el.innerHTML+=`<div style="position:absolute;left:${pt.x}px;top:50%;transform:translate(-50%,-50%);color:${col};font-size:9px;font-family:serif;font-weight:bold;white-space:nowrap;line-height:1">${sym}${type}</div>`;
-    }else if(type==='AC'||type==='DC'){
-      if(lat==null)return;
-      const pt=_acgMap.latLngToContainerPoint([lat,0]);
-      if(pt.y<0||pt.y>mapH)return;
+      const div=document.createElement('div');
+      div.style.cssText=`position:absolute;left:${pt.x}px;top:50%;transform:translate(-50%,-50%);color:${col};font-size:9px;font-family:serif;font-weight:bold;white-space:nowrap;`;
+      div.textContent=sym+type;
+      el.appendChild(div);
+
+    }else if((type==='AC'||type==='DC')&&pts){
       const el=type==='AC'?acEl:dcEl;
-      el.innerHTML+=`<div style="position:absolute;top:${pt.y}px;left:50%;transform:translate(-50%,-50%);color:${col};font-size:9px;font-family:serif;font-weight:bold;white-space:nowrap;writing-mode:vertical-rl;line-height:1">${sym}${type}</div>`;
+      if(!el)return;
+      // Find a point on the curve that is within the visible latitude range
+      const visible=pts.filter(p=>p[0]>=minLat&&p[0]<=maxLat);
+      if(!visible.length)return;
+      // Use the middle visible point
+      const p=visible[Math.floor(visible.length/2)];
+      const pt=_acgMap.latLngToContainerPoint([p[0],p[1]]);
+      // pt.y gives vertical position
+      if(pt.y<0||pt.y>mapH)return;
+      const div=document.createElement('div');
+      div.style.cssText=`position:absolute;top:${pt.y}px;left:50%;transform:translate(-50%,-50%);color:${col};font-size:8px;font-family:serif;font-weight:bold;white-space:nowrap;writing-mode:vertical-rl;text-orientation:mixed;`;
+      div.textContent=sym+(type==='AC'?'←':'→');
+      el.appendChild(div);
     }
   });
 }
@@ -1321,15 +1339,12 @@ function drawAcgLines(chartData,birthLon){
 
     }
 
-    // Store for outside labels
+    // Store for outside labels — AC/DC store full point arrays
     _acgLineData.push({type:'MC',lon:mcLon,col,sym,pName});
     _acgLineData.push({type:'IC',lon:icLon,col,sym,pName});
-    // AC/DC: store equator crossing latitude for side labels
     if(acPts.length>2){
-      const acMid=acPts[Math.floor(acPts.length/2)];
-      const dcMid=dcPts[Math.floor(dcPts.length/2)];
-      if(acMid)_acgLineData.push({type:'AC',lat:acMid[0],lon:acMid[1],col,sym,pName});
-      if(dcMid)_acgLineData.push({type:'DC',lat:dcMid[0],lon:dcMid[1],col,sym,pName});
+      _acgLineData.push({type:'AC',pts:acPts,col,sym,pName});
+      _acgLineData.push({type:'DC',pts:dcPts,col,sym,pName});
     }
 
     // Legend
