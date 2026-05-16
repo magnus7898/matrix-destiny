@@ -1139,7 +1139,7 @@ function drawAcgLines(chartData,birthLon){
   // GST at birth moment: RAMC = GST + birthLon → GST = RAMC - birthLon
   const GST=((RAMC-birthLon)+360)%360;
 
-  function normLon(l){return((l%360)+360)%360-180;} // normalize to -180/+180
+  function normLon(l){const r=((l%360)+360)%360;return r>180?r-360:r;} // normalize to -180/+180
 
   function splitLine(pts){
     // Split at antimeridian jumps
