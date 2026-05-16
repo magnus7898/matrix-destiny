@@ -172,7 +172,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
 <style>
 .acg-tip{background:rgba(8,6,20,.92)!important;border:1px solid rgba(100,65,200,.5)!important;color:#c8b8f0!important;font-family:"Noto Sans Georgian",sans-serif!important;font-size:11px!important;padding:4px 8px!important;border-radius:6px!important;}
 .acg-tip::before{display:none!important;}
-#acg-map{width:100%;height:520px;border-radius:12px;border:1px solid rgba(45,31,110,.5);margin-bottom:16px;background:#04030e;}
+#acg-map{width:100%;height:720px;border-radius:12px;border:1px solid rgba(45,31,110,.5);margin-bottom:16px;background:#04030e;}
 .acg-legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px;padding:10px 14px;background:rgba(8,6,20,.7);border-radius:10px;border:1px solid rgba(45,31,110,.4);}
 .acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
@@ -1129,65 +1129,75 @@ function drawAcgLines(chartData,birthLon){
   if(!_acgMap)return;
   _acgMap.eachLayer(l=>{if(l._acgLine)_acgMap.removeLayer(l);});
 
+  // Planet colors as requested
+  const PCOL={
+    'მზე':'#e84040','მთვარე':'#6090d8','მერკური':'#4090d8','ვენერა':'#30c890',
+    'მარსი':'#e84040','იუპიტერი':'#e84040','სატურნი':'#707080','ურანი':'#a0a8b8',
+    'ნეპტუნი':'#8060a0','პლუტონი':'#e84040'
+  };
+  const PSYM={
+    'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂',
+    'იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'
+  };
   const PLANETS=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
-  const PSYM={'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂','იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'};
   const legend=document.getElementById('acg-legend');
   legend.innerHTML='';
 
-  // RAMC = RA of the MC (convert MC ecliptic longitude to RA)
   const {ra:RAMC}=ecl2eq(chartData.mc);
-  // GST at birth moment: RAMC = GST + birthLon → GST = RAMC - birthLon
   const GST=((RAMC-birthLon)+360)%360;
-
-  function normLon(l){const r=((l%360)+360)%360;return r>180?r-360:r;} // normalize to -180/+180
+  function normLon(l){const r=((l%360)+360)%360;return r>180?r-360:r;}
 
   function splitLine(pts){
-    // Split at antimeridian jumps
     const segs=[[pts[0]]];
     for(let k=1;k<pts.length;k++){
-      const dl=Math.abs(pts[k][1]-pts[k-1][1]);
-      if(dl>90)segs.push([]);
+      if(Math.abs(pts[k][1]-pts[k-1][1])>90)segs.push([]);
       segs[segs.length-1].push(pts[k]);
     }
     return segs.filter(s=>s.length>1);
   }
 
-  function addLabel(latlng,text,color){
-    const icon=L.divIcon({html:`<div style="color:${color};font-size:10px;font-family:serif;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000;pointer-events:none">${text}</div>`,className:'',iconAnchor:[0,0]});
-    const m=L.marker(latlng,{icon,interactive:false});
-    m._acgLine=true;
-    m.addTo(_acgMap);
+  // Add text label on line at given lat
+  function lineLabel(lon, lat, text, col){
+    const icon=L.divIcon({
+      html:`<div style="color:${col};font-size:10px;font-family:serif;font-weight:bold;
+        white-space:nowrap;text-shadow:0 0 4px #000,0 0 4px #000;
+        background:rgba(0,0,0,.35);border-radius:3px;padding:0 2px;
+        pointer-events:none;">${text}</div>`,
+      className:'',iconAnchor:[0,6]
+    });
+    const m=L.marker([lat,lon],{icon,interactive:false,zIndexOffset:1000});
+    m._acgLine=true;m.addTo(_acgMap);
   }
 
   PLANETS.forEach(pName=>{
     const p=chartData.planets[pName];if(!p)return;
-    const info=PI[pName]||{color:'#aaa'};
-    const col=info.color;
+    const col=PCOL[pName]||'#aaa';
     const sym=PSYM[pName]||pName[0];
     const {ra,dec}=ecl2eq(p.degree);
 
-    // MC line: where planet's RA = GST + lon → lon = RA - GST
     const mcLon=normLon(ra-GST);
-    // IC: opposite
     const icLon=normLon(mcLon+180);
 
-    // Draw MC vertical line
-    const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:col,weight:2,opacity:.8,dashArray:'4 3'});
+    // MC vertical line (solid)
+    const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:col,weight:2,opacity:.9});
     mcLine._acgLine=true;mcLine.addTo(_acgMap);
-    mcLine.bindTooltip(`${pName} MC (10H)`,{sticky:true,className:'acg-tip'});
-    addLabel([40,mcLon],`${sym}MC`,col);
+    mcLine.bindTooltip(`${sym} ${pName} MC`,{sticky:true});
+    // Labels top and bottom of MC line
+    lineLabel(mcLon, 78, `${sym}MC`, col);
+    lineLabel(mcLon,-78, `${sym}MC`, col);
 
-    // Draw IC vertical line
-    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.55,dashArray:'2 5'});
+    // IC vertical line (solid, lighter)
+    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.6});
     icLine._acgLine=true;icLine.addTo(_acgMap);
-    icLine.bindTooltip(`${pName} IC (4H)`,{sticky:true});
-    addLabel([-40,icLon],`${sym}IC`,col);
+    icLine.bindTooltip(`${sym} ${pName} IC`,{sticky:true});
+    lineLabel(icLon, 78, `${sym}IC`, col);
+    lineLabel(icLon,-78, `${sym}IC`, col);
 
-    // AC/DC curves: for each latitude, find longitude where planet is on horizon
+    // AC/DC curves (solid)
     const acPts=[],dcPts=[];
-    for(let lat=-80;lat<=80;lat+=1){
+    for(let lat=-85;lat<=85;lat+=1){
       const cosH=-Math.tan(lat*RAD)*Math.tan(dec*RAD);
-      if(Math.abs(cosH)>1)continue; // circumpolar — no rising/setting
+      if(Math.abs(cosH)>1)continue;
       const H=Math.acos(Math.max(-1,Math.min(1,cosH)))*DEG;
       acPts.push([lat,normLon(ra-H-GST)]);
       dcPts.push([lat,normLon(ra+H-GST)]);
@@ -1195,27 +1205,27 @@ function drawAcgLines(chartData,birthLon){
 
     if(acPts.length>2){
       splitLine(acPts).forEach(seg=>{
-        const ac=L.polyline(seg,{color:col,weight:2.5,opacity:.9});
+        const ac=L.polyline(seg,{color:col,weight:2,opacity:.9});
         ac._acgLine=true;ac.addTo(_acgMap);
-        ac.bindTooltip(`${pName} AC (1H — ← ამოდის)`,{sticky:true});
+        ac.bindTooltip(`${sym} ${pName} AC`,{sticky:true});
       });
-      // Label at equator crossing
-      const mid=acPts[Math.floor(acPts.length/2)];
-      if(mid)addLabel([0,mid[1]],`${sym}AC`,col);
+      // Label AC at mid-latitude on each segment
+      const midAC=acPts[Math.floor(acPts.length/2)];
+      if(midAC)lineLabel(midAC[1],midAC[0],`${sym}AC`,col);
 
       splitLine(dcPts).forEach(seg=>{
-        const dc=L.polyline(seg,{color:col,weight:1.8,opacity:.7,dashArray:'8 3'});
+        const dc=L.polyline(seg,{color:col,weight:2,opacity:.9});
         dc._acgLine=true;dc.addTo(_acgMap);
-        dc.bindTooltip(`${pName} DC (7H — → ჩადის)`,{sticky:true});
+        dc.bindTooltip(`${sym} ${pName} DC`,{sticky:true});
       });
-      const mid2=dcPts[Math.floor(dcPts.length/2)];
-      if(mid2)addLabel([0,mid2[1]],`${sym}DC`,col);
+      const midDC=dcPts[Math.floor(dcPts.length/2)];
+      if(midDC)lineLabel(midDC[1],midDC[0],`${sym}DC`,col);
     }
 
     // Legend
     const item=document.createElement('div');
     item.className='acg-legend-item';
-    item.innerHTML=`<span style="color:${col};font-family:serif;font-size:14px">${sym}</span><span>${pName}</span><span style="opacity:.5;font-size:9px">MC IC AC DC</span>`;
+    item.innerHTML=`<span style="color:${col};font-family:serif;font-size:14px">${sym}</span><span style="color:${col}">${pName}</span>`;
     legend.appendChild(item);
   });
 }
