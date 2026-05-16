@@ -178,7 +178,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
 #acg-wheel-section{display:none;}
 #acg-section{width:100vw;position:relative;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;}
-#acg-section .acg-map-wrap{position:relative;width:100%;height:100vh;}
+#acg-section .acg-map-wrap{position:relative;width:100%;height:calc(100vh - 56px);}
 #acg-section #acg-map{position:absolute;inset:0;border-radius:0;border:none;}
 #acg-labels-top{height:28px;background:rgba(255,255,255,.95);border-bottom:1px solid #ddd;overflow:hidden;pointer-events:none;position:relative;z-index:500;}
 #acg-labels-bot{height:28px;background:rgba(255,255,255,.95);border-top:1px solid #ddd;overflow:hidden;pointer-events:none;position:relative;}
@@ -598,11 +598,17 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
   <!-- Astrocartography map -->
   <div id="acg-section" style="display:none">
-    <div id="acg-labels-top"></div>
-    <div class="acg-map-wrap">
-      <div id="acg-map"></div>
+    <div id="acg-labels-top" style="display:flex;align-items:center;padding:0 60px;"></div>
+    <div style="display:flex;align-items:stretch;">
+      <!-- AC labels left strip -->
+      <div id="acg-labels-ac" style="width:52px;background:rgba(8,6,20,.9);border-right:1px solid rgba(100,65,200,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 2px;flex-shrink:0;"></div>
+      <div class="acg-map-wrap" style="flex:1;position:relative;">
+        <div id="acg-map"></div>
+      </div>
+      <!-- DC labels right strip -->
+      <div id="acg-labels-dc" style="width:52px;background:rgba(8,6,20,.9);border-left:1px solid rgba(100,65,200,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 2px;flex-shrink:0;"></div>
     </div>
-    <div id="acg-labels-bot"></div>
+    <div id="acg-labels-bot" style="display:flex;align-items:center;padding:0 60px;"></div>
     <div id="acg-legend" class="acg-legend" style="margin-top:8px"></div>
   </div>
   <!-- Relocation wheel (shown on map click) -->
@@ -1088,7 +1094,7 @@ function ecl2eq(lon){
 
 function initAcgMap(){
   if(_acgMap)return;
-  _acgMap=L.map('acg-map',{center:[30,0],zoom:2,minZoom:2});
+  _acgMap=L.map('acg-map',{center:[20,10],zoom:2,minZoom:2,maxZoom:2,zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,dragging:false,touchZoom:false,boxZoom:false,keyboard:false,attributionControl:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19,subdomains:'abcd'}).addTo(_acgMap);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19,subdomains:'abcd',pane:'shadowPane'}).addTo(_acgMap);
   // Click marker
@@ -1143,17 +1149,34 @@ function updateOutsideLabels(){
   if(!_acgMap||!_acgLineData.length)return;
   const top=document.getElementById('acg-labels-top');
   const bot=document.getElementById('acg-labels-bot');
+  const lft=document.getElementById('acg-labels-left');
+  const rgt=document.getElementById('acg-labels-right');
   if(!top||!bot)return;
   top.innerHTML='';bot.innerHTML='';
+  if(lft)lft.innerHTML='';
+  if(rgt)rgt.innerHTML='';
   const mapW=_acgMap.getContainer().offsetWidth;
-  _acgLineData.forEach(({type,lon,col,sym,pName})=>{
-    // Get pixel X for this longitude
+  const mapH=_acgMap.getContainer().offsetHeight;
+  // MC/IC top+bottom labels
+  _acgLineData.filter(d=>d.type==='MC'||d.type==='IC').forEach(({type,lon,col,sym})=>{
     const pt=_acgMap.latLngToContainerPoint([0,lon]);
     if(pt.x<0||pt.x>mapW)return;
-    const label=`<div style="position:absolute;left:${pt.x}px;transform:translateX(-50%);color:${col};font-size:9px;font-family:Cinzel,serif;font-weight:bold;text-shadow:0 0 4px #000;white-space:nowrap">${sym}${type}</div>`;
-    top.innerHTML+=label;
-    bot.innerHTML+=label;
+    const lbl=`<div style="position:absolute;left:${pt.x}px;transform:translateX(-50%);color:${col};font-size:9px;font-family:Cinzel,serif;font-weight:bold;white-space:nowrap;letter-spacing:0">${sym}${type}</div>`;
+    if(top)top.innerHTML+=lbl;
+    if(bot)bot.innerHTML+=lbl;
   });
+  // AC left labels, DC right labels
+  if(lft||rgt){
+    _acgLineData.filter(d=>d.type==='AC'||d.type==='DC').forEach(({type,lat,col,sym})=>{
+      if(lat==null)return;
+      const pt=_acgMap.latLngToContainerPoint([lat,0]);
+      const y=pt.y;
+      if(y<0||y>mapH)return;
+      const lbl=`<div style="position:absolute;top:${y}px;transform:translateY(-50%);color:${col};font-size:9px;font-family:Cinzel,serif;font-weight:bold;white-space:nowrap;padding:0 2px">${sym}${type}</div>`;
+      if(type==='AC'&&lft)lft.innerHTML+=lbl;
+      if(type==='DC'&&rgt)rgt.innerHTML+=lbl;
+    });
+  }
 }
 
 function drawAcgLines(chartData,birthLon){
@@ -1264,6 +1287,13 @@ function drawAcgLines(chartData,birthLon){
     // Store for outside labels
     _acgLineData.push({type:'MC',lon:mcLon,col,sym,pName});
     _acgLineData.push({type:'IC',lon:icLon,col,sym,pName});
+    // AC/DC: store equator crossing latitude for side labels
+    if(acPts.length>2){
+      const acMid=acPts[Math.floor(acPts.length/2)];
+      const dcMid=dcPts[Math.floor(dcPts.length/2)];
+      if(acMid)_acgLineData.push({type:'AC',lat:acMid[0],lon:acMid[1],col,sym,pName});
+      if(dcMid)_acgLineData.push({type:'DC',lat:dcMid[0],lon:dcMid[1],col,sym,pName});
+    }
 
     // Legend
     const item=document.createElement('div');
@@ -1274,6 +1304,31 @@ function drawAcgLines(chartData,birthLon){
 
   // Update outside labels after render
   setTimeout(updateOutsideLabels,200);
+
+  // Populate AC/DC side strips
+  const acStrip=document.getElementById('acg-labels-ac');
+  const dcStrip=document.getElementById('acg-labels-dc');
+  if(acStrip)acStrip.innerHTML='<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;color:rgba(167,139,250,.5);margin-bottom:4px">AC</div>';
+  if(dcStrip)dcStrip.innerHTML='<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;color:rgba(167,139,250,.5);margin-bottom:4px">DC</div>';
+
+  // Store AC/DC planet info for strips
+  (_acgLineData||[]).forEach(line=>{/* handled above */});
+
+  // Re-draw strips from planets
+  const planetsForStrips=chartData.planets;
+  const PLANETS2=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
+  const PSYM2={'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂','იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'};
+  const PCOL2={'მზე':'#e84040','მთვარე':'#6090d8','მერკური':'#30c890','ვენერა':'#30c890','მარსი':'#e84040','იუპიტერი':'#e84040','სატურნი':'#8090a0','ურანი':'#a0a8b8','ნეპტუნი':'#8060a0','პლუტონი':'#e84040'};
+  PLANETS2.forEach(pName=>{
+    const p=planetsForStrips[pName];if(!p)return;
+    const sym=PSYM2[pName]||'?',col=PCOL2[pName]||'#aaa';
+    const div=`<div style="text-align:center;line-height:1.2;">
+      <div style="color:${col};font-family:serif;font-size:15px">${sym}</div>
+      <div style="color:rgba(180,160,220,.6);font-size:7px;font-family:Cinzel,serif">${pName.substring(0,4)}</div>
+    </div>`;
+    if(acStrip)acStrip.innerHTML+=div;
+    if(dcStrip)dcStrip.innerHTML+=div;
+  });
 }
 
 
