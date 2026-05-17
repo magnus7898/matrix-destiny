@@ -178,7 +178,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
 .acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
 #acg-wheel-section{display:none;}
-#acg-section{width:100vw;position:relative;left:50%;transform:translateX(-50%);display:none;}
+#acg-section{width:100%;max-width:960px;display:none;margin:0 auto;}
 
 
 
@@ -721,7 +721,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
       <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
     </div>
     <!-- Legend -->
-    <div id="acg-legend-bar" style="background:#e8e4d8;border-top:1px solid #8a7a5a;display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px;align-items:center;font-size:10px;min-height:28px;width:100vw;position:relative;left:50%;transform:translateX(-50%);box-sizing:border-box;"></div>
+    <div id="acg-legend-bar" style="background:#e8e4d8;border-top:1px solid #8a7a5a;display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px;align-items:center;font-size:10px;min-height:28px;width:100%;box-sizing:border-box;"></div>
     <!-- Chart result (shown on click) -->
     <div id="acg-result" style="display:none;max-width:820px;margin:0 auto;padding:16px;box-sizing:border-box;width:100%;">
       <div id="acg-result-title" class="sec-title" style="margin-top:0;"></div>
@@ -1487,14 +1487,12 @@ function drawAcgLines(chartData,birthLon){
     // MC vertical line (solid)
     const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:col,weight:2,opacity:.9});
     mcLine._acgLine=true;mcLine.addTo(_acgMap);
-    mcLine.bindTooltip(`${sym} ${pName} MC`,{sticky:true});
     // Labels top and bottom of MC line
 
 
     // IC vertical line (solid, lighter)
     const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.6});
     icLine._acgLine=true;icLine.addTo(_acgMap);
-    icLine.bindTooltip(`${sym} ${pName} IC`,{sticky:true});
 
 
     // AC/DC curves (solid)
@@ -1511,14 +1509,12 @@ function drawAcgLines(chartData,birthLon){
       splitLine(acPts).forEach(seg=>{
         const ac=L.polyline(seg,{color:col,weight:2,opacity:.9});
         ac._acgLine=true;ac.addTo(_acgMap);
-        ac.bindTooltip(`${sym} ${pName} AC`,{sticky:true});
       });
 
 
       splitLine(dcPts).forEach(seg=>{
         const dc=L.polyline(seg,{color:col,weight:2,opacity:.9});
         dc._acgLine=true;dc.addTo(_acgMap);
-        dc.bindTooltip(`${sym} ${pName} DC`,{sticky:true});
       });
 
     }
