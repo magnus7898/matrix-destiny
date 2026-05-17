@@ -604,56 +604,7 @@ tr:hover td{background:rgba(19,16,58,.6)}
   </div>
   <div id="wheel-wrap"><svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg></div>
   <!-- Astrocartography -->
-  <div id="acg-section">
-    <!-- Atlas layout: strips + map -->
-    <div id="acg-grid" style="
-      display:grid;
-      grid-template-columns:52px 1fr 52px;
-      grid-template-rows:28px 1fr 28px;
-      width:100vw;position:relative;left:50%;transform:translateX(-50%);
-      height:calc(100vh - 56px);
-      background:#e8e4d8;">
-      <!-- Corners -->
-      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
-      <!-- Top: MC labels -->
-      <div id="acg-top" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
-      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
-      <!-- Left: AC labels -->
-      <div id="acg-left" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
-      <!-- Map -->
-      <div id="acg-map-wrap" style="position:relative;overflow:hidden;">
-        <div id="acg-map" style="position:absolute;inset:0;"></div>
-      </div>
-      <!-- Right: DC labels -->
-      <div id="acg-right" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
-      <!-- Corners -->
-      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
-      <!-- Bottom: IC labels -->
-      <div id="acg-bot" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
-      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
-    </div>
-    <!-- Legend -->
-    <div id="acg-legend-bar" style="background:#e8e4d8;border-top:1px solid #8a7a5a;display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px;align-items:center;font-size:10px;min-height:28px;width:100vw;position:relative;left:50%;transform:translateX(-50%);box-sizing:border-box;"></div>
-    <!-- Chart result (shown on click) -->
-    <div id="acg-result" style="display:none;max-width:820px;margin:0 auto;padding:16px;box-sizing:border-box;width:100%;">
-      <div id="acg-result-title" class="sec-title" style="margin-top:0;"></div>
-      <div id="wheel-wrap-acg" style="width:100%;margin-bottom:16px;"><svg id="wheel-acg" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"></svg></div>
-      <div class="tables-wrap" style="display:grid;">
-        <div class="data-card"><div class="data-card-title">🪐 პლანეტები</div>
-          <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>სახ.</th><th>℞</th></tr></thead>
-          <tbody id="acg-planet-tbody"></tbody></table></div>
-        <div class="data-card"><div class="data-card-title">🏠 სახლები</div>
-          <table><thead><tr><th>სახლი</th><th>ნიშანი</th><th>გრადუსი</th></tr></thead>
-          <tbody id="acg-house-tbody"></tbody></table></div>
-      </div>
-      <div class="sec-title" style="margin-top:16px;">ასპექტები</div>
-      <div class="data-card" style="margin-bottom:8px;padding:0 0 8px;">
-        <div class="data-card-title" id="acg-asp-title">⚡ ასპექტები</div>
-        <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
-        <tbody id="acg-asp-tbody"></tbody></table>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Modal wheel overlay -->
   <div id="acg-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:rgba(4,3,14,.85);display:flex;align-items:center;justify-content:center;">
@@ -686,10 +637,6 @@ tr:hover td{background:rgba(19,16,58,.6)}
     </div>
   </div>
   <div style="display:none">
-  </div>
-  <!-- Relocation wheel (shown on map click) -->
-  <div id="acg-wheel-section">
-    <div class="sec-title" id="acg-reloc-title"></div>
   </div>
   <div id="asp-filters" style="display:none;margin:10px 0;background:rgba(8,6,20,.7);border:1px solid rgba(45,31,110,.5);border-radius:12px;padding:12px 16px;">
     <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,.5);margin-bottom:10px">ასპექტ ფილტრი</div>
@@ -744,6 +691,60 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <tbody id="aspect-tbody"></tbody></table>
   </div>
 </div>
+
+  <div id="acg-section">
+    <!-- Atlas layout: strips + map -->
+    <div id="acg-grid" style="
+      display:grid;
+      grid-template-columns:52px 1fr 52px;
+      grid-template-rows:28px 1fr 28px;
+      width:100vw;position:relative;left:50%;transform:translateX(-50%);
+      height:calc(100vh - 56px);
+      background:#e8e4d8;">
+      <!-- Corners -->
+      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
+      <!-- Top: MC labels -->
+      <div id="acg-top" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
+      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
+      <!-- Left: AC labels -->
+      <div id="acg-left" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
+      <!-- Map -->
+      <div id="acg-map-wrap" style="position:relative;overflow:hidden;">
+        <div id="acg-map" style="position:absolute;inset:0;"></div>
+      </div>
+      <!-- Right: DC labels -->
+      <div id="acg-right" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
+      <!-- Corners -->
+      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
+      <!-- Bottom: IC labels -->
+      <div id="acg-bot" style="background:#d8d0bc;border:1px solid #8a7a5a;position:relative;overflow:hidden;"></div>
+      <div style="background:#d8d0bc;border:1px solid #8a7a5a;"></div>
+    </div>
+    <!-- Legend -->
+    <div id="acg-legend-bar" style="background:#e8e4d8;border-top:1px solid #8a7a5a;display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px;align-items:center;font-size:10px;min-height:28px;width:100vw;position:relative;left:50%;transform:translateX(-50%);box-sizing:border-box;"></div>
+    <!-- Chart result (shown on click) -->
+    <div id="acg-result" style="display:none;max-width:820px;margin:0 auto;padding:16px;box-sizing:border-box;width:100%;">
+      <div id="acg-result-title" class="sec-title" style="margin-top:0;"></div>
+      <div id="wheel-wrap-acg" style="width:100%;margin-bottom:16px;"><svg id="wheel-acg" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"></svg></div>
+      <div class="tables-wrap" style="display:grid;">
+        <div class="data-card"><div class="data-card-title">🪐 პლანეტები</div>
+          <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>ნიშანი</th><th>სახ.</th><th>℞</th></tr></thead>
+          <tbody id="acg-planet-tbody"></tbody></table></div>
+        <div class="data-card"><div class="data-card-title">🏠 სახლები</div>
+          <table><thead><tr><th>სახლი</th><th>ნიშანი</th><th>გრადუსი</th></tr></thead>
+          <tbody id="acg-house-tbody"></tbody></table></div>
+      </div>
+      <div class="sec-title" style="margin-top:16px;">ასპექტები</div>
+      <div class="data-card" style="margin-bottom:8px;padding:0 0 8px;">
+        <div class="data-card-title" id="acg-asp-title">⚡ ასპექტები</div>
+        <table><thead><tr><th>პ1</th><th>ასპ.</th><th>პ2</th><th>ტიპი</th><th>ორბი</th></tr></thead>
+        <tbody id="acg-asp-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+
+
 
 <script>
 const BACKEND='https://astrology-production-b165.up.railway.app';
