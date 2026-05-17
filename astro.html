@@ -172,11 +172,11 @@ tr:hover td{background:rgba(19,16,58,.6)}
 <style>
 .acg-tip{background:rgba(8,6,20,.92)!important;border:1px solid rgba(100,65,200,.5)!important;color:#c8b8f0!important;font-family:"Noto Sans Georgian",sans-serif!important;font-size:11px!important;padding:4px 8px!important;border-radius:6px!important;}
 .acg-tip::before{display:none!important;}
-#acg-map{width:100%;height:720px;border-radius:12px;border:1px solid rgba(45,31,110,.5);margin-bottom:16px;background:#04030e;}
+#acg-map{width:100%;height:80vh;min-height:600px;border-radius:8px;border:1px solid rgba(45,31,110,.5);margin-bottom:0;background:#04030e;}
 .acg-legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px;padding:10px 14px;background:rgba(8,6,20,.7);border-radius:10px;border:1px solid rgba(45,31,110,.4);}
 .acg-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(180,150,255,.8);cursor:pointer;}
 .acg-legend-dot{width:12px;height:3px;border-radius:2px;}
-#acg-wheel-section{display:none;}
+#acg-wheel-section{display:none;} #acg-section{width:100%;} .acg-legend{flex-wrap:wrap;}
 .acg-tip{background:rgba(8,6,20,.9);color:#e0d8ff;border:1px solid rgba(100,65,200,.4);border-radius:6px;font-family:'Noto Sans Georgian',sans-serif;font-size:11px;}
 </style>
 </head>
@@ -1090,7 +1090,7 @@ function initAcgMap(){
     if(_acgMarker)_acgMap.removeLayer(_acgMarker);
     _acgMarker=L.circleMarker([lat,lon],{radius:7,color:'#f9c646',fillColor:'#f9c646',fillOpacity:.8,weight:2}).addTo(_acgMap);
     _acgMarker.bindPopup(`<div style="font-family:sans-serif;font-size:12px">📍 <b>${lat.toFixed(2)}°, ${lon.toFixed(2)}°</b><br><span style="color:#888">⏳ გამოთვლა...</span></div>`).openPopup();
-    const relData={..._acgBirthData,lat,lon,tz_name:'UTC'};
+    const relData={..._acgBirthData,lat,lon}; // keep original birth timezone for correct relocation chart
     try{
       const d=await fetchChart(relData);
       d._timeUnknown=false;
@@ -1148,9 +1148,11 @@ function drawAcgLines(chartData,birthLon){
   function normLon(l){const r=((l%360)+360)%360;return r>180?r-360:r;}
 
   function splitLine(pts){
+    // Split where longitude jumps (antimeridian crossing or discontinuity)
     const segs=[[pts[0]]];
     for(let k=1;k<pts.length;k++){
-      if(Math.abs(pts[k][1]-pts[k-1][1])>90)segs.push([]);
+      const dl=Math.abs(pts[k][1]-pts[k-1][1]);
+      if(dl>45)segs.push([]); // split on large jump
       segs[segs.length-1].push(pts[k]);
     }
     return segs.filter(s=>s.length>1);
@@ -1183,15 +1185,15 @@ function drawAcgLines(chartData,birthLon){
     mcLine._acgLine=true;mcLine.addTo(_acgMap);
     mcLine.bindTooltip(`${sym} ${pName} MC`,{sticky:true});
     // Labels top and bottom of MC line
-    lineLabel(mcLon, 78, `${sym}MC`, col);
-    lineLabel(mcLon,-78, `${sym}MC`, col);
+    lineLabel(mcLon, 82, `${sym}MC`, col);
+    lineLabel(mcLon,-82, `${sym}MC`, col);
 
     // IC vertical line (solid, lighter)
     const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.6});
     icLine._acgLine=true;icLine.addTo(_acgMap);
     icLine.bindTooltip(`${sym} ${pName} IC`,{sticky:true});
-    lineLabel(icLon, 78, `${sym}IC`, col);
-    lineLabel(icLon,-78, `${sym}IC`, col);
+    lineLabel(icLon, 82, `${sym}IC`, col);
+    lineLabel(icLon,-82, `${sym}IC`, col);
 
     // AC/DC curves (solid)
     const acPts=[],dcPts=[];
@@ -1209,17 +1211,25 @@ function drawAcgLines(chartData,birthLon){
         ac._acgLine=true;ac.addTo(_acgMap);
         ac.bindTooltip(`${sym} ${pName} AC`,{sticky:true});
       });
-      // Label AC at mid-latitude on each segment
+      // Label AC near top and bottom
+      const topAC=acPts.find(p=>p[0]>=50);
+      const botAC=[...acPts].reverse().find(p=>p[0]<=-50);
       const midAC=acPts[Math.floor(acPts.length/2)];
-      if(midAC)lineLabel(midAC[1],midAC[0],`${sym}AC`,col);
+      if(topAC)lineLabel(topAC[1],topAC[0],`${sym}AC`,col);
+      else if(midAC)lineLabel(midAC[1],midAC[0],`${sym}AC`,col);
+      if(botAC)lineLabel(botAC[1],botAC[0],`${sym}AC`,col);
 
       splitLine(dcPts).forEach(seg=>{
         const dc=L.polyline(seg,{color:col,weight:2,opacity:.9});
         dc._acgLine=true;dc.addTo(_acgMap);
         dc.bindTooltip(`${sym} ${pName} DC`,{sticky:true});
       });
+      const topDC=dcPts.find(p=>p[0]>=50);
+      const botDC=[...dcPts].reverse().find(p=>p[0]<=-50);
       const midDC=dcPts[Math.floor(dcPts.length/2)];
-      if(midDC)lineLabel(midDC[1],midDC[0],`${sym}DC`,col);
+      if(topDC)lineLabel(topDC[1],topDC[0],`${sym}DC`,col);
+      else if(midDC)lineLabel(midDC[1],midDC[0],`${sym}DC`,col);
+      if(botDC)lineLabel(botDC[1],botDC[0],`${sym}DC`,col);
     }
 
     // Legend
