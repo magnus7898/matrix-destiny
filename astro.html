@@ -1182,30 +1182,92 @@ function updateOutsideLabels(){
   const W=_acgMap.getContainer().offsetWidth;
   const H=_acgMap.getContainer().offsetHeight;
   const bounds=_acgMap.getBounds();
+  const west=bounds.getWest(),east=bounds.getEast();
+  const south=bounds.getSouth(),north=bounds.getNorth();
+
+  function addLabel(el,x,y,sym,type,col,vertical){
+    const d=document.createElement('div');
+    if(vertical){
+      d.style.cssText='position:absolute;top:'+y+'px;left:50%;transform:translate(-50%,-50%);'+
+        'color:'+col+';font-size:8px;font-weight:bold;font-family:serif;line-height:1;'+
+        'text-align:center;white-space:nowrap;writing-mode:vertical-lr;';
+      d.innerHTML='<span style="font-size:11px">'+sym+'</span><span style="font-size:7px">'+type+'</span>';
+    }else{
+      d.style.cssText='position:absolute;left:'+x+'px;top:50%;transform:translate(-50%,-50%);'+
+        'color:'+col+';font-size:8px;font-weight:bold;font-family:serif;line-height:1;'+
+        'text-align:center;white-space:nowrap;';
+      d.innerHTML='<span style="font-size:11px">'+sym+'</span><br><span style="font-size:7px">'+type+'</span>';
+    }
+    el.appendChild(d);
+  }
+
   _acgLineData.forEach(({type,lon,pts,col,sym})=>{
     if(type==='MC'||type==='IC'){
+      // Vertical lines: label at top and bottom strips at their longitude
       const pt=_acgMap.latLngToContainerPoint([0,lon]);
-      if(pt.x<2||pt.x>W-2)return;
-      const el2=type==='MC'?tEl:bEl;
-      if(!el2)return;
-      const d=document.createElement('div');
-      d.style.cssText='position:absolute;left:'+pt.x+'px;top:50%;transform:translate(-50%,-50%);'+
-        'color:'+col+';font-size:8px;font-weight:bold;font-family:serif;white-space:nowrap;text-align:center;line-height:1;';
-      d.innerHTML='<span style="font-size:11px">'+sym+'</span><br>'+(type==='MC'?'M':'I');
-      el2.appendChild(d.cloneNode(true));
-      (type==='MC'?bEl:tEl).appendChild(d);
-    }else if(pts){
-      const vis=pts.filter(p=>p[0]>=bounds.getSouth()-5&&p[0]<=bounds.getNorth()+5);
+      if(pt.x>=0&&pt.x<=W){
+        addLabel(tEl,pt.x,null,sym,type,col,false);
+        addLabel(bEl,pt.x,null,sym,type,col,false);
+      }
+    }else if(pts&&pts.length>1){
+      // Curved lines: find all intersections with map edges
+      const vis=pts.filter(p=>p[0]>=south-2&&p[0]<=north+2);
       if(!vis.length)return;
-      const el2=type==='AC'?lEl:rEl;if(!el2)return;
-      const mid=vis[Math.floor(vis.length/2)];
-      const pt=_acgMap.latLngToContainerPoint([mid[0],mid[1]]);
-      if(pt.y<2||pt.y>H-2)return;
-      const d=document.createElement('div');
-      d.style.cssText='position:absolute;top:'+pt.y+'px;left:50%;transform:translate(-50%,-50%);'+
-        'color:'+col+';font-size:8px;font-weight:bold;font-family:serif;writing-mode:vertical-lr;white-space:nowrap;';
-      d.innerHTML='<span style="font-size:11px">'+sym+'</span><span style="font-size:7px">'+type+'</span>';
-      el2.appendChild(d);
+
+      // Check intersections with left edge (x~0), right edge (x~W), top (y~0), bottom (y~H)
+      const labeled=new Set();
+      for(let k=0;k<vis.length-1;k++){
+        const p1=_acgMap.latLngToContainerPoint([vis[k][0],vis[k][1]]);
+        const p2=_acgMap.latLngToContainerPoint([vis[k+1][0],vis[k+1][1]]);
+        // Skip if jump is too large (antimeridian split)
+        if(Math.abs(p2.x-p1.x)>W/2||Math.abs(p2.y-p1.y)>H/2)continue;
+
+        // Left border crossing (x goes from >0 to <0 or vice versa)
+        if((p1.x>=0&&p2.x<0)||(p1.x<0&&p2.x>=0)){
+          const t=p1.x/(p1.x-p2.x);
+          const y=p1.y+t*(p2.y-p1.y);
+          if(y>=0&&y<=H&&!labeled.has('L'+Math.round(y/20))){
+            if(lEl)addLabel(lEl,null,y,sym,type,col,true);
+            labeled.add('L'+Math.round(y/20));
+          }
+        }
+        // Right border crossing
+        if((p1.x<=W&&p2.x>W)||(p1.x>W&&p2.x<=W)){
+          const t=(W-p1.x)/(p2.x-p1.x);
+          const y=p1.y+t*(p2.y-p1.y);
+          if(y>=0&&y<=H&&!labeled.has('R'+Math.round(y/20))){
+            if(rEl)addLabel(rEl,null,y,sym,type,col,true);
+            labeled.add('R'+Math.round(y/20));
+          }
+        }
+        // Top border crossing
+        if((p1.y>=0&&p2.y<0)||(p1.y<0&&p2.y>=0)){
+          const t=p1.y/(p1.y-p2.y);
+          const x=p1.x+t*(p2.x-p1.x);
+          if(x>=0&&x<=W&&!labeled.has('T'+Math.round(x/20))){
+            if(tEl)addLabel(tEl,x,null,sym,type,col,false);
+            labeled.add('T'+Math.round(x/20));
+          }
+        }
+        // Bottom border crossing
+        if((p1.y<=H&&p2.y>H)||(p1.y>H&&p2.y<=H)){
+          const t=(H-p1.y)/(p2.y-p1.y);
+          const x=p1.x+t*(p2.x-p1.x);
+          if(x>=0&&x<=W&&!labeled.has('B'+Math.round(x/20))){
+            if(bEl)addLabel(bEl,x,null,sym,type,col,false);
+            labeled.add('B'+Math.round(x/20));
+          }
+        }
+      }
+      // If line fully inside (no border crossing), label at the midpoint near an edge
+      if(labeled.size===0){
+        const mid=vis[Math.floor(vis.length/2)];
+        const pt=_acgMap.latLngToContainerPoint([mid[0],mid[1]]);
+        if(pt.x>=0&&pt.x<=W&&pt.y>=0&&pt.y<=H){
+          const el2=type==='AC'?lEl:rEl;
+          if(el2)addLabel(el2,null,pt.y,sym,type,col,true);
+        }
+      }
     }
   });
 }
