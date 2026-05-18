@@ -1382,34 +1382,34 @@ function drawAcgLines(chartData,birthLon){
   if(!_acgMap)return;
   _acgMap.eachLayer(l=>{if(l._acgLine)_acgMap.removeLayer(l);});
 
-  // Planet colors as requested
-  const PCOL={
-    'მზე':'#cc2222','მთვარე':'#1144cc','მერკური':'#117733','ვენერა':'#117733',
+  const PCOL={'მზე':'#cc2222','მთვარე':'#1144cc','მერკური':'#117733','ვენერა':'#117733',
     'მარსი':'#cc2222','იუპიტერი':'#cc2222','სატურნი':'#111111','ურანი':'#335566',
-    'ნეპტუნი':'#1144cc','პლუტონი':'#882244'
-  };
-  const PSYM={
-    'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂',
-    'იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'
-  };
+    'ნეპტუნი':'#1144cc','პლუტონი':'#882244'};
+  const PSYM={'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂',
+    'იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'};
   const PLANETS=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
+
   const legend=document.getElementById('acg-legend-bar');
   if(legend)legend.innerHTML='';
+  _acgLineData=[];
 
   const {ra:RAMC}=ecl2eq(chartData.mc);
   const GST=((RAMC-birthLon)+360)%360;
+
   function normLon(l){const r=((l%360)+360)%360;return r>180?r-360:r;}
 
-  function splitLine(pts){
-    const segs=[[pts[0]]];
+  // Unwrap array of [lat,lon] so longitudes are continuous (no ±180 jumps)
+  function unwrap(pts){
+    if(!pts.length)return pts;
+    const out=[[pts[0][0],pts[0][1]]];
     for(let k=1;k<pts.length;k++){
-      const dl=Math.abs(pts[k][1]-pts[k-1][1]);
-      if(dl>90)segs.push([]);
-      segs[segs.length-1].push(pts[k]);
+      let diff=pts[k][1]-out[k-1][1];
+      while(diff>180)diff-=360;
+      while(diff<-180)diff+=360;
+      out.push([pts[k][0],out[k-1][1]+diff]);
     }
-    return segs.filter(s=>s.length>=6);
+    return out;
   }
-
 
   PLANETS.forEach(pName=>{
     const p=chartData.planets[pName];if(!p)return;
@@ -1420,89 +1420,45 @@ function drawAcgLines(chartData,birthLon){
     const mcLon=normLon(ra-GST);
     const icLon=normLon(mcLon+180);
 
-    // MC vertical line (solid)
+    // MC/IC vertical lines
     const mcLine=L.polyline([[-85,mcLon],[85,mcLon]],{color:col,weight:2,opacity:.9});
     mcLine._acgLine=true;mcLine.addTo(_acgMap);
-    // Labels top and bottom of MC line
-
-
-    // IC vertical line (solid, lighter)
-    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.6});
+    const icLine=L.polyline([[-85,icLon],[85,icLon]],{color:col,weight:1.5,opacity:.65});
     icLine._acgLine=true;icLine.addTo(_acgMap);
 
-
-    // AC/DC curves (solid)
-    const acPts=[],dcPts=[];
-    for(let lat=-85;lat<=85;lat+=0.5){
+    // AC/DC curves: collect raw points then unwrap for continuous lines
+    const acRaw=[],dcRaw=[];
+    for(let lat=-82;lat<=82;lat+=0.5){
       const cosH=-Math.tan(lat*RAD)*Math.tan(dec*RAD);
       if(Math.abs(cosH)>=0.9998)continue;
-      const H=Math.acos(Math.max(-1,Math.min(1,cosH)))*DEG;
-      acPts.push([lat,normLon(ra-H-GST)]);
-      dcPts.push([lat,normLon(ra+H-GST)]);
+      const H=Math.acos(cosH)*DEG;
+      acRaw.push([lat, normLon(ra-H-GST)]);
+      dcRaw.push([lat, normLon(ra+H-GST)]);
     }
 
-    if(acPts.length>2){
-      splitLine(acPts).forEach(seg=>{
-        const ac=L.polyline(seg,{color:col,weight:2,opacity:.9});
-        ac._acgLine=true;ac.addTo(_acgMap);
-      });
+    if(acRaw.length>4){
+      // Unwrap to make continuous, then draw as single polyline
+      const acPts=unwrap(acRaw);
+      const dcPts=unwrap(dcRaw);
+      const ac=L.polyline(acPts,{color:col,weight:2,opacity:.9});
+      ac._acgLine=true;ac.addTo(_acgMap);
+      const dc=L.polyline(dcPts,{color:col,weight:2,opacity:.9});
+      dc._acgLine=true;dc.addTo(_acgMap);
 
-
-      splitLine(dcPts).forEach(seg=>{
-        const dc=L.polyline(seg,{color:col,weight:2,opacity:.9});
-        dc._acgLine=true;dc.addTo(_acgMap);
-      });
-
+      _acgLineData.push({type:'AC',pts:acRaw,col,sym,pName});
+      _acgLineData.push({type:'DC',pts:dcRaw,col,sym,pName});
     }
 
-    // Store for outside labels — AC/DC store full point arrays
     _acgLineData.push({type:'MC',lon:mcLon,col,sym,pName});
     _acgLineData.push({type:'IC',lon:icLon,col,sym,pName});
-    if(acPts.length>2){
-      _acgLineData.push({type:'AC',pts:acPts,col,sym,pName});
-      _acgLineData.push({type:'DC',pts:dcPts,col,sym,pName});
+
+    if(legend){
+      const item=document.createElement('div');item.className='acg-legend-item';
+      item.innerHTML='<span style="color:'+col+';font-family:serif;font-size:14px">'+sym+'</span><span style="color:'+col+';font-size:9px">'+pName+'</span>';
+      legend.appendChild(item);
     }
-
-    // Store line data for outside labels
-    _acgLineData.push({type:'MC',lon:mcLon,col,sym,pName});
-    _acgLineData.push({type:'IC',lon:icLon,col,sym,pName});
-    if(acPts.length>2){
-      _acgLineData.push({type:'AC',pts:acPts,col,sym,pName});
-      _acgLineData.push({type:'DC',pts:dcPts,col,sym,pName});
-    }
-    // Legend
-    if(legend){const item=document.createElement('div');item.className='acg-legend-item';
-    item.innerHTML='<span style="color:'+col+';font-family:serif;font-size:14px">'+sym+'</span><span style="color:'+col+';font-size:9px">'+pName+'</span>';
-    legend.appendChild(item);}
   });
-
-  // Update outside labels after render
-  setTimeout(updateOutsideLabels,200);
-
-  // Populate AC/DC side strips
-  const acStrip=document.getElementById('acg-labels-ac');
-  const dcStrip=document.getElementById('acg-labels-dc');
-  if(acStrip)acStrip.innerHTML='<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;color:rgba(167,139,250,.5);margin-bottom:4px">AC</div>';
-  if(dcStrip)dcStrip.innerHTML='<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;color:rgba(167,139,250,.5);margin-bottom:4px">DC</div>';
-
-  // Store AC/DC planet info for strips
-  (_acgLineData||[]).forEach(line=>{/* handled above */});
-
-  // Re-draw strips from planets
-  const planetsForStrips=chartData.planets;
-  const PLANETS2=['მზე','მთვარე','მერკური','ვენერა','მარსი','იუპიტერი','სატურნი','ურანი','ნეპტუნი','პლუტონი'];
-  const PSYM2={'მზე':'☉','მთვარე':'☽','მერკური':'☿','ვენერა':'♀','მარსი':'♂','იუპიტერი':'♃','სატურნი':'♄','ურანი':'♅','ნეპტუნი':'♆','პლუტონი':'⯓'};
-  const PCOL2={'მზე':'#e84040','მთვარე':'#6090d8','მერკური':'#30c890','ვენერა':'#30c890','მარსი':'#e84040','იუპიტერი':'#e84040','სატურნი':'#8090a0','ურანი':'#a0a8b8','ნეპტუნი':'#8060a0','პლუტონი':'#e84040'};
-  PLANETS2.forEach(pName=>{
-    const p=planetsForStrips[pName];if(!p)return;
-    const sym=PSYM2[pName]||'?',col=PCOL2[pName]||'#aaa';
-    const div=`<div style="text-align:center;line-height:1.2;">
-      <div style="color:${col};font-family:serif;font-size:15px">${sym}</div>
-      <div style="color:rgba(180,160,220,.6);font-size:7px;font-family:Cinzel,serif">${pName.substring(0,4)}</div>
-    </div>`;
-    if(acStrip)acStrip.innerHTML+=div;
-    if(dcStrip)dcStrip.innerHTML+=div;
-  });
+  setTimeout(updateOutsideLabels,400);
 }
 
 
