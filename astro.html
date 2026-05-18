@@ -1247,89 +1247,96 @@ function updateOutsideLabels(){
 
   const W=_acgMap.getContainer().offsetWidth;
   const H=_acgMap.getContainer().offsetHeight;
-  const ctr=_acgMap.getCenter().lng; // current map center longitude
+  const b=_acgMap.getBounds();
+  const west=b.getWest(),east=b.getEast(),north=b.getNorth(),south=b.getSouth();
 
-  // Find best lon offset so point is closest to map center
-  function bestLon(lon){
-    let best=lon;
-    for(let o=-1080;o<=1080;o+=360){
-      if(Math.abs(lon+o-ctr)<Math.abs(best-ctr))best=lon+o;
-    }
-    return best;
-  }
+  function px(lat,lon){return _acgMap.latLngToContainerPoint(L.latLng(lat,lon));}
 
   const hTop=[],hBot=[],vLeft=[],vRight=[];
 
   _acgLineData.forEach(({type,lon,pts,col,sym})=>{
     if(type==='MC'||type==='IC'){
-      const visLon=bestLon(lon);
-      const pt=_acgMap.latLngToContainerPoint([0,visLon]);
-      if(pt.x>=-20&&pt.x<=W+20){
-        const label={x:Math.max(0,Math.min(W,pt.x)),sym,type:type==='MC'?'M':'I',col};
-        hTop.push({...label});hBot.push({...label});
+      // Find which world copy of this lon is visible
+      for(let o=-1080;o<=1080;o+=360){
+        const vl=lon+o;
+        if(vl>=west&&vl<=east){
+          const p=px(0,vl);
+          hTop.push({x:p.x,sym,type:type==='MC'?'M':'I',col});
+          hBot.push({x:p.x,sym,type:type==='MC'?'M':'I',col});
+        }
       }
-    }else if(pts&&pts.length>1){
+    } else if(pts&&pts.length>1){
       const suf=type==='AC'?'A':'D';
-      const arr=type==='AC'?vLeft:vRight;
-      let found=false;
-      // Try all world copies to find border crossings
-      [-720,-360,0,360,720].forEach(offset=>{
+      // Check all world copies
+      for(let o=-1080;o<=1080;o+=360){
         for(let k=0;k<pts.length-1;k++){
-          const p1=_acgMap.latLngToContainerPoint([pts[k][0],pts[k][1]+offset]);
-          const p2=_acgMap.latLngToContainerPoint([pts[k+1][0],pts[k+1][1]+offset]);
-          if(Math.abs(p2.x-p1.x)>W||Math.abs(p2.y-p1.y)>H)continue;
-          // Left crossing
-          if((p1.x>=0&&p2.x<0)||(p1.x<0&&p2.x>=0)){
-            const t=p1.x/(p1.x-p2.x);
-            const y=p1.y+t*(p2.y-p1.y);
-            if(y>=4&&y<=H-4){vLeft.push({y,sym,type:suf,col});found=true;}
+          const lat1=pts[k][0],lon1=pts[k][1]+o;
+          const lat2=pts[k+1][0],lon2=pts[k+1][1]+o;
+          // Skip if huge lon jump (antimeridian)
+          if(Math.abs(lon2-lon1)>90)continue;
+
+          // Left border (lon=west): does segment straddle west?
+          if((lon1>=west&&lon2<west)||(lon1<west&&lon2>=west)){
+            const t=(west-lon1)/(lon2-lon1);
+            const crossLat=lat1+t*(lat2-lat1);
+            if(crossLat>=south&&crossLat<=north){
+              const p=px(crossLat,west);
+              vLeft.push({y:p.y,sym,type:suf,col});
+            }
           }
-          // Right crossing
-          if((p1.x<=W&&p2.x>W)||(p1.x>W&&p2.x<=W)){
-            const t=(W-p1.x)/(p2.x-p1.x);
-            const y=p1.y+t*(p2.y-p1.y);
-            if(y>=4&&y<=H-4){vRight.push({y,sym,type:suf,col});found=true;}
+          // Right border (lon=east)
+          if((lon1<=east&&lon2>east)||(lon1>east&&lon2<=east)){
+            const t=(east-lon1)/(lon2-lon1);
+            const crossLat=lat1+t*(lat2-lat1);
+            if(crossLat>=south&&crossLat<=north){
+              const p=px(crossLat,east);
+              vRight.push({y:p.y,sym,type:suf,col});
+            }
           }
-          // Top crossing
-          if((p1.y>=0&&p2.y<0)||(p1.y<0&&p2.y>=0)){
-            const t=p1.y/(p1.y-p2.y);
-            const x=p1.x+t*(p2.x-p1.x);
-            if(x>=4&&x<=W-4){hTop.push({x,sym,type:suf,col});found=true;}
+          // Top border (lat=north)
+          if((lat1<=north&&lat2>north)||(lat1>north&&lat2<=north)){
+            const t=(north-lat1)/(lat2-lat1);
+            const crossLon=lon1+t*(lon2-lon1);
+            if(crossLon>=west&&crossLon<=east){
+              const p=px(north,crossLon);
+              hTop.push({x:p.x,sym,type:suf,col});
+            }
           }
-          // Bottom crossing
-          if((p1.y<=H&&p2.y>H)||(p1.y>H&&p2.y<=H)){
-            const t=(H-p1.y)/(p2.y-p1.y);
-            const x=p1.x+t*(p2.x-p1.x);
-            if(x>=4&&x<=W-4){hBot.push({x,sym,type:suf,col});found=true;}
+          // Bottom border (lat=south)
+          if((lat1>=south&&lat2<south)||(lat1<south&&lat2>=south)){
+            const t=(south-lat1)/(lat2-lat1);
+            const crossLon=lon1+t*(lon2-lon1);
+            if(crossLon>=west&&crossLon<=east){
+              const p=px(south,crossLon);
+              hBot.push({x:p.x,sym,type:suf,col});
+            }
           }
         }
-      });
+      }
     }
   });
 
   function placeH(el,items){
-    if(!el)return;
+    if(!el||!items.length)return;
     items.sort((a,b)=>a.x-b.x);
     for(let i=1;i<items.length;i++)if(items[i].x-items[i-1].x<16)items[i].x=items[i-1].x+16;
     items.forEach(({x,sym,type,col})=>{
       if(x<0||x>W)return;
       const d=document.createElement('div');
-      d.style.cssText='position:absolute;left:'+x+'px;top:50%;transform:translate(-50%,-50%);color:'+col+
-        ';font-size:9px;font-weight:bold;font-family:serif;text-align:center;line-height:1;white-space:nowrap;pointer-events:none;';
+      d.style.cssText='position:absolute;left:'+x+'px;top:50%;transform:translate(-50%,-50%);color:'+col+';font-size:9px;font-weight:bold;font-family:serif;text-align:center;line-height:1;white-space:nowrap;pointer-events:none;';
       d.innerHTML='<span style="font-size:11px">'+sym+'</span><span style="font-size:7px">'+type+'</span>';
       el.appendChild(d);
     });
   }
   function placeV(el,items,side){
-    if(!el)return;
+    if(!el||!items.length)return;
     items.sort((a,b)=>a.y-b.y);
     for(let i=1;i<items.length;i++)if(items[i].y-items[i-1].y<14)items[i].y=items[i-1].y+14;
-    const tick=side==='left'?'border-right:2px solid ':'border-left:2px solid ';
+    const bdr=side==='left'?'border-right:2px solid ':'border-left:2px solid ';
     items.forEach(({y,sym,type,col})=>{
       if(y<0||y>H)return;
       const d=document.createElement('div');
-      d.style.cssText='position:absolute;top:'+y+'px;left:0;right:0;transform:translateY(-50%);color:'+col+
-        ';font-size:8px;font-weight:bold;font-family:serif;text-align:center;line-height:1.1;white-space:nowrap;pointer-events:none;'+tick+col+';';
+      d.style.cssText='position:absolute;top:'+y+'px;left:0;right:0;transform:translateY(-50%);color:'+col+';font-size:8px;font-weight:bold;font-family:serif;text-align:center;line-height:1.1;white-space:nowrap;pointer-events:none;'+bdr+col+';';
       d.innerHTML='<span style="font-size:10px">'+sym+'</span><span style="font-size:7px">'+type+'</span>';
       el.appendChild(d);
     });
