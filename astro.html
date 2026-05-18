@@ -1386,7 +1386,7 @@ function drawAcgLines(chartData,birthLon){
     const icLon=normLon(mcLon+180);
 
     // Draw MC/IC at original + ±360° for map wrap
-    [-360,0,360].forEach(offset=>{
+    [-1800,-1440,-1080,-720,-360,0,360,720,1080,1440,1800].forEach(offset=>{
       const ml=L.polyline([[-85,mcLon+offset],[85,mcLon+offset]],{color:col,weight:2,opacity:.9});
       ml._acgLine=true;ml.addTo(_acgMap);
       const il=L.polyline([[-85,icLon+offset],[85,icLon+offset]],{color:col,weight:1.5,opacity:.65});
@@ -1403,7 +1403,7 @@ function drawAcgLines(chartData,birthLon){
     }
 
     // Draw AC/DC at original + ±360° for map wrap
-    [-360,0,360].forEach(offset=>{
+    [-1800,-1440,-1080,-720,-360,0,360,720,1080,1440,1800].forEach(offset=>{
       splitAtMeridian(acPts).forEach(seg=>{
         const shifted=seg.map(p=>[p[0],p[1]+offset]);
         const ln=L.polyline(shifted,{color:col,weight:2,opacity:.9});
