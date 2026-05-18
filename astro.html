@@ -1244,73 +1244,73 @@ function updateOutsideLabels(){
   if(!tEl)return;
   tEl.innerHTML='';bEl.innerHTML='';
   if(lEl)lEl.innerHTML='';if(rEl)rEl.innerHTML='';
+
   const W=_acgMap.getContainer().offsetWidth;
   const H=_acgMap.getContainer().offsetHeight;
-  const bounds=_acgMap.getBounds();
+  const ctr=_acgMap.getCenter().lng; // current map center longitude
 
-  // Collect all label candidates
+  // Find best lon offset so point is closest to map center
+  function bestLon(lon){
+    let best=lon;
+    for(let o=-1080;o<=1080;o+=360){
+      if(Math.abs(lon+o-ctr)<Math.abs(best-ctr))best=lon+o;
+    }
+    return best;
+  }
+
   const hTop=[],hBot=[],vLeft=[],vRight=[];
 
   _acgLineData.forEach(({type,lon,pts,col,sym})=>{
     if(type==='MC'||type==='IC'){
-      const pt=_acgMap.latLngToContainerPoint([0,lon]);
-      if(pt.x>=2&&pt.x<=W-2){
-        const label={x:pt.x,sym,type:type==='MC'?'M':'I',col};
-        hTop.push(label);
-        hBot.push({...label});
+      const visLon=bestLon(lon);
+      const pt=_acgMap.latLngToContainerPoint([0,visLon]);
+      if(pt.x>=-20&&pt.x<=W+20){
+        const label={x:Math.max(0,Math.min(W,pt.x)),sym,type:type==='MC'?'M':'I',col};
+        hTop.push({...label});hBot.push({...label});
       }
     }else if(pts&&pts.length>1){
-      const vis=pts.filter(p=>p[0]>=bounds.getSouth()-2&&p[0]<=bounds.getNorth()+2);
-      if(!vis.length)return;
-      const arr=type==='AC'?vLeft:vRight;
       const suf=type==='AC'?'A':'D';
-      // Find border crossings
+      const arr=type==='AC'?vLeft:vRight;
       let found=false;
-      for(let k=0;k<vis.length-1;k++){
-        const p1=_acgMap.latLngToContainerPoint([vis[k][0],vis[k][1]]);
-        const p2=_acgMap.latLngToContainerPoint([vis[k+1][0],vis[k+1][1]]);
-        if(Math.abs(p2.x-p1.x)>W/2||Math.abs(p2.y-p1.y)>H/2)continue;
-        // Left crossing
-        if((p1.x>=0&&p2.x<0)||(p1.x<0&&p2.x>=0)){
-          const t=p1.x/(p1.x-p2.x);
-          const y=p1.y+t*(p2.y-p1.y);
-          if(y>=4&&y<=H-4){arr.push({y,sym,type:suf,col});found=true;}
+      // Try all world copies to find border crossings
+      [-720,-360,0,360,720].forEach(offset=>{
+        for(let k=0;k<pts.length-1;k++){
+          const p1=_acgMap.latLngToContainerPoint([pts[k][0],pts[k][1]+offset]);
+          const p2=_acgMap.latLngToContainerPoint([pts[k+1][0],pts[k+1][1]+offset]);
+          if(Math.abs(p2.x-p1.x)>W||Math.abs(p2.y-p1.y)>H)continue;
+          // Left crossing
+          if((p1.x>=0&&p2.x<0)||(p1.x<0&&p2.x>=0)){
+            const t=p1.x/(p1.x-p2.x);
+            const y=p1.y+t*(p2.y-p1.y);
+            if(y>=4&&y<=H-4){vLeft.push({y,sym,type:suf,col});found=true;}
+          }
+          // Right crossing
+          if((p1.x<=W&&p2.x>W)||(p1.x>W&&p2.x<=W)){
+            const t=(W-p1.x)/(p2.x-p1.x);
+            const y=p1.y+t*(p2.y-p1.y);
+            if(y>=4&&y<=H-4){vRight.push({y,sym,type:suf,col});found=true;}
+          }
+          // Top crossing
+          if((p1.y>=0&&p2.y<0)||(p1.y<0&&p2.y>=0)){
+            const t=p1.y/(p1.y-p2.y);
+            const x=p1.x+t*(p2.x-p1.x);
+            if(x>=4&&x<=W-4){hTop.push({x,sym,type:suf,col});found=true;}
+          }
+          // Bottom crossing
+          if((p1.y<=H&&p2.y>H)||(p1.y>H&&p2.y<=H)){
+            const t=(H-p1.y)/(p2.y-p1.y);
+            const x=p1.x+t*(p2.x-p1.x);
+            if(x>=4&&x<=W-4){hBot.push({x,sym,type:suf,col});found=true;}
+          }
         }
-        // Right crossing
-        if((p1.x<=W&&p2.x>W)||(p1.x>W&&p2.x<=W)){
-          const t=(W-p1.x)/(p2.x-p1.x);
-          const y=p1.y+t*(p2.y-p1.y);
-          if(y>=4&&y<=H-4){arr.push({y,sym,type:suf,col});found=true;}
-        }
-        // Top crossing
-        if((p1.y>=0&&p2.y<0)||(p1.y<0&&p2.y>=0)){
-          const t=p1.y/(p1.y-p2.y);
-          const x=p1.x+t*(p2.x-p1.x);
-          if(x>=4&&x<=W-4){hTop.push({x,sym,type:suf,col});found=true;}
-        }
-        // Bottom crossing
-        if((p1.y<=H&&p2.y>H)||(p1.y>H&&p2.y<=H)){
-          const t=(H-p1.y)/(p2.y-p1.y);
-          const x=p1.x+t*(p2.x-p1.x);
-          if(x>=4&&x<=W-4){hBot.push({x,sym,type:suf,col});found=true;}
-        }
-      }
-      if(!found){
-        const mid=vis[Math.floor(vis.length/2)];
-        const pt=_acgMap.latLngToContainerPoint([mid[0],mid[1]]);
-        if(pt.y>=4&&pt.y<=H-4)arr.push({y:pt.y,sym,type:suf,col});
-      }
+      });
     }
   });
 
-  // Place labels with min spacing, push apart if too close
   function placeH(el,items){
     if(!el)return;
     items.sort((a,b)=>a.x-b.x);
-    // Push apart overlapping labels (min 16px)
-    for(let i=1;i<items.length;i++){
-      if(items[i].x-items[i-1].x<16)items[i].x=items[i-1].x+16;
-    }
+    for(let i=1;i<items.length;i++)if(items[i].x-items[i-1].x<16)items[i].x=items[i-1].x+16;
     items.forEach(({x,sym,type,col})=>{
       if(x<0||x>W)return;
       const d=document.createElement('div');
@@ -1320,30 +1320,23 @@ function updateOutsideLabels(){
       el.appendChild(d);
     });
   }
-
   function placeV(el,items,side){
     if(!el)return;
     items.sort((a,b)=>a.y-b.y);
-    for(let i=1;i<items.length;i++){
-      if(items[i].y-items[i-1].y<14)items[i].y=items[i-1].y+14;
-    }
-    const isLeft=side==='left';
-    items.forEach(({y,sym,type,col,origY})=>{
+    for(let i=1;i<items.length;i++)if(items[i].y-items[i-1].y<14)items[i].y=items[i-1].y+14;
+    const tick=side==='left'?'border-right:2px solid ':'border-left:2px solid ';
+    items.forEach(({y,sym,type,col})=>{
       if(y<0||y>H)return;
       const d=document.createElement('div');
-      // Small tick line toward the map
-      const tick=isLeft?'border-right:2px solid '+col+';padding-right:3px;':'border-left:2px solid '+col+';padding-left:3px;';
       d.style.cssText='position:absolute;top:'+y+'px;left:0;right:0;transform:translateY(-50%);color:'+col+
-        ';font-size:8px;font-weight:bold;font-family:serif;text-align:center;line-height:1.1;white-space:nowrap;pointer-events:none;'+tick;
+        ';font-size:8px;font-weight:bold;font-family:serif;text-align:center;line-height:1.1;white-space:nowrap;pointer-events:none;'+tick+col+';';
       d.innerHTML='<span style="font-size:10px">'+sym+'</span><span style="font-size:7px">'+type+'</span>';
       el.appendChild(d);
     });
   }
 
-  placeH(tEl,hTop);
-  placeH(bEl,hBot);
-  placeV(lEl,vLeft,'left');
-  placeV(rEl,vRight,'right');
+  placeH(tEl,hTop);placeH(bEl,hBot);
+  placeV(lEl,vLeft,'left');placeV(rEl,vRight,'right');
 }
 
 function drawAcgLines(chartData,birthLon){
