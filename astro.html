@@ -1235,12 +1235,12 @@ function updateOutsideLabels(){
 function initAcgMap(){
   if(_acgMap)return;
   _acgMap=L.map('acg-map',{
-    zoomControl:false,scrollWheelZoom:false,dragging:false,
-    doubleClickZoom:false,touchZoom:false,boxZoom:false,
-    keyboard:false,attributionControl:false,
-    zoomSnap:0.05,zoomDelta:0.05,worldCopyJump:false
+    zoomControl:true,scrollWheelZoom:true,dragging:true,
+    doubleClickZoom:true,touchZoom:true,boxZoom:true,
+    keyboard:true,attributionControl:false,
+    zoomSnap:0.1,zoomDelta:1,worldCopyJump:false
   });
-  // fitBounds controls exactly which area is visible:
+  // fitBounds controls initial view:
   // left starts at -140 (reduce Americas), right ends at 175 (more Asia visible)
   _acgMap.fitBounds([[-75, -168], [78, 182]]);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(_acgMap);
