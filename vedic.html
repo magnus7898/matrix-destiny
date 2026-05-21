@@ -6,124 +6,79 @@
 <title>ვედური ასტროლოგია · ჯიოტიში</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400&family=Cinzel:wght@300;400;600&family=IM+Fell+English:ital@0;1&family=Noto+Sans+Georgian:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{
-  --void:#04030a;--deep:#07071a;--surface:rgba(15,13,42,0.85);
-  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a20;
-  --purple:#a78bfa;--purple-d:#2d1f6e;
-  --txt:#e0d8ff;--dim:rgba(155,168,184,0.6);
-  --brd:rgba(45,31,110,0.8);
-}
+:root{--void:#04030a;--deep:#07071a;--gold:#c9a84c;--gold-l:#f0d080;--purple:#a78bfa;--purple-d:#2d1f6e;--txt:#e0d8ff;--dim:rgba(155,168,184,0.6);--brd:rgba(45,31,110,0.8);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  background:var(--void);color:var(--txt);
-  font-family:'Noto Sans Georgian',sans-serif;
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:0 0 80px;overflow-x:hidden;position:relative;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.55) 0,transparent 100%),
-    radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.45) 0,transparent 100%),
-    radial-gradient(1px 1px at 60% 25%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.5) 0,transparent 100%),
-    radial-gradient(1px 1px at 88% 44%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1px 1px at 15% 68%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1px 1px at 50% 75%,rgba(255,255,255,.4) 0,transparent 100%),
-    radial-gradient(1px 1px at 82% 80%,rgba(255,255,255,.35) 0,transparent 100%),
-    radial-gradient(1px 1px at 33% 90%,rgba(255,255,255,.25) 0,transparent 100%),
-    radial-gradient(1px 1px at 67% 58%,rgba(255,255,255,.3) 0,transparent 100%),
-    radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%),
-    radial-gradient(1.5px 1.5px at 66% 44%,rgba(201,168,76,.18) 0,transparent 100%);
-}
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 600px 400px at 20% 20%,rgba(100,40,200,.08) 0,transparent 70%),
-    radial-gradient(ellipse 500px 500px at 80% 70%,rgba(40,80,200,.06) 0,transparent 70%),
-    radial-gradient(ellipse 400px 300px at 50% 90%,rgba(120,50,180,.05) 0,transparent 70%);
-}
-.hero{position:relative;z-index:1;text-align:center;padding:56px 24px 40px;width:100%}
-.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:12px;font-weight:300;font-family:'Cinzel',serif}
-.hero-title{
-  font-family:'Cinzel Decorative',serif;
-  font-size:clamp(22px,4vw,42px);font-weight:400;letter-spacing:3px;line-height:1.2;
-  background:linear-gradient(160deg,#f5e8ba 0%,var(--gold) 35%,#9a7028 60%,#e8d5a0 80%,#c09040 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 28px rgba(201,168,76,.25));
-}
-.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:13px;color:var(--dim);margin-top:10px}
-.hero-divider{display:flex;align-items:center;gap:14px;margin:24px auto 0;max-width:300px}
+body{background:var(--void);color:var(--txt);font-family:'Noto Sans Georgian',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 80px;overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.55) 0,transparent 100%),radial-gradient(1px 1px at 23% 35%,rgba(255,255,255,.35) 0,transparent 100%),radial-gradient(1px 1px at 41% 8%,rgba(255,255,255,.45) 0,transparent 100%),radial-gradient(1px 1px at 77% 13%,rgba(255,255,255,.5) 0,transparent 100%),radial-gradient(1.5px 1.5px at 34% 51%,rgba(167,139,250,.25) 0,transparent 100%);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 600px 400px at 20% 20%,rgba(100,40,200,.08) 0,transparent 70%),radial-gradient(ellipse 500px 500px at 80% 70%,rgba(40,80,200,.06) 0,transparent 70%);}
+.hero{position:relative;z-index:1;text-align:center;padding:40px 24px 24px;width:100%}
+.hero-eyebrow{font-size:9px;letter-spacing:7px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:10px;font-family:'Cinzel',serif}
+.hero-title{font-family:'Cinzel Decorative',serif;font-size:clamp(20px,4vw,38px);font-weight:400;letter-spacing:3px;background:linear-gradient(160deg,#f5e8ba 0%,var(--gold) 35%,#9a7028 60%,#e8d5a0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:12px;color:var(--dim);margin-top:8px}
+.hero-divider{display:flex;align-items:center;gap:14px;margin:16px auto 0;max-width:300px}
 .hero-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent)}
 .hero-gem{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:.5;flex-shrink:0}
-.form-card{
-  position:relative;z-index:1;
-  background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);
-  border-radius:16px;padding:24px;width:100%;max-width:620px;
-  margin:32px auto;backdrop-filter:blur(12px);
-  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(167,139,250,.08);
-}
-.form-card::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent);
-}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-.field{display:flex;flex-direction:column;gap:5px}
+.form-card{position:relative;z-index:1;background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.6);border-radius:16px;padding:24px;width:100%;max-width:620px;margin:16px auto;backdrop-filter:blur(12px);box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.field{display:flex;flex-direction:column;gap:4px}
 .field.wide{grid-column:span 3}
 label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;font-family:'Cinzel',serif}
-input{
-  background:rgba(10,8,30,.7);border:1px solid rgba(61,42,138,.6);
-  border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px;
-  font-family:'Noto Sans Georgian',sans-serif;width:100%;transition:border-color .2s,box-shadow .2s;
-}
-input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+input{background:rgba(10,8,30,.7);border:1px solid rgba(61,42,138,.6);border-radius:8px;color:var(--txt);padding:9px 12px;font-size:13px;font-family:'Noto Sans Georgian',sans-serif;width:100%;transition:border-color .2s;}
+input:focus{outline:none;border-color:var(--purple)}
 input::placeholder{color:rgba(155,168,184,.35)}
-.coords-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.coords input{background:rgba(6,5,18,.7);color:rgba(155,168,184,.6)}
-#city-hint{font-size:11px;color:var(--purple);margin-top:3px;min-height:15px;padding-left:2px}
-#tz-display{font-size:11px;color:var(--gold);margin-bottom:16px;background:rgba(6,5,18,.5);border-radius:6px;padding:6px 10px;border-left:2px solid rgba(201,168,76,.3)}
-.gen-btn{
-  width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);
-  color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;
-  padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;
-  font-family:'Cinzel',serif;transition:all .3s;box-shadow:0 4px 20px rgba(109,40,217,.3);
-}
+#city-hint{font-size:11px;color:var(--purple);margin-top:2px;min-height:14px}
+#tz-display{font-size:11px;color:var(--gold);margin-bottom:12px;background:rgba(6,5,18,.5);border-radius:6px;padding:5px 10px;border-left:2px solid rgba(201,168,76,.3);min-height:28px;}
+.gen-btn{width:100%;background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff;border:1px solid rgba(124,58,237,.4);border-radius:10px;padding:13px;font-size:13px;cursor:pointer;letter-spacing:2px;font-family:'Cinzel',serif;transition:all .3s;box-shadow:0 4px 20px rgba(109,40,217,.3);margin-top:8px;}
 .gen-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6);transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.4;cursor:wait;transform:none}
 .time-disabled input{opacity:.3;pointer-events:none}
-#chart-area{position:relative;z-index:1;width:100%;max-width:800px;padding:0 16px}
-svg#wheel{width:100%;height:auto;display:block;overflow:visible}
-.sec-title{
-  font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;
-  color:var(--gold);text-transform:uppercase;text-align:center;
-  margin:32px 0 16px;display:flex;align-items:center;gap:14px;
-}
+#chart-area{position:relative;z-index:1;width:100%;max-width:840px;padding:0 16px}
+.sec-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;text-align:center;margin:28px 0 14px;display:flex;align-items:center;gap:14px;}
 .sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent)}
-.tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
+.tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
 @media(max-width:600px){.tables-wrap{grid-template-columns:1fr}}
-.data-card{background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;backdrop-filter:blur(8px)}
-.data-card-title{background:rgba(167,139,250,.07);padding:10px 16px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;border-bottom:1px solid rgba(45,31,110,.5)}
+.data-card{background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;}
+.data-card-title{background:rgba(167,139,250,.07);padding:9px 14px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;border-bottom:1px solid rgba(45,31,110,.5);}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{color:rgba(155,168,184,.5);padding:7px 12px;text-align:left;font-weight:400;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(45,31,110,.4)}
-td{padding:6px 12px;border-bottom:1px solid rgba(15,13,40,.8);vertical-align:middle;font-size:12px}
+th{color:rgba(155,168,184,.5);padding:6px 12px;text-align:left;font-weight:400;font-size:9px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(45,31,110,.4)}
+td{padding:5px 12px;border-bottom:1px solid rgba(15,13,40,.8);vertical-align:middle;font-size:12px}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(19,16,58,.6)}
-.retro{color:#f87171;font-size:9px;margin-left:2px}
+.retro{color:#f87171;font-size:9px}
 .house-badge{display:inline-block;background:rgba(26,21,69,.8);border:1px solid rgba(61,42,138,.6);border-radius:4px;padding:1px 6px;font-size:10px;color:var(--purple);font-family:'Cinzel',serif}
 .deg-val{font-family:'Cinzel',serif;font-size:11px;color:#c8d8f0;white-space:nowrap}
 .nak-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold-l)}
 .pada-badge{display:inline-block;background:rgba(45,31,110,.5);border:1px solid rgba(100,70,200,.4);border-radius:10px;padding:2px 8px;font-size:9px;color:var(--purple);font-family:'Cinzel',serif;letter-spacing:1px}
 .pct-bar{display:inline-block;width:48px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;vertical-align:middle;margin-left:5px;position:relative}
 .pct-fill{position:absolute;left:0;top:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--gold))}
-.moon-sym{color:#b8d8ff;text-shadow:0 0 8px rgba(100,160,255,.9),0 0 16px rgba(80,130,255,.5);font-size:20px;font-family:serif}
+.moon-sym{color:#b8d8ff;text-shadow:0 0 8px rgba(100,160,255,.9);font-size:20px;font-family:serif}
 .p-sym{font-family:serif;font-size:18px;line-height:1;display:inline-block}
-@media(max-width:480px){td{padding:5px 8px;font-size:10px}th{font-size:9px;padding:5px 8px}}
+/* Varga section */
+.varga-layout{display:grid;grid-template-columns:220px 1fr;gap:16px;margin-top:8px;}
+@media(max-width:700px){.varga-layout{grid-template-columns:1fr}}
+.varga-list-wrap{background:rgba(8,6,20,.8);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;max-height:600px;display:flex;flex-direction:column;}
+.varga-list-header{background:rgba(167,139,250,.07);padding:8px 14px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;border-bottom:1px solid rgba(45,31,110,.5);flex-shrink:0;}
+.varga-list{overflow-y:auto;flex:1;}
+.varga-list::-webkit-scrollbar{width:4px}
+.varga-list::-webkit-scrollbar-track{background:rgba(8,6,20,.5)}
+.varga-list::-webkit-scrollbar-thumb{background:rgba(100,65,200,.4);border-radius:2px}
+.varga-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;border-bottom:1px solid rgba(15,13,40,.6);transition:background .15s;}
+.varga-item:hover{background:rgba(45,31,110,.4)}
+.varga-item.active{background:rgba(109,40,217,.25);border-left:2px solid var(--purple)}
+.varga-num{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);min-width:32px;font-weight:600}
+.varga-name{font-size:11px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.varga-meaning{font-size:9px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main-badge{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;opacity:.7}
+.varga-display{background:rgba(8,6,20,.75);border:1px solid rgba(45,31,110,.5);border-radius:12px;overflow:hidden;padding:16px;}
+#varga-wheel-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;color:var(--gold);text-align:center;margin-bottom:8px}
+svg#varga-wheel{width:100%;height:auto;display:block;overflow:visible}
+.varga-planet-table{margin-top:12px;}
 </style>
 </head>
 <body>
 <div class="hero">
-  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="margin:0 auto 20px;display:block;opacity:.7">
+  <svg width="48" height="48" viewBox="0 0 56 56" fill="none" style="margin:0 auto 16px;display:block;opacity:.7">
     <circle cx="28" cy="28" r="26.5" stroke="rgba(201,168,76,.25)" stroke-width=".5"/>
     <circle cx="28" cy="28" r="17" stroke="rgba(201,168,76,.18)" stroke-width=".5"/>
     <polygon points="28,3 51,43 5,43" stroke="rgba(201,168,76,.38)" stroke-width=".5" fill="none"/>
@@ -131,15 +86,14 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <circle cx="28" cy="28" r="2.5" fill="rgba(201,168,76,.7)"/>
   </svg>
   <div class="hero-eyebrow">ვედური ასტროლოგია · ლაჰირი აიანამსა</div>
-  <h1 class="hero-title">ჯიოტიში · ნატალური რუქა</h1>
-  <p class="hero-sub">Jyotish · Sidereal · Whole Sign Houses · 27 Nakshatras</p>
+  <h1 class="hero-title">ჯიოტიში · ვარგა ჩარტები</h1>
+  <p class="hero-sub">Jyotish · Sidereal · Whole Sign · 60 Divisional Charts</p>
   <div class="hero-divider"><div class="hero-line"></div><div class="hero-gem"></div><div class="hero-line"></div></div>
 </div>
 
 <div class="form-card">
-  <div class="field wide" style="margin-bottom:12px">
-    <label>სახელი</label>
-    <input id="name" placeholder="შეიყვანეთ სახელი">
+  <div class="field wide" style="margin-bottom:10px">
+    <label>სახელი</label><input id="name" placeholder="სახელი">
   </div>
   <div class="form-grid">
     <div class="field"><label>დღე</label><input type="number" id="day" value="1" min="1" max="31"></div>
@@ -151,35 +105,33 @@ tr:hover td{background:rgba(19,16,58,.6)}
     <div class="field"><label>წუთი</label><input type="number" id="minute" value="0" min="0" max="59"></div>
     <div class="field"><label>წამი</label><input type="number" id="second" value="0" min="0" max="59"></div>
   </div>
-  <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(167,139,250,0.7);letter-spacing:1px;text-transform:none">
-      <input type="checkbox" id="time-unknown" onchange="toggleTimeUnknown()" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer">
-      დრო უცნობია (time unknown)
-    </label>
+  <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+    <input type="checkbox" id="time-unknown" onchange="toggleTU()" style="width:15px;height:15px;accent-color:#7c3aed;cursor:pointer">
+    <label style="font-size:11px;color:rgba(167,139,250,.7);letter-spacing:1px;text-transform:none;cursor:pointer" for="time-unknown">დრო უცნობია</label>
   </div>
-  <div class="field wide" style="margin-bottom:8px">
+  <div class="field" style="margin-bottom:8px">
     <label>ქალაქი</label>
-    <input id="city" placeholder="მაგ. თბილისი, Mumbai, Delhi..." oninput="searchCity()">
+    <input id="city" placeholder="თბილისი, Mumbai, Delhi..." oninput="searchCity()">
     <div id="city-hint"></div>
   </div>
-  <div class="coords-row">
-    <div class="field"><label>განედი (Lat)</label><input type="number" id="lat" step="0.0001" readonly></div>
-    <div class="field"><label>გრძედი (Lon)</label><input type="number" id="lon" step="0.0001" readonly></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+    <div class="field"><label>განედი</label><input type="number" id="lat" step="0.0001" readonly></div>
+    <div class="field"><label>გრძედი</label><input type="number" id="lon" step="0.0001" readonly></div>
   </div>
   <div id="tz-display">⏳ ქალაქის შეყვანის შემდეგ სარტყელი განისაზღვრება</div>
   <input type="hidden" id="tz_name" value="UTC">
-  <button class="gen-btn" onclick="generateChart()">✦ ვედური რუქის გენერაცია ✦</button>
+  <button class="gen-btn" onclick="generate()">✦ ვედური რუქის გენერაცია ✦</button>
 </div>
 
 <div id="chart-area" style="display:none">
   <div id="ayanamsa-bar" style="text-align:center;font-size:11px;color:rgba(201,168,76,.5);margin-bottom:6px;font-family:'Cinzel',serif;letter-spacing:1px"></div>
-  <div class="sec-title">ვედური ბორბალი · Rashi Chakra</div>
+  <div class="sec-title">D1 · ვედური ბორბალი · Rashi Chakra</div>
   <svg id="wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
 
   <div class="sec-title">გრჰები · Grahas</div>
   <div class="tables-wrap">
     <div class="data-card">
-      <div class="data-card-title">🪐 პლანეტები · Grahas</div>
+      <div class="data-card-title">🪐 პლანეტები</div>
       <table><thead><tr><th></th><th>სახელი</th><th>გრადუსი</th><th>რაში</th><th>სახ.</th><th>℞</th></tr></thead>
       <tbody id="planet-tbody"></tbody></table>
     </div>
@@ -193,407 +145,373 @@ tr:hover td{background:rgba(19,16,58,.6)}
   <div class="sec-title">ნაქშატრები · Nakshatras</div>
   <div class="data-card" style="margin-bottom:8px">
     <div class="data-card-title">⭐ ნაქშატრა · პადა · მმართველი</div>
-    <table><thead><tr><th>გრჰა</th><th>ნაქშატრა</th><th>პადა</th><th>ნ. მმართ.</th><th>პ. მმართ.</th><th>%</th></tr></thead>
+    <table><thead><tr><th>გრჰა</th><th>ნაქშატრა</th><th>პადა</th><th>ნ.მმართ.</th><th>პ.მმართ.</th><th>%</th></tr></thead>
     <tbody id="nak-tbody"></tbody></table>
+  </div>
+
+  <!-- VARGA CHARTS SECTION -->
+  <div class="sec-title">ვარგები · 60 Divisional Charts</div>
+  <div class="varga-layout">
+    <div class="varga-list-wrap">
+      <div class="varga-list-header">✦ ვარგა სია · Click to view</div>
+      <div class="varga-list" id="varga-list"></div>
+    </div>
+    <div class="varga-display">
+      <div id="varga-wheel-title">← აირჩიეთ ვარგა</div>
+      <svg id="varga-wheel" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="varga-planet-table">
+        <table><thead><tr><th></th><th>გრჰა</th><th>D-N გრადუსი</th><th>რაში</th><th>℞</th></tr></thead>
+        <tbody id="varga-tbody"></tbody></table>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-const BACKEND = 'https://astrology-production-b165.up.railway.app';
+const BACKEND='https://astrology-production-b165.up.railway.app';
 const CX=350,CY=350,R1=270,R2=202,R3=135,R4=105;
-
-const ZSYM=['\u2648\ufe0e','\u2649\ufe0e','\u264a\ufe0e','\u264b\ufe0e','\u264c\ufe0e','\u264d\ufe0e','\u264e\ufe0e','\u264f\ufe0e','\u2650\ufe0e','\u2651\ufe0e','\u2652\ufe0e','\u2653\ufe0e'];
-const RASHI_KA=['მეშა','ვრიშ.','მით.','კარკ.','სიმჰა','კანია','თულა','ვრიშჩ.','დჰანუ','მაკ.','კუმბ.','მინა'];
-// Element colors matching astro.html
-const RCOL=['#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4'];
-// Element fills matching astro.html
-const EFILL=['#1a0808','#081008','#08101a','#08101a','#1a0808','#081008','#08101a','#081018','#1a0808','#081008','#08101a','#081018'];
-
-const PI={
-  'Sun':    {sym:'sun',  color:'#f9c646'},
-  'Moon':   {sym:'\u263d',color:'#c8d8f0'},
-  'Mars':   {sym:'\u2642',color:'#e84040'},
-  'Mercury':{sym:'\u263f',color:'#50d890'},
-  'Jupiter':{sym:'\u2643',color:'#e89040'},
-  'Venus':  {sym:'\u2640',color:'#e878a8'},
-  'Saturn': {sym:'\u2644',color:'#90a8c8'},
-  'Uranus': {sym:'\u2645',color:'#7ec8c8'},
-  'Neptune':{sym:'\u2646',color:'#6080e0'},
-  'Rahu':   {sym:'\u260a',color:'#9060d0'},
-  'Ketu':   {sym:'\u260b',color:'#c06060'},
-};
-const PORDER=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Uranus','Neptune','Rahu','Ketu'];
-const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
-
-function sunSVG(sz=22){
-  return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block;overflow:visible">
-    <defs><filter id="svf${sz}" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="2.5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter></defs>
-    <circle cx="11" cy="11" r="9" fill="none" stroke="#f9c646" stroke-width="1.8" filter="url(#svf${sz})"/>
-    <circle cx="11" cy="11" r="9" fill="none" stroke="#ffe8a0" stroke-width="0.7"/>
-    <circle cx="11" cy="11" r="2.5" fill="#f9c646" filter="url(#svf${sz})"/>
-    <circle cx="11" cy="11" r="1.2" fill="#fff7d0"/>
-  </svg>`;
-}
-
-function fmtDeg(sid){
-  const d=Math.floor(sid%30), m=Math.floor((sid%30-d)*60);
-  return `${d}\u00b0${String(m).padStart(2,'0')}'`;
-}
-
-// ── SVG HELPERS ──
 const NS='http://www.w3.org/2000/svg';
-function el(tag,attrs,parent){
-  const e=document.createElementNS(NS,tag);
-  for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
-  if(parent) parent.appendChild(e);return e;
+
+const ZSYM=['♈︎','♉︎','♊︎','♋︎','♌︎','♍︎','♎︎','♏︎','♐︎','♑︎','♒︎','♓︎'];
+const RASHI=['მეშ.','ვრიშ.','მით.','კარკ.','სიმჰ.','კანია','თულა','ვრიშჩ.','დჰანუ','მაკ.','კუმბ.','მინა'];
+const RCOL=['#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4','#e05252','#8aab6e','#89b4d4','#5b8ec4'];
+const EFILL=['#1a0808','#081008','#08101a','#08101a','#1a0808','#081008','#08101a','#081018','#1a0808','#081008','#08101a','#081018'];
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+const PI={
+  'Sun':{sym:'sun',color:'#f9c646'},'Moon':{sym:'☽',color:'#c8d8f0'},
+  'Mars':{sym:'♂',color:'#e84040'},'Mercury':{sym:'☿',color:'#50d890'},
+  'Jupiter':{sym:'♃',color:'#e89040'},'Venus':{sym:'♀',color:'#e878a8'},
+  'Saturn':{sym:'♄',color:'#90a8c8'},'Uranus':{sym:'♅',color:'#7ec8c8'},
+  'Neptune':{sym:'♆',color:'#6080e0'},'Rahu':{sym:'☊',color:'#9060d0'},'Ketu':{sym:'☋',color:'#c06060'}
+};
+const PORDER=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu','Uranus','Neptune'];
+
+// ── 60 VARGAS ──
+const VARGAS=[
+  {n:1,name:'Rashi',ka:'რაში',meaning:'ნატალური · ზოგადი ცხოვრება',main:true},
+  {n:2,name:'Hora',ka:'ჰორა',meaning:'სიმდიდრე · ფინანსები',main:true},
+  {n:3,name:'Drekkana',ka:'დრეკანა',meaning:'და-ძმები · გამბედაობა',main:true},
+  {n:4,name:'Chaturthamsha',ka:'ჩატურთამშა',meaning:'ბედი · საკუთრება',main:true},
+  {n:5,name:'Panchamsha',ka:'პანჩამშა',meaning:'წარსული დამსახ. · შვილები'},
+  {n:6,name:'Shashthamsha',ka:'შაშთამშა',meaning:'ჯანმრთელობა · მტრები'},
+  {n:7,name:'Saptamsha',ka:'საპტამშა',meaning:'შვილები · შვილიშვილები',main:true},
+  {n:8,name:'Ashtamsha',ka:'აშტამშა',meaning:'სიცოცხლე · დაბრკოლებები'},
+  {n:9,name:'Navamsha',ka:'ნავამშა',meaning:'ქორწინება · სული · დჰარმა',main:true},
+  {n:10,name:'Dashamsha',ka:'დაშამშა',meaning:'კარიერა · სტატუსი',main:true},
+  {n:11,name:'Rudramsha',ka:'რუდრამშა',meaning:'სიკვდილი · განადგურება'},
+  {n:12,name:'Dvadashamsha',ka:'დვადაშამშა',meaning:'მშობლები · წინაპრები',main:true},
+  {n:13,name:'Trayodasha',ka:'ტრაიოდაშა',meaning:'ეთერი · ბედი'},
+  {n:14,name:'Chaturdasha',ka:'ჩატურდაშა',meaning:'ძალა · სულიერება'},
+  {n:15,name:'Panchadasha',ka:'პანჩადაშა',meaning:'ძლევა · ძალა'},
+  {n:16,name:'Shodashamsha',ka:'შოდაშამშა',meaning:'ტრანსპ. · კომფორტი',main:true},
+  {n:17,name:'Saptadashamsha',ka:'საპტ.დაშამშა',meaning:'სიძლიერე · სიზარმაცე'},
+  {n:18,name:'Ashtadashamsha',ka:'აშტ.დაშამშა',meaning:'სმა · ეთიკა'},
+  {n:19,name:'Ekavimsha',ka:'ეკავიმშა',meaning:'ნიჭი · შემოქმედება'},
+  {n:20,name:'Vimshamsha',ka:'ვიმშამშა',meaning:'სულიერი პრაქტიკა',main:true},
+  {n:21,name:'Ekavimshamsha',ka:'ეკავიმშამშა',meaning:'ძალა · სიმტკიცე'},
+  {n:22,name:'Dvavimshamsha',ka:'დვავიმშამშა',meaning:'ძლიერება · ძლევა'},
+  {n:23,name:'Tryavimshamsha',ka:'ტრი.ვიმშამშა',meaning:'სიძლიერე'},
+  {n:24,name:'Chaturvimshamsha',ka:'ჩ.ვიმშამშა',meaning:'განათლება · ცოდნა',main:true},
+  {n:25,name:'Panchavimshamsha',ka:'პ.ვიმშამშა',meaning:'ძლიერება'},
+  {n:26,name:'Shadvimshamsha',ka:'შ.ვიმშამშა',meaning:'სისუსტეები'},
+  {n:27,name:'Nakshatramsha',ka:'ნაქშ.მშა',meaning:'ძლ. · სუსტ. · ბჰამშა',main:true},
+  {n:28,name:'Ashtavimshamsha',ka:'აშტ.ვიმშამშა',meaning:'ძლიერება'},
+  {n:29,name:'Ekonatimshamsha',ka:'ეკ.ატიმშ.',meaning:'ძლევა'},
+  {n:30,name:'Trimshamsha',ka:'ტრიმშამშა',meaning:'უბედურება · ბოროტება',main:true},
+  {n:31,name:'Ekatrimshamsha',ka:'ეკ.ტრიმშ.',meaning:'ბედი'},
+  {n:32,name:'Dvatrimshamsha',ka:'დვ.ტრიმშ.',meaning:'ბედი'},
+  {n:33,name:'Tritrimshamsha',ka:'ტრ.ტრიმშ.',meaning:'ბედი'},
+  {n:34,name:'Chaturtimshamsha',ka:'ჩ.ტრიმშ.',meaning:'ბედი'},
+  {n:35,name:'Panchatrimshamsha',ka:'პ.ტრიმშ.',meaning:'ბედი'},
+  {n:36,name:'Shadtrimshamsha',ka:'შ.ტრიმშ.',meaning:'ბედი'},
+  {n:37,name:'Saptatrimshamsha',ka:'სა.ტრიმშ.',meaning:'ბედი'},
+  {n:38,name:'Ashtrimshamsha',ka:'აშ.ტრიმშ.',meaning:'ბედი'},
+  {n:39,name:'Ekonatimsha',ka:'ეკ.ონ.ტიმ.',meaning:'ბედი'},
+  {n:40,name:'Khavedamsha',ka:'ხავედამშა',meaning:'კეთილი · ავი ეფ.',main:true},
+  {n:41,name:'Ekakhavedamsha',ka:'ეკ.ხავ.',meaning:'ბედი'},
+  {n:42,name:'Dvakhavedamsha',ka:'დვ.ხავ.',meaning:'ბედი'},
+  {n:43,name:'Trikhavedamsha',ka:'ტრ.ხავ.',meaning:'ბედი'},
+  {n:44,name:'Chaturkhavedamsha',ka:'ჩ.ხავ.',meaning:'ბედი'},
+  {n:45,name:'Akshavedamsha',ka:'აქშ.ვედ.',meaning:'ხასიათი · ზოგ.',main:true},
+  {n:46,name:'Ekakshavedamsha',ka:'ეკ.აქშ.',meaning:'ბედი'},
+  {n:47,name:'Dvakshavedamsha',ka:'დვ.აქშ.',meaning:'ბედი'},
+  {n:48,name:'Triakshavedamsha',ka:'ტრ.აქშ.',meaning:'ბედი'},
+  {n:49,name:'Chaturdakshavedamsha',ka:'ჩ.აქშ.',meaning:'ბედი'},
+  {n:50,name:'Panchadakshavedamsha',ka:'პ.აქშ.',meaning:'ბედი'},
+  {n:51,name:'Shaddakshavedamsha',ka:'შ.აქშ.',meaning:'ბედი'},
+  {n:52,name:'Saptadakshavedamsha',ka:'სა.აქშ.',meaning:'ბედი'},
+  {n:53,name:'Ashtadakshavedamsha',ka:'ა.აქშ.',meaning:'ბედი'},
+  {n:54,name:'Ekonapadamsha',ka:'ეკ.პად.',meaning:'ბედი'},
+  {n:55,name:'Padamsha',ka:'პადამშა',meaning:'ბედი'},
+  {n:56,name:'Ekapadamsha',ka:'ეკ.ა.პ.',meaning:'ბედი'},
+  {n:57,name:'Dvapadamsha',ka:'დვ.პ.',meaning:'ბედი'},
+  {n:58,name:'Tripadamsha',ka:'ტრ.პ.',meaning:'ბედი'},
+  {n:59,name:'Chaturdashamshamsha',ka:'ჩ.მ.ა.ოთხ.',meaning:'ბედი'},
+  {n:60,name:'Shashtiamsha',ka:'შაშტიამშა',meaning:'წარსული სიცოცხლის კარმა',main:true},
+];
+
+// ── VARGA CALCULATION ──
+function calcVargaSign(sidDeg, N) {
+  const si = Math.floor(sidDeg / 30) % 12;
+  const pos = sidDeg % 30;
+  const part = Math.floor(pos * N / 30);
+  let start;
+  switch(N) {
+    case 1: return si;
+    case 2: // Hora
+      return si%2===0 ? (part===0?4:3) : (part===0?3:4);
+    case 3: // Drekkana - same triplicity
+      return (si + part*4) % 12;
+    case 4: // Chaturthamsha
+      return (si + part*3) % 12;
+    case 7: // Saptamsha
+      start = si%2===0 ? 0 : 6;
+      return (start + part) % 12;
+    case 9: // Navamsha
+      start = [0,9,6,3][si%4];
+      return (start + part) % 12;
+    case 10: // Dashamsha
+      start = si%2===0 ? 0 : 9;
+      return (start + part) % 12;
+    case 12: // Dvadashamsha
+      return (si + part) % 12;
+    case 16: // Shodashamsha
+      start = [0,3,6,9][si%4];
+      return (start + part) % 12;
+    case 20: // Vimshamsha
+      start = [0,8,4][si%3];
+      return (start + part) % 12;
+    case 24: // Chaturvimshamsha
+      start = si%2===0 ? 4 : 3;
+      return (start + part) % 12;
+    case 27: // Nakshatramsha
+      start = [0,9,6,3][si%4];
+      return (start + part) % 12;
+    case 30: // Trimshamsha - unequal parts
+      if(si%2===0){ // odd signs
+        if(pos<5)return 0; if(pos<10)return 10; if(pos<18)return 8; if(pos<25)return 2; return 6;
+      }else{
+        if(pos<5)return 6; if(pos<12)return 2; if(pos<20)return 8; if(pos<25)return 10; return 0;
+      }
+    case 40: // Khavedamsha
+      start = si%2===0 ? 0 : 6;
+      return (start + part) % 12;
+    case 45: // Akshavedamsha
+      start = [0,4,8][si%3];
+      return (start + part) % 12;
+    case 60: // Shashtiamsha
+      start = si%2===0 ? 0 : 6;
+      return (start + part) % 12;
+    default:
+      // Generic formula for other vargas
+      return Math.floor(sidDeg * N / 30) % 12;
+  }
 }
-function txt(parent,s,x,y,attrs={}){
-  const t=el('text',{'text-anchor':'middle','dominant-baseline':'central',x,y,...attrs},parent);
-  t.textContent=s;return t;
+
+function getVargaData(data, N) {
+  if(N===1) return data;
+  const planets={};
+  for(const [name,p] of Object.entries(data.planets)){
+    const newSi = calcVargaSign(p.sidereal, N);
+    const newSid = newSi*30 + (p.sidereal%30);
+    planets[name]={...p, sidereal:newSid, sign_idx:newSi, dms: fmtDegVarga(newSid)};
+  }
+  const ascNewSi = calcVargaSign(data.asc, N);
+  const ascNew = ascNewSi*30 + (data.asc%30);
+  return{...data, planets, asc:ascNew, asc_sign_idx:ascNewSi};
 }
+
+function fmtDegVarga(sid){
+  const d=Math.floor(sid%30),m=Math.floor((sid%30-d)*60);
+  return `${d}°${String(m).padStart(2,'0')}'`;
+}
+
+// ── UTILS ──
+function fmtDeg(sid){
+  const d=Math.floor(sid%30),m=Math.floor((sid%30-d)*60);
+  return `${d}°${String(m).padStart(2,'0')}'`;
+}
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const[k,v] of Object.entries(attrs))e.setAttribute(k,v);if(parent)parent.appendChild(e);return e;}
+function txt(parent,s,x,y,attrs={}){const t=el('text',{'text-anchor':'middle','dominant-baseline':'central',x,y,...attrs},parent);t.textContent=s;return t;}
 function toRad(d){return d*Math.PI/180;}
-// Sidereal wheel: lagna at left (π), signs go counterclockwise
-function v2a(sid_deg, lagna_start){
-  return toRad(-(sid_deg - lagna_start)) + Math.PI;
-}
+function v2a(sid,lagStart){return toRad(-(sid-lagStart))+Math.PI;}
 function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
+function sunSVG(sz=20){return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block"><circle cx="11" cy="11" r="8" fill="none" stroke="#f9c646" stroke-width="2"/><circle cx="11" cy="11" r="2" fill="#f9c646"/></svg>`;}
 
 // ── GEOCODE ──
-let cityTimer=null;
+let _ct=null;
 function searchCity(){
-  clearTimeout(cityTimer);
-  cityTimer=setTimeout(async()=>{
+  clearTimeout(_ct);_ct=setTimeout(async()=>{
     const city=document.getElementById('city').value;
-    if(city.length<2) return;
-    const hint=document.getElementById('city-hint');
-    hint.textContent='⏳ ძიება...';
+    if(city.length<2)return;
+    const hint=document.getElementById('city-hint');hint.textContent='⏳';
     try{
-      const r=await fetch(`${BACKEND}/geocode`,{method:'POST',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
-      const raw=await r.text();
-      let d;
-      try{d=JSON.parse(raw);}catch(e){hint.textContent='❌ Backend error ('+r.status+'): '+raw.slice(0,120);return;}
+      const r=await fetch(`${BACKEND}/geocode`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})});
+      const d=await r.json();
       if(d.error){hint.textContent='❌ '+d.error;return;}
       document.getElementById('lat').value=d.lat.toFixed(4);
       document.getElementById('lon').value=d.lon.toFixed(4);
-      hint.textContent='📍 '+d.display;
       document.getElementById('tz_name').value=d.tz_name||'UTC';
-      document.getElementById('tz-display').textContent='🕐 '+d.tz_name;
+      document.getElementById('tz-display').textContent='🕐 '+d.tz_name+' · 📍 '+d.display;
+      hint.textContent='📍 '+d.display;
     }catch(e){hint.textContent='❌ '+e.message;}
   },600);
 }
+function toggleTU(){document.getElementById('time-fields').classList.toggle('time-disabled',document.getElementById('time-unknown').checked);}
 
 // ── GENERATE ──
-async function generateChart(){
-  const lat=document.getElementById('lat').value;
-  const lon=document.getElementById('lon').value;
-  if(!lat||!lon){alert('პირველ შეიყვანეთ ქალაქი');return;}
-  const btn=document.querySelector('.gen-btn');
-  btn.textContent='⏳ გთხოვთ დაელოდოთ...';btn.disabled=true;
-  const timeUnknown=document.getElementById('time-unknown').checked;
-  const year=+document.getElementById('year').value;
-  const month=+document.getElementById('month').value;
-  const day=+document.getElementById('day').value;
-  const tz_name=document.getElementById('tz_name').value;
-  const hour=timeUnknown?12:+document.getElementById('hour').value;
-  const minute=timeUnknown?0:+document.getElementById('minute').value;
-  const second=timeUnknown?0:+document.getElementById('second').value;
+let _chartData=null;
+async function generate(){
+  const lat=document.getElementById('lat').value,lon=document.getElementById('lon').value;
+  if(!lat||!lon){alert('შეიყვანეთ ქალაქი');return;}
+  const btn=document.querySelector('.gen-btn');btn.disabled=true;btn.textContent='⏳...';
+  const tu=document.getElementById('time-unknown').checked;
   try{
-    const r=await fetch(`${BACKEND}/vedic`,{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({year,month,day,hour,minute,second,lat:+lat,lon:+lon,tz_name})});
-    const raw=await r.text();
-    let data;
-    try{data=JSON.parse(raw);}
-    catch(e){throw new Error('Backend error ('+r.status+'): '+raw.slice(0,200));}
-    if(data.error) throw new Error(data.error+(data.trace?'\n'+data.trace.slice(0,300):''));
-    data._timeUnknown=timeUnknown;
-    // Moon path for time-unknown
-    if(timeUnknown){
-      try{
-        const lr=await fetch(`${BACKEND}/lunar`,{method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({year,month,day,hour:12,minute:0,second:0,tz_name,time_unknown:true})});
-        const ld=await lr.json();
-        if(ld.moon_path_sid) data._moonPath=ld.moon_path_sid;
-        else if(ld.moon_path) data._moonPath=ld.moon_path;
-      }catch(e){console.log('moon path error',e);}
-    }
+    const r=await fetch(`${BACKEND}/vedic`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      year:+document.getElementById('year').value,month:+document.getElementById('month').value,
+      day:+document.getElementById('day').value,hour:tu?12:+document.getElementById('hour').value,
+      minute:tu?0:+document.getElementById('minute').value,second:tu?0:+document.getElementById('second').value,
+      lat:+lat,lon:+lon,tz_name:document.getElementById('tz_name').value
+    })});
+    const data=await r.json();
+    if(data.error)throw new Error(data.error);
+    data._timeUnknown=tu;
+    _chartData=data;
     document.getElementById('chart-area').style.display='block';
-    document.getElementById('ayanamsa-bar').textContent=
-      `Lahiri Ayanamsa: ${data.ayanamsa.toFixed(4)}° · Lagna: ${data.asc_sign} ${fmtDeg(data.asc)}`;
-    drawWheel(data);
+    document.getElementById('ayanamsa-bar').textContent=`Lahiri Ayanamsa: ${data.ayanamsa.toFixed(4)}° · Lagna: ${data.asc_sign} ${fmtDeg(data.asc)}`;
+    drawWheel(data,'wheel');
     drawPlanetTable(data);
     drawHouseTable(data);
     drawNakTable(data);
+    buildVargaList();
     document.getElementById('chart-area').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){alert('შეცდომა: '+e.message);}
-  finally{btn.textContent='✶ ვედური რუქის გენერაცია ✶';btn.disabled=false;}
-}
-
-// ── TIME UNKNOWN TOGGLE ──
-function toggleTimeUnknown(){
-  const unk=document.getElementById('time-unknown').checked;
-  document.getElementById('time-fields').classList.toggle('time-disabled',unk);
+  finally{btn.disabled=false;btn.textContent='✦ ვედური რუქის გენერაცია ✦';}
 }
 
 // ── DRAW WHEEL ──
-function drawWheel(data){
-  const svg=document.getElementById('wheel');
+function drawWheel(data, svgId){
+  const svg=document.getElementById(svgId);
   svg.innerHTML='';
-  const lagna_si  = data.asc_sign_idx;
-  const lagna_start = lagna_si * 30;       // sidereal deg of lagna sign start
-  // For time-unknown: lagna_si=0 (Aries rising), set from server always for Vedic
-  const timeUnknown = data._timeUnknown;
-
-  // ── DEFS ──
+  const lagSi=data.asc_sign_idx;
+  const lagStart=lagSi*30;
   const defs=el('defs',{},svg);
-  const bgG=el('radialGradient',{id:'bgG',cx:'50%',cy:'50%',r:'50%'},defs);
-  el('stop',{offset:'0%','stop-color':'#120e2a'},bgG);
-  el('stop',{offset:'60%','stop-color':'#0a0820'},bgG);
-  el('stop',{offset:'100%','stop-color':'#04030e'},bgG);
-
-  // Sun glow filter
-  const sf=el('filter',{id:'sunF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
+  const bgG=el('radialGradient',{id:'bg_'+svgId,cx:'50%',cy:'50%',r:'50%'},defs);
+  el('stop',{offset:'0%','stop-color':'#120e2a'},bgG);el('stop',{offset:'100%','stop-color':'#04030e'},bgG);
+  const sf=el('filter',{id:'sf_'+svgId,x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
   el('feGaussianBlur',{stdDeviation:'3',result:'blur'},sf);
-  const sfm=el('feMerge',{},sf);
-  el('feMergeNode',{in:'blur'},sfm);el('feMergeNode',{in:'SourceGraphic'},sfm);
-
-  // Moon glow filter
-  const mf=el('filter',{id:'moonF',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
-  el('feGaussianBlur',{stdDeviation:'2.5',result:'blur'},mf);
-  const mfc=el('feFlood',{'flood-color':'#4090ff','flood-opacity':'0.45','result':'color'},mf);
-  el('feComposite',{in:'color',in2:'blur',operator:'in','result':'cb'},mf);
-  const mfmg=el('feMerge',{},mf);
-  el('feMergeNode',{in:'cb'},mfmg);el('feMergeNode',{in:'SourceGraphic'},mfmg);
-
-  el('rect',{width:700,height:700,fill:'url(#bgG)'},svg);
-
-  // ── ZODIAC BAND ──
+  const fm=el('feMerge',{},sf);el('feMergeNode',{in:'blur'},fm);el('feMergeNode',{in:'SourceGraphic'},fm);
+  el('rect',{width:700,height:700,fill:'url(#bg_'+svgId+')'},svg);
   for(let i=0;i<12;i++){
-    const si=(lagna_si+i)%12;
-    const a0=v2a(lagna_start+i*30,     lagna_start);
-    const a1=v2a(lagna_start+(i+1)*30, lagna_start);
+    const si=(lagSi+i)%12;
+    const a0=v2a(lagStart+i*30,lagStart),a1=v2a(lagStart+(i+1)*30,lagStart);
     const p=(a,r)=>`${CX+Math.cos(a)*r},${CY+Math.sin(a)*r}`;
-    el('path',{
-      d:`M${p(a0,R2)} L${p(a0,R1)} A${R1},${R1} 0 0,0 ${p(a1,R1)} L${p(a1,R2)} A${R2},${R2} 0 0,1 ${p(a0,R2)} Z`,
-      fill:EFILL[si]},svg);
-    el('path',{d:`M${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)}`,
-      fill:'none',stroke:RCOL[si],'stroke-width':2,opacity:.6},svg);
-    el('path',{
-      d:`M${p(a0,R3)} L${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)} L${p(a1,R3)} A${R3},${R3} 0 0,1 ${p(a0,R3)} Z`,
-      fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'},svg);
-    el('line',{x1:CX+Math.cos(a0)*R1,y1:CY+Math.sin(a0)*R1,
-      x2:CX+Math.cos(a0)*R2,y2:CY+Math.sin(a0)*R2,
-      stroke:RCOL[si],'stroke-width':1.2,opacity:.85},svg);
-    const amid=v2a(lagna_start+i*30+15,lagna_start);
-    const Rzs=(R1+R2)/2;
-    const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',
-      x:CX+Math.cos(amid)*Rzs,y:CY+Math.sin(amid)*Rzs,
-      fill:RCOL[si],'font-size':20,'font-family':'serif','font-weight':'bold'},svg);
+    el('path',{d:`M${p(a0,R2)} L${p(a0,R1)} A${R1},${R1} 0 0,0 ${p(a1,R1)} L${p(a1,R2)} A${R2},${R2} 0 0,1 ${p(a0,R2)} Z`,fill:EFILL[si]},svg);
+    el('path',{d:`M${p(a0,R3)} L${p(a0,R2)} A${R2},${R2} 0 0,0 ${p(a1,R2)} L${p(a1,R3)} A${R3},${R3} 0 0,1 ${p(a0,R3)} Z`,fill:i%2?'rgba(6,5,18,1)':'rgba(10,8,26,1)'},svg);
+    el('line',{x1:CX+Math.cos(a0)*R1,y1:CY+Math.sin(a0)*R1,x2:CX+Math.cos(a0)*R2,y2:CY+Math.sin(a0)*R2,stroke:RCOL[si],'stroke-width':1.2,opacity:.85},svg);
+    const am=v2a(lagStart+i*30+15,lagStart),Rzs=(R1+R2)/2;
+    const zt=el('text',{'text-anchor':'middle','dominant-baseline':'central',x:CX+Math.cos(am)*Rzs,y:CY+Math.sin(am)*Rzs,fill:RCOL[si],'font-size':20,'font-family':'serif','font-weight':'bold'},svg);
     zt.textContent=ZSYM[si];
+    txt(svg,ROMAN[i],CX+Math.cos(v2a(lagStart+i*30+15,lagStart))*(R2+R3)/2,CY+Math.sin(v2a(lagStart+i*30+15,lagStart))*(R2+R3)/2,{fill:'rgba(180,150,255,.75)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
   }
-
-  // ── MOON PATH (time-unknown) — just inside R1, blue 35% ──
-  if(timeUnknown && data._moonPath){
-    const mp=data._moonPath;
-    const R_outer=R1-1, R_inner=R1-8;
-    const span=((mp.end-mp.start)+360)%360;
-    const la=span>180?1:0;
-    const a0=v2a(mp.start,lagna_start), a1e=v2a(mp.end,lagna_start);
-    const x0o=CX+Math.cos(a0)*R_outer,  y0o=CY+Math.sin(a0)*R_outer;
-    const x1o=CX+Math.cos(a1e)*R_outer, y1o=CY+Math.sin(a1e)*R_outer;
-    const x1i=CX+Math.cos(a1e)*R_inner, y1i=CY+Math.sin(a1e)*R_inner;
-    const x0i=CX+Math.cos(a0)*R_inner,  y0i=CY+Math.sin(a0)*R_inner;
-    el('path',{
-      d:`M${x0o},${y0o} A${R_outer},${R_outer} 0 ${la},0 ${x1o},${y1o} L${x1i},${y1i} A${R_inner},${R_inner} 0 ${la},1 ${x0i},${y0i} Z`,
-      fill:'rgba(100,160,255,0.35)',stroke:'none'},svg);
-  }
-
-  // ── INNERMOST FILL ──
   el('circle',{cx:CX,cy:CY,r:R4,fill:'rgba(4,3,14,1)'},svg);
-
-  // ── DEGREE TICKS ──
-  for(let deg=0;deg<360;deg++){
-    const a=v2a(lagna_start+deg,lagna_start);
-    const c2=Math.cos(a),s2=Math.sin(a);
-    const is30=deg%30===0,is10=deg%10===0,is5=deg%5===0;
-    const len=is30?20:is10?13:is5?8:5;
-    const stroke=is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,.95)':is5?'rgba(120,80,200,.8)':'rgba(80,55,150,.65)';
-    el('line',{x1:CX+c2*R1,y1:CY+s2*R1,x2:CX+c2*(R1-len),y2:CY+s2*(R1-len),
-      stroke,'stroke-width':is30?2:is10?1.4:is5?.9:.5},svg);
-  }
-
-  // ── CIRCLES ──
+  for(let d=0;d<360;d++){const a=v2a(lagStart+d,lagStart),is30=d%30===0,is10=d%10===0;const len=is30?20:is10?13:5;el('line',{x1:CX+Math.cos(a)*R1,y1:CY+Math.sin(a)*R1,x2:CX+Math.cos(a)*(R1-len),y2:CY+Math.sin(a)*(R1-len),stroke:is30?'rgba(255,220,255,1)':is10?'rgba(180,130,255,.9)':'rgba(80,55,150,.6)','stroke-width':is30?2:is10?1.4:.5},svg);}
   el('circle',{cx:CX,cy:CY,r:R1,fill:'none',stroke:'rgba(140,90,230,.85)','stroke-width':1.8},svg);
   el('circle',{cx:CX,cy:CY,r:R2,fill:'none',stroke:'rgba(100,65,200,.8)','stroke-width':1.5},svg);
   el('circle',{cx:CX,cy:CY,r:R3,fill:'none',stroke:'rgba(70,45,160,.75)','stroke-width':1.2},svg);
   el('circle',{cx:CX,cy:CY,r:R4,fill:'none',stroke:'rgba(50,32,120,.7)','stroke-width':1},svg);
-
-  // ── HOUSE NUMBERS (inside R3-R4 band) ──
-  for(let i=0;i<12;i++){
-    const amid=v2a(lagna_start+i*30+15,lagna_start);
-    const Rhn=(R2+R3)/2;
-    txt(svg,ROMAN[i],CX+Math.cos(amid)*Rhn,CY+Math.sin(amid)*Rhn,
-      {fill:'rgba(180,150,255,0.75)','font-size':11,'font-family':'Cinzel,serif','font-weight':'bold'});
+  // Lagna
+  if(!data._timeUnknown){
+    const la=v2a(data.asc,lagStart);
+    el('line',{x1:CX+Math.cos(la)*R1,y1:CY+Math.sin(la)*R1,x2:CX+Math.cos(la)*(R1+24),y2:CY+Math.sin(la)*(R1+24),stroke:'#e8c06e','stroke-width':2.5},svg);
+    txt(svg,'Lg',CX+Math.cos(la)*(R1+38),CY+Math.sin(la)*(R1+38),{fill:'#e8c06e','font-size':11,'font-weight':'bold','font-family':'Cinzel,serif'});
   }
-
-  // ── LAGNA marker ──
-  if(!timeUnknown){
-    const lagnaA=v2a(data.asc,lagna_start);
-    el('line',{x1:CX+Math.cos(lagnaA)*R1,y1:CY+Math.sin(lagnaA)*R1,
-      x2:CX+Math.cos(lagnaA)*(R1+28),y2:CY+Math.sin(lagnaA)*(R1+28),
-      stroke:'#e8c06e','stroke-width':2.5},svg);
-    txt(svg,'Lg',CX+Math.cos(lagnaA)*(R1+42),CY+Math.sin(lagnaA)*(R1+42),
-      {fill:'#e8c06e','font-size':12,'font-weight':'bold','font-family':'Cinzel,serif'});
-  }
-
-  // ── PLANETS — outside wheel, same system as astro.html ──
+  // Planets
   const present=PORDER.filter(n=>data.planets[n]);
-  const trueA={};
-  for(const n of present) trueA[n]=v2a(data.planets[n].sidereal,lagna_start);
+  const trueA={};for(const n of present)trueA[n]=v2a(data.planets[n].sidereal,lagStart);
   const sorted=[...present].sort((a,b)=>trueA[a]-trueA[b]);
-  const dispA={};
-  for(const n of present) dispA[n]=trueA[n];
-  const Rg=R1+30;
-  const MINGAP=24/Rg;
-
-  // Push apart overlapping planets
-  for(let it=0;it<600;it++){
-    let moved=false;
-    for(let i=0;i<sorted.length;i++){
-      for(let j=i+1;j<sorted.length;j++){
-        const a=sorted[i],b=sorted[j];
-        let d=dispA[b]-dispA[a];
-        while(d>Math.PI) d-=2*Math.PI;
-        while(d<-Math.PI) d+=2*Math.PI;
-        if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){
-          const push=(MINGAP-Math.abs(d))/2;
-          const dir=d>0?1:-1;
-          dispA[a]-=push*dir;dispA[b]+=push*dir;moved=true;
-        }
-      }
-    }
-    if(!moved) break;
-  }
-
+  const dispA={};for(const n of present)dispA[n]=trueA[n];
+  const MINGAP=22/(R1+30);
+  for(let it=0;it<400;it++){let mv=false;for(let i=0;i<sorted.length;i++)for(let j=i+1;j<sorted.length;j++){const a=sorted[i],b=sorted[j];let d=dispA[b]-dispA[a];while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;if(Math.abs(d)<MINGAP&&Math.abs(d)>0.0001){const push=(MINGAP-Math.abs(d))/2,dir=d>0?1:-1;dispA[a]-=push*dir;dispA[b]+=push*dir;mv=true;}}if(!mv)break;}
   for(const name of present){
     const info=PI[name]||{sym:'?',color:'#fff'};
-    const p=data.planets[name];
-    const tA=trueA[name],color=info.color;
-    let diff=dispA[name]-tA;
-    while(diff>Math.PI) diff-=2*Math.PI;
-    while(diff<-Math.PI) diff+=2*Math.PI;
-    const wasMoved=Math.abs(diff)>0.015;
-    const gxy=pxy(wasMoved?dispA[name]:tA,Rg);
-
-    // True position tick on outer edge
-    el('line',{x1:CX+Math.cos(tA)*(R1+1),y1:CY+Math.sin(tA)*(R1+1),
-      x2:CX+Math.cos(tA)*(R1+9),y2:CY+Math.sin(tA)*(R1+9),
-      stroke:color,'stroke-width':1.5},svg);
-    el('circle',{cx:CX+Math.cos(tA)*(R1+1),cy:CY+Math.sin(tA)*(R1+1),r:1.8,fill:color},svg);
-
-    // Leader line if moved
-    if(wasMoved){
-      el('line',{x1:CX+Math.cos(tA)*(R1+10),y1:CY+Math.sin(tA)*(R1+10),
-        x2:gxy.x,y2:gxy.y,stroke:color,'stroke-width':.5,opacity:.45,'stroke-dasharray':'2 2'},svg);
-    }
-
-    // Symbol
-    if(name==='Sun'){
-      const sg=el('g',{},svg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:12,fill:'rgba(249,198,70,.12)'},sg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#f9c646','stroke-width':'2',filter:'url(#sunF)'},sg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'none',stroke:'#ffe8a0','stroke-width':'.8'},sg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:2.5,fill:'#f9c646',filter:'url(#sunF)'},sg);
-      el('circle',{cx:gxy.x,cy:gxy.y,r:1.2,fill:'#fff7d0'},sg);
-    } else if(name==='Moon'){
-      const mg=el('g',{filter:'url(#moonF)'},svg);
-      txt(mg,'☽',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':22,'font-family':'serif'});
-    } else {
-      txt(svg,info.sym,gxy.x,gxy.y,{fill:color,'font-size':20,'font-family':'serif'});
-    }
-
-    if(p.retrograde){
-      txt(svg,'℞',gxy.x+11,gxy.y-9,{fill:'#f87171','font-size':8,'font-family':'serif'});
-    }
+    const tA=trueA[name],col=info.color;
+    let diff=dispA[name]-tA;while(diff>Math.PI)diff-=2*Math.PI;while(diff<-Math.PI)diff+=2*Math.PI;
+    const mv=Math.abs(diff)>0.015;
+    const gxy=pxy(mv?dispA[name]:tA,R1+30);
+    el('line',{x1:CX+Math.cos(tA)*(R1+1),y1:CY+Math.sin(tA)*(R1+1),x2:CX+Math.cos(tA)*(R1+9),y2:CY+Math.sin(tA)*(R1+9),stroke:col,'stroke-width':1.5},svg);
+    el('circle',{cx:CX+Math.cos(tA)*(R1+1),cy:CY+Math.sin(tA)*(R1+1),r:1.8,fill:col},svg);
+    if(mv)el('line',{x1:CX+Math.cos(tA)*(R1+10),y1:CY+Math.sin(tA)*(R1+10),x2:gxy.x,y2:gxy.y,stroke:col,'stroke-width':.5,opacity:.4,'stroke-dasharray':'2 2'},svg);
+    if(name==='Sun'){const sg=el('g',{},svg);el('circle',{cx:gxy.x,cy:gxy.y,r:9,fill:'rgba(249,198,70,.12)'},sg);el('circle',{cx:gxy.x,cy:gxy.y,r:8,fill:'none',stroke:'#f9c646','stroke-width':'2',filter:'url(#sf_'+svgId+')'},sg);el('circle',{cx:gxy.x,cy:gxy.y,r:2,fill:'#f9c646'},sg);}
+    else if(name==='Moon'){const mg=el('g',{},svg);txt(mg,'☽',gxy.x,gxy.y,{fill:'#b8d8ff','font-size':20,'font-family':'serif'});}
+    else txt(svg,info.sym,gxy.x,gxy.y,{fill:col,'font-size':18,'font-family':'serif'});
+    if(data.planets[name].retrograde)txt(svg,'℞',gxy.x+10,gxy.y-8,{fill:'#f87171','font-size':7,'font-family':'serif'});
   }
 }
 
-// ── PLANET TABLE ──
+// ── TABLES ──
 function drawPlanetTable(data){
-  const tbody=document.getElementById('planet-tbody');
-  tbody.innerHTML='';
+  const tb=document.getElementById('planet-tbody');tb.innerHTML='';
   for(const name of PORDER){
-    if(!data.planets[name]) continue;
-    const info=PI[name];
-    const p=data.planets[name];
-    const si=p.sign_idx;
-    let symCell=name==='Sun'?sunSVG(20)
-      :name==='Moon'?'<span class="moon-sym">\u263d</span>'
-      :`<span class="p-sym" style="color:${info.color}">${info.sym}</span>`;
+    if(!data.planets[name])continue;
+    const info=PI[name],p=data.planets[name],si=p.sign_idx;
+    const sym=name==='Sun'?sunSVG(18):name==='Moon'?'<span class="moon-sym" style="font-size:16px">☽</span>':`<span class="p-sym" style="color:${info.color}">${info.sym}</span>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${symCell}</td>
-      <td style="color:${info.color};font-size:11px">${name}</td>
-      <td class="deg-val">${p.dms}</td>
-      <td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI_KA[si]}</span></td>
-      <td><span class="house-badge">${p.house||'?'}</span></td>
-      <td>${p.retrograde?'<span class="retro">\u211e</span>':''}</td>`;
-    tbody.appendChild(tr);
+    tr.innerHTML=`<td>${sym}</td><td style="color:${info.color};font-size:11px">${name}</td><td class="deg-val">${p.dms}</td><td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI[si]}</span></td><td><span class="house-badge">${p.house||'?'}</span></td><td>${p.retrograde?'<span class="retro">℞</span>':''}</td>`;
+    tb.appendChild(tr);
   }
 }
-
-// ── HOUSE TABLE ──
 function drawHouseTable(data){
-  const tbody=document.getElementById('house-tbody');
-  tbody.innerHTML='';
+  const tb=document.getElementById('house-tbody');tb.innerHTML='';
   const lsi=data.asc_sign_idx;
-  for(let i=0;i<12;i++){
-    const si=(lsi+i)%12;
+  for(let i=0;i<12;i++){const si=(lsi+i)%12;const tr=document.createElement('tr');tr.innerHTML=`<td style="font-family:'Cinzel',serif;font-size:11px;color:${i===0?'#e8c06e':'rgba(180,150,255,.7)'}">${ROMAN[i]}${i===0?' · Lg':''}</td><td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI[si]}</span></td>`;tb.appendChild(tr);}
+}
+function drawNakTable(data){
+  const tb=document.getElementById('nak-tbody');tb.innerHTML='';
+  [...PORDER.filter(n=>data.planets[n]),'Lagna'].forEach(name=>{
+    const isL=name==='Lagna',info=isL?{sym:'Lg',color:'#e8c06e'}:PI[name];
+    const nak=isL?data.lagna_nak:data.planets[name]?.nakshatra;if(!nak)return;
+    const sym=isL?`<span style="color:#e8c06e;font-family:'Cinzel',serif;font-size:10px">Lg</span>`:name==='Sun'?sunSVG(16):name==='Moon'?'<span class="moon-sym" style="font-size:16px">☽</span>':`<span style="color:${info.color};font-family:serif;font-size:15px">${info.sym}</span>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td style="font-family:'Cinzel',serif;font-size:11px;color:${i===0?'#e8c06e':'rgba(180,150,255,.7)'};font-weight:${i===0?600:400}">${ROMAN[i]}${i===0?' · Lg':''}</td>
-      <td><span style="font-size:14px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI_KA[si]}</span></td>`;
-    tbody.appendChild(tr);
-  }
+    tr.innerHTML=`<td>${sym} <span style="font-size:10px;color:${info.color}">${name}</span></td><td><div class="nak-name">${nak.nakshatra}</div><div style="font-size:9px;color:var(--dim)">${nak.deity}</div></td><td><span class="pada-badge">Pada ${nak.pada}</span><br><span style="font-size:9px;color:var(--dim)">${nak.pada_sign}</span></td><td style="font-size:11px;color:rgba(180,150,255,.8)">${nak.nakshatra_ruler}</td><td style="font-size:11px;color:rgba(180,150,255,.8)">${nak.pada_ruler}</td><td><span style="font-size:10px;color:var(--gold)">${nak.pct}%</span><span class="pct-bar"><span class="pct-fill" style="width:${nak.pct}%"></span></span></td>`;
+    tb.appendChild(tr);
+  });
 }
 
-// ── NAKSHATRA TABLE ──
-function drawNakTable(data){
-  const tbody=document.getElementById('nak-tbody');
-  tbody.innerHTML='';
-  const rows=[...PORDER.filter(n=>data.planets[n]),'Lagna'];
-  rows.forEach(name=>{
-    const isLagna=name==='Lagna';
-    const info=isLagna?{sym:'Lg',color:'#e8c06e'}:PI[name];
-    const nak=isLagna?data.lagna_nak:data.planets[name].nakshatra;
-    if(!nak) return;
-    const pct=nak.pct;
-    const tr=document.createElement('tr');
-    const symCell=isLagna
-      ?`<span style="color:#e8c06e;font-family:'Cinzel',serif;font-size:10px">Lagna</span>`
-      :name==='Sun'?sunSVG(16)
-      :name==='Moon'?'<span class="moon-sym" style="font-size:16px">\u263d</span>'
-      :`<span style="color:${info.color};font-family:serif;font-size:15px">${info.sym}</span>`;
-    tr.innerHTML=`
-      <td>${symCell} <span style="font-size:10px;color:${info.color}">${name}</span></td>
-      <td>
-        <div class="nak-name">${nak.nakshatra}</div>
-        <div style="font-size:9px;color:var(--dim);margin-top:1px">${nak.deity}</div>
-      </td>
-      <td><span class="pada-badge">Pada ${nak.pada}</span><br><span style="font-size:9px;color:var(--dim)">${nak.pada_sign}</span></td>
-      <td style="color:rgba(180,150,255,.8);font-size:11px">${nak.nakshatra_ruler}</td>
-      <td style="color:rgba(180,150,255,.8);font-size:11px">${nak.pada_ruler}</td>
-      <td>
-        <span style="font-size:10px;color:var(--gold)">${pct}%</span>
-        <span class="pct-bar"><span class="pct-fill" style="width:${pct}%"></span></span>
-      </td>`;
-    tbody.appendChild(tr);
+// ── VARGA LIST ──
+function buildVargaList(){
+  const list=document.getElementById('varga-list');
+  list.innerHTML='';
+  VARGAS.forEach(v=>{
+    const div=document.createElement('div');
+    div.className='varga-item'+(v.n===1?' active':'');
+    div.id='vi-'+v.n;
+    div.innerHTML=`${v.main?'<span class="main-badge"></span>':''}<span class="varga-num">D${v.n}</span><div><div class="varga-name">${v.ka} · ${v.name}</div><div class="varga-meaning">${v.meaning}</div></div>`;
+    div.onclick=()=>showVarga(v.n);
+    list.appendChild(div);
   });
+}
+
+function showVarga(N){
+  if(!_chartData)return;
+  // Update active state
+  document.querySelectorAll('.varga-item').forEach(el=>el.classList.remove('active'));
+  const item=document.getElementById('vi-'+N);
+  if(item){item.classList.add('active');item.scrollIntoView({block:'nearest'});}
+  const v=VARGAS.find(x=>x.n===N);
+  const vd=getVargaData(_chartData,N);
+  document.getElementById('varga-wheel-title').textContent=`D${N} · ${v?.ka||''} · ${v?.name||''} — ${v?.meaning||''}`;
+  drawWheel(vd,'varga-wheel');
+  // Planet table for varga
+  const tb=document.getElementById('varga-tbody');tb.innerHTML='';
+  for(const name of PORDER){
+    if(!vd.planets[name])continue;
+    const info=PI[name],p=vd.planets[name],si=p.sign_idx;
+    const sym=name==='Sun'?sunSVG(16):name==='Moon'?'<span style="color:#b8d8ff;font-family:serif;font-size:14px">☽</span>':`<span style="color:${info.color};font-family:serif;font-size:14px">${info.sym}</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${sym}</td><td style="color:${info.color};font-size:11px">${name}</td><td class="deg-val">${fmtDegVarga(p.sidereal)}</td><td><span style="font-size:13px;font-family:serif;color:${RCOL[si]}">${ZSYM[si]}</span> <span style="font-size:10px;color:${RCOL[si]}">${RASHI[si]}</span></td><td>${p.retrograde?'<span class="retro">℞</span>':''}</td>`;
+    tb.appendChild(tr);
+  }
 }
 </script>
 </body>
