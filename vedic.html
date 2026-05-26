@@ -134,6 +134,16 @@ tr:hover td{background:rgba(19,16,58,.6)}
     </div>
   </div>
 
+  <div class="sec-title" onclick="toggleAsp()" style="cursor:pointer;user-select:none">
+    ასპექტები · Aspects <span id="asp-icon" style="font-size:12px;opacity:.6">▼</span>
+  </div>
+  <div id="asp-collapse" style="display:none;margin-bottom:8px;">
+    <div class="data-card" style="padding:0 0 8px;">
+      <div class="data-card-title" id="asp-title">⚡ ასპექტები</div>
+      <table><thead><tr><th>გრჰა 1</th><th>ასპ.</th><th>გრჰა 2</th><th>კუთხე</th><th>ორბი</th></tr></thead>
+      <tbody id="asp-tbody"></tbody></table>
+    </div>
+  </div>
   <div class="sec-title">ნაქშატრები · Nakshatras</div>
   <div class="data-card" style="margin-bottom:8px">
     <div class="data-card-title">⭐ ნაქშატრა · პადა · მმართველი</div>
@@ -324,6 +334,67 @@ function v2a(sid,lagStart){return toRad(-(sid-lagStart))+Math.PI;}
 function pxy(a,r){return{x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r};}
 function sunSVG(sz=20){return `<svg width="${sz}" height="${sz}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;display:inline-block"><circle cx="11" cy="11" r="8" fill="none" stroke="#f9c646" stroke-width="2"/><circle cx="11" cy="11" r="2" fill="#f9c646"/></svg>`;}
 
+
+function toggleAsp(){
+  const c=document.getElementById('asp-collapse');
+  const ic=document.getElementById('asp-icon');
+  const open=c.style.display!=='none';
+  c.style.display=open?'none':'block';
+  ic.textContent=open?'▼':'▲';
+}
+
+const ASP_DEFS=[
+  {name:'შეერთება',angle:0,orb:10,sym:'☌',color:'#f9c646'},
+  {name:'ოპოზიცია',angle:180,orb:10,sym:'☍',color:'#e89040'},
+  {name:'ტრინი',angle:120,orb:8,sym:'△',color:'#a078f0'},
+  {name:'კვადრატი',angle:90,orb:8,sym:'□',color:'#e84040'},
+  {name:'სექსტილი',angle:60,orb:6,sym:'⚹',color:'#30c890'},
+  {name:'კვინკ.',angle:150,orb:4,sym:'⚻',color:'#9ba8b8'},
+];
+
+function calcAndDrawAspects(data){
+  const tb=document.getElementById('asp-tbody');
+  if(!tb)return;
+  tb.innerHTML='';
+  const pNames=PORDER.filter(n=>data.planets[n]);
+  const aspects=[];
+  for(let i=0;i<pNames.length;i++){
+    for(let j=i+1;j<pNames.length;j++){
+      const n1=pNames[i],n2=pNames[j];
+      const d1=data.planets[n1].sidereal,d2=data.planets[n2].sidereal;
+      const raw=((d2-d1)+360)%360;
+      let best=null,bestOrb=999;
+      for(const asp of ASP_DEFS){
+        const angles=[asp.angle,360-asp.angle];
+        for(const target of angles){
+          let diff=Math.abs(raw-target);if(diff>180)diff=360-diff;
+          if(diff<=asp.orb&&diff<bestOrb){bestOrb=diff;best=asp;}
+        }
+      }
+      if(best)aspects.push({n1,n2,asp:best,orb:Math.round(bestOrb*10)/10});
+    }
+  }
+  aspects.sort((a,b)=>a.orb-b.orb);
+  const i1=PI[aspects[0]?.n1]||{};
+  aspects.forEach(({n1,n2,asp,orb})=>{
+    const p1=PI[n1]||{sym:'?',color:'#aaa'},p2=PI[n2]||{sym:'?',color:'#aaa'};
+    const s1=n1==='Sun'?sunSVG(14):`<span style="color:${p1.color};font-family:serif;font-size:13px">${p1.sym}</span>`;
+    const s2=n2==='Sun'?sunSVG(14):`<span style="color:${p2.color};font-family:serif;font-size:13px">${p2.sym}</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s1} <span style="font-size:10px;color:${p1.color}">${n1}</span></td>
+      <td><span style="color:${asp.color};font-size:15px">${asp.sym}</span></td>
+      <td>${s2} <span style="font-size:10px;color:${p2.color}">${n2}</span></td>
+      <td style="color:${asp.color};font-size:10px">${asp.name} ${asp.angle}°</td>
+      <td style="color:rgba(140,100,200,.7);font-size:10px">${orb}°</td>`;
+    tb.appendChild(tr);
+  });
+  const title=document.getElementById('asp-title');
+  if(title)title.textContent=`⚡ ასპექტები — სულ ${aspects.length}`;
+  // Auto-open
+  document.getElementById('asp-collapse').style.display='block';
+  document.getElementById('asp-icon').textContent='▲';
+}
+
 // ── GEOCODE ──
 let _ct=null;
 function searchCity(){
@@ -368,6 +439,7 @@ async function generate(){
     drawWheel(data,'wheel');
     drawPlanetTable(data);
     drawHouseTable(data);
+    calcAndDrawAspects(data);
     drawNakTable(data);
     buildVargaList();
     showVarga(1);
