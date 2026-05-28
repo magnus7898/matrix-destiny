@@ -584,8 +584,8 @@ function drawWheel(data, svgId){
     else txt(svg,info.sym,gxy.x,gxy.y,{fill:col,'font-size':18,'font-family':'serif'});
     if(data.planets[name].retrograde)txt(svg,'℞',gxy.x+10,gxy.y-8,{fill:'#f87171','font-size':7,'font-family':'serif'});
     // Hover hit area
-    const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:22,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
-    hit.style.cursor='crosshair';hit.style.pointerEvents='all';
+    const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:22,fill:'rgba(0,0,0,.01)',stroke:'none','pointer-events':'all','data-hit':'1'},svg);
+    hit.style.cursor='crosshair';
     hit.addEventListener('mouseenter',()=>highlightPlanet(name));
     hit.addEventListener('mouseleave',()=>clearHighlight());
   }
@@ -613,10 +613,13 @@ function drawWheel(data, svgId){
         const ln=el('line',{
           x1:CX+Math.cos(a1)*R4,y1:CY+Math.sin(a1)*R4,
           x2:CX+Math.cos(a2)*R4,y2:CY+Math.sin(a2)*R4,
-          stroke:bestCol,'stroke-width':0.7,opacity:.5,'stroke-dasharray':'3 3','class':'asp-line'
+          stroke:bestCol,'stroke-width':0.7,opacity:.5,'stroke-dasharray':'3 3','class':'asp-line','pointer-events':'none'
         },svg);
         ln.dataset.p1=n1;ln.dataset.p2=n2;
-      }
+   
+  // Bring hit areas to front (re-append after aspect lines)
+  svg.querySelectorAll('[data-hit]').forEach(h=>svg.appendChild(h));
+   }
     }
   }
 }
