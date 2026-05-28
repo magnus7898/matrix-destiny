@@ -584,7 +584,7 @@ function drawWheel(data, svgId){
     else txt(svg,info.sym,gxy.x,gxy.y,{fill:col,'font-size':18,'font-family':'serif'});
     if(data.planets[name].retrograde)txt(svg,'℞',gxy.x+10,gxy.y-8,{fill:'#f87171','font-size':7,'font-family':'serif'});
     // Hover hit area
-    const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:16,fill:'transparent','stroke-width':0},svg);
+    const hit=el('circle',{cx:gxy.x,cy:gxy.y,r:22,fill:'rgba(0,0,0,.01)',stroke:'none'},svg);
     hit.style.cursor='crosshair';hit.style.pointerEvents='all';
     hit.addEventListener('mouseenter',()=>highlightPlanet(name));
     hit.addEventListener('mouseleave',()=>clearHighlight());
