@@ -161,6 +161,18 @@
     <svg id="diagram" width="1800" height="1800" viewBox="-120 -120 1440 1440" xmlns="http://www.w3.org/2000/svg"></svg>
   </div>
 
+  <!-- ▼▼ B3 KARMIC-TAIL ARTICLE BOX (right after diagram, closed until B3 clicked) ▼▼ -->
+  <div id="b3-article-panel" style="display:none;width:100%;max-width:860px;
+       background:rgba(30,8,18,0.92);border:1px solid rgba(226,75,74,0.5);
+       border-radius:13px;overflow:hidden;box-shadow:0 6px 28px rgba(120,20,30,0.3);">
+    <div id="b3-article-head" style="padding:13px 18px;background:rgba(180,40,50,0.28);
+         font-weight:700;font-size:14px;letter-spacing:.5px;color:#ffd8d8;
+         border-bottom:1px solid rgba(226,75,74,0.3);">🔻 კარმული კუდი</div>
+    <div id="b3-article-body" style="padding:16px 20px;font-size:13px;line-height:1.75;
+         color:rgba(225,205,210,0.85);"></div>
+  </div>
+  <!-- ▲▲ END B3 ARTICLE BOX ▲▲ -->
+
   <div id="extra-panels">
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
       <div class="ep-box"><div class="ep-title" style="color:rgba(210,130,255,0.95);">მამაკაცის ხაზი</div><div class="ep-row"><div class="ep-circ" id="ep-tl3"><span class="ep-label">TL3</span></div><div class="ep-circ" id="ep-br3"><span class="ep-label">BR3</span></div><div class="ep-circ ep-gold" id="ep-male-sum"><span class="ep-label">ჯამი</span></div></div></div>
@@ -232,18 +244,6 @@
       </tbody>
     </table>
   </div>
-
-  <!-- ▼▼ B3 KARMIC-TAIL ARTICLE BOX (closed until B3 circle clicked) ▼▼ -->
-  <div id="b3-article-panel" style="display:none;width:100%;max-width:860px;
-       background:rgba(30,8,18,0.92);border:1px solid rgba(226,75,74,0.5);
-       border-radius:13px;overflow:hidden;box-shadow:0 6px 28px rgba(120,20,30,0.3);">
-    <div id="b3-article-head" style="padding:13px 18px;background:rgba(180,40,50,0.28);
-         font-weight:700;font-size:14px;letter-spacing:.5px;color:#ffd8d8;
-         border-bottom:1px solid rgba(226,75,74,0.3);">🔻 კარმული კუდი</div>
-    <div id="b3-article-body" style="padding:16px 20px;font-size:13px;line-height:1.75;
-         color:rgba(225,205,210,0.85);"></div>
-  </div>
-  <!-- ▲▲ END B3 ARTICLE BOX ▲▲ -->
 
 </div>
 
@@ -496,8 +496,8 @@ function draw(v){
     }
   }
 
-  // ▼▼ CLICKABLE B3 KARMIC-TAIL CIRCLE ▼▼
-  if(v.B3!=null && typeof openB3Article==='function'){
+  // ▼▼ CLICKABLE B3 KARMIC-TAIL CIRCLE (methods 1-3 only, not compatibility) ▼▼
+  if(v.B3!=null && !isCompat && typeof openB3Article==='function'){
     // dashed hint ring so the user knows B3 is clickable
     const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
     ring.setAttribute('cx',cx); ring.setAttribute('cy',cy+d3);
