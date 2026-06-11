@@ -107,6 +107,15 @@
 
     @media(max-width:900px){body{padding:12px 8px 36px;}.page-title{font-size:18px;}.diagram-wrapper{max-width:100vw!important;}.age-table .tc-desc{font-size:11px;}}
     @media(max-width:600px){.page-title{font-size:14px;letter-spacing:1px;}.page-subtitle{display:none;}.chakra-table th,.chakra-table td{padding:6px 4px;font-size:10px;}.chakra-table td:first-child{font-size:8px;}.ep-box{min-width:130px;}}
+
+    /* ── Interpretation boxes ── */
+    .mx-box{border:1px solid rgba(140,110,255,0.4);border-radius:11px;overflow:hidden;background:rgba(18,10,40,0.85);}
+    .mx-box-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e8dcff;user-select:none;transition:background .15s;}
+    .mx-box-head:hover{filter:brightness(1.25);}
+    .mx-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:middle;}
+    .mx-key{font-family:'Cinzel',serif;font-size:12px;color:rgba(200,180,255,0.8);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+    .mx-arrow{font-size:10px;opacity:.6;}
+    .mx-box-body{padding:14px 18px;font-size:13px;line-height:1.75;color:rgba(210,195,235,0.85);border-top:1px solid rgba(140,110,255,0.2);}
   </style>
 </head>
 <body>
@@ -161,17 +170,9 @@
     <svg id="diagram" width="1800" height="1800" viewBox="-120 -120 1440 1440" xmlns="http://www.w3.org/2000/svg"></svg>
   </div>
 
-  <!-- ▼▼ B3 KARMIC-TAIL ARTICLE BOX (right after diagram, closed until B3 clicked) ▼▼ -->
-  <div id="b3-article-panel" style="display:none;width:100%;max-width:860px;
-       background:rgba(30,8,18,0.92);border:1px solid rgba(226,75,74,0.5);
-       border-radius:13px;overflow:hidden;box-shadow:0 6px 28px rgba(120,20,30,0.3);">
-    <div id="b3-article-head" style="padding:13px 18px;background:rgba(180,40,50,0.28);
-         font-weight:700;font-size:14px;letter-spacing:.5px;color:#ffd8d8;
-         border-bottom:1px solid rgba(226,75,74,0.3);">🔻 კარმული კუდი</div>
-    <div id="b3-article-body" style="padding:16px 20px;font-size:13px;line-height:1.75;
-         color:rgba(225,205,210,0.85);"></div>
-  </div>
-  <!-- ▲▲ END B3 ARTICLE BOX ▲▲ -->
+  <!-- ▼▼ INTERPRETATION BOXES (closed until a box header or its circle is clicked) ▼▼ -->
+  <div id="matrix-boxes" style="display:none;flex-direction:column;gap:8px;width:100%;max-width:860px;"></div>
+  <!-- ▲▲ END INTERPRETATION BOXES ▲▲ -->
 
   <div id="extra-panels">
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
@@ -249,8 +250,8 @@
 
 <p class="footer-text">✦ სამყაროს რიცხვები · ენერგიის ნიმუში ✦</p>
 
-<!-- ▼ B3 combination articles (edit article texts in this file) ▼ -->
-<script src="matrix_b3_addon.js"></script>
+<!-- ▼ Interpretation boxes + articles (edit article texts in matrix_boxes_addon.js) ▼ -->
+<script src="matrix_boxes_addon.js"></script>
 
 <script>
 // ── ENERGIES — 8=სამართლიანობა, 11=სიძლიერე ──────────────────────────
@@ -319,7 +320,7 @@ function setMethod(m){
   document.getElementById('extra-panels').style.display='none';
   document.getElementById('chakra-panel').style.display='none';
   document.getElementById('age-panel').style.display='none';
-  const bp=document.getElementById('b3-article-panel');if(bp)bp.style.display='none';
+  const mb=document.getElementById('matrix-boxes');if(mb)mb.style.display='none';
 }
 
 function m3Preview(){
@@ -362,6 +363,7 @@ function calculate(){
   sc('c-t3',T3);sc('c-l3',L3);sc('c-s1',r22(T3+L3));sc('c-t2',T2);sc('c-l2',L2);sc('c-s2',r22(T2+L2));sc('c-t1',T1);sc('c-l1',L1);sc('c-s3',r22(T1+L1));sc('c-g2',G2);sc('c-g1',G1);sc('c-s4',r22(G2+G1));sc('c-cv',Cv);sc('c-cv2',Cv);sc('c-s5',r22(Cv+Cv));sc('c-b1',B1);sc('c-r1',R1);sc('c-s6',r22(B1+R1));sc('c-b3',B3);sc('c-r3',R3);sc('c-s7',r22(B3+R3));
   const eV=[T3,T2,T1,G2,Cv,B1,B3],lV=[L3,L2,L1,G1,Cv,R1,R3],sV=[r22(T3+L3),r22(T2+L2),r22(T1+L1),r22(G2+G1),r22(Cv+Cv),r22(B1+R1),r22(B3+R3)];
   sc('c-sum-e',r22(eV.reduce((a,b)=>a+b,0)));sc('c-sum-l',r22(lV.reduce((a,b)=>a+b,0)));sc('c-sum-s',r22(sV.reduce((a,b)=>a+b,0)));
+  if(typeof buildMatrixBoxes==='function')buildMatrixBoxes({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TL2,TL1,TR3,TR2,TR1,BR3,BR2,BR1,BL3,BL2,BL1,W1,W2,W3});
 }
 
 // ── Age Table ─────────────────────────────────────────────────────────────
@@ -425,7 +427,7 @@ function calculateCompat(){
   document.getElementById('extra-panels').style.display='none';
   document.getElementById('chakra-panel').style.display='none';
   document.getElementById('age-panel').style.display='none';
-  const bp=document.getElementById('b3-article-panel');if(bp)bp.style.display='none';
+  const mb=document.getElementById('matrix-boxes');if(mb)mb.style.display='none';
 }
 
 function base(p){const L3=r22(p.dd),T3=r22(p.mm),R3=r22(p.yyyy),B3=r22(L3+T3+R3);return{L3,T3,R3,B3};}
@@ -496,28 +498,39 @@ function draw(v){
     }
   }
 
-  // ▼▼ CLICKABLE B3 KARMIC-TAIL CIRCLE (methods 1-3 only, not compatibility) ▼▼
-  if(v.B3!=null && !isCompat && typeof openB3Article==='function'){
-    // dashed hint ring so the user knows B3 is clickable
-    const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    ring.setAttribute('cx',cx); ring.setAttribute('cy',cy+d3);
-    ring.setAttribute('r',r3_r+5);
-    ring.setAttribute('fill','none');
-    ring.setAttribute('stroke','rgba(255,140,140,0.6)');
-    ring.setAttribute('stroke-width','2');
-    ring.setAttribute('stroke-dasharray','4 4');
-    ring.style.pointerEvents='none';
-    svg.appendChild(ring);
-    // invisible hit target on top
-    const hitB3=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    hitB3.setAttribute('cx',cx); hitB3.setAttribute('cy',cy+d3);
-    hitB3.setAttribute('r',r3_r+8);
-    hitB3.setAttribute('fill','rgba(0,0,0,0.01)');
-    hitB3.style.cursor='pointer';
-    hitB3.addEventListener('click',()=>openB3Article(v.B3, v.B2, v.B1));
-    svg.appendChild(hitB3);
+  // ▼▼ CLICKABLE CIRCLES → open matching interpretation box (methods 1-3 only) ▼▼
+  if(!isCompat && typeof openBoxById==='function'){
+    // map: [x, y, hit-radius, box-id]
+    const CIRCLE_BOXES = [
+      [cx,            cy,            rc_r,  'cv'],     // yellow center
+      [cx-d3,         cy,            r3_r,  'l3'],     // L3 visit card / persona
+      [cx,            cy-d3,         r3_r,  't3'],     // T3 talents
+      [cx+d3,         cy,            r3_r,  'r3'],     // R3 material karma combo
+      [cx,            cy+d3,         r3_r,  'b3'],     // B3 karmic tail combo
+      [cx-d2,         cy,            r2_r,  'l2'],     // L2 childhood (same as persona pos; persona wins—use L2 below)
+      [cx,            cy-d2,         r2_r,  't2'],     // T2 unique vision
+      [cx-d1,         cy,            r1_r,  'l1'],     // L1 parents/children
+      [cx,            cy-d1,         r1_r,  't1'],     // T1 transmission gift
+      [cx-rc_r-gap/2, cy,            r1_r,  'g1'],     // green-left physical desires
+      [cx,            cy-rc_r-gap/2, r1_r,  'g2'],     // green-top social desires
+      [cx,            cy+d1,         r1_r,  'b1'],     // B1 how we enter relationships
+      [cx+d1,         cy,            r1_r,  'r1'],     // R1 work environment
+      [cx-dd3,        cy-dd3,        r3_r,  'tl'],     // TL3 male ancestors talents
+      [cx+dd3,        cy-dd3,        r3_r,  'tr'],     // TR3 female ancestors talents
+      [cx+dd3,        cy+dd3,        r3_r,  'br'],     // BR3 male ancestors karma
+      [cx-dd3,        cy+dd3,        r3_r,  'bl'],     // BL3 female ancestors karma
+    ];
+    for(const [hx,hy,hr,bid] of CIRCLE_BOXES){
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hit.setAttribute('cx',hx); hit.setAttribute('cy',hy);
+      hit.setAttribute('r',hr+4);
+      hit.setAttribute('fill','rgba(0,0,0,0.01)');
+      hit.style.cursor='pointer';
+      hit.addEventListener('click',()=>openBoxById(bid));
+      svg.appendChild(hit);
+    }
   }
-  // ▲▲ END B3 CLICK ▲▲
+  // ▲▲ END CIRCLE CLICKS ▲▲
 }
 </script>
 </body>
