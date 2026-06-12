@@ -548,18 +548,21 @@ function draw(v){
       const px=Math.round(cx+outerR*Math.cos(rad)),py=Math.round(cy+outerR*Math.sin(rad));
       const isMid=d===3;
       el('circle',{cx:px,cy:py,r:isMid?5:3,fill:isMid?'#FFD700':'rgba(200,180,255,0.9)',stroke:'none'});
-      const tA=0.20+(d/6)*0.60,aAng=sa+diff*tA,aR=aAng*Math.PI/180;
-      const ins=outerR-18,ax=Math.round(cx+ins*Math.cos(aR)),ay=Math.round(cy+ins*Math.sin(aR));
-      el('text',{x:ax,y:ay,'font-size':isMid?8:7,'font-weight':isMid?700:400,fill:isMid?'#FFD700':'rgba(200,180,255,0.85)','text-anchor':'middle','dominant-baseline':'central','font-family':'sans-serif'},ages[d]);
-      if(!isCompat){const out=outerR+38,ex=Math.round(cx+out*Math.cos(rad)),ey=Math.round(cy+out*Math.sin(rad));el('text',{x:ex,y:ey,'font-size':isMid?17:15,'font-weight':isMid?700:600,fill:isMid?'#FFD700':'rgba(167,139,250,0.95)','text-anchor':'middle','dominant-baseline':'central','font-family':'Cinzel,serif'},ens[d]);}
       agePoints.push({ageNum:subMidAges[d], ageLabel:ages[d], energy:ens[d], px, py, rad, isMid, anchor:false});
     }
   }
-  // anchor (corner) age points
-  const cornerPos=[[cx-d3,cy],[cx-dd3,cy-dd3],[cx,cy-d3],[cx+dd3,cy-dd3],[cx+d3,cy],[cx+dd3,cy+dd3],[cx,cy+d3],[cx-dd3,cy+dd3]];
+  // anchor (corner) age points — placed on the outer ring, visible gold dots, same size as sub-points
+  const anchorAngles=[180,225,270,315,0,45,90,135]; // L3,TL3,T3,TR3,R3,BR3,B3,BL3 directions
   const cornerEnergy=[v.L3,v.TL3,v.T3,v.TR3,v.R3,v.BR3,v.B3,v.BL3];
   for(let i=0;i<8;i++){
-    agePoints.push({ageNum:anchorAges[i], ageLabel:String(anchorAges[i]), energy:cornerEnergy[i], px:cornerPos[i][0], py:cornerPos[i][1], rad:aAngles[i]*Math.PI/180, isMid:false, anchor:true});
+    const rad=anchorAngles[i]*Math.PI/180;
+    const px=Math.round(cx+outerR*Math.cos(rad)),py=Math.round(cy+outerR*Math.sin(rad));
+    // visible gold dot (anchor = larger, like mid-points)
+    el('circle',{cx:px,cy:py,r:5,fill:'#FFD700',stroke:'#a87f00','stroke-width':1});
+    // anchor age number (10,20,30...) outside the ring
+    const out=outerR+40,ex=Math.round(cx+out*Math.cos(rad)),ey=Math.round(cy+out*Math.sin(rad));
+    el('text',{x:ex,y:ey,'font-size':15,'font-weight':700,fill:'#FFD700','text-anchor':'middle','dominant-baseline':'central','font-family':'Cinzel,serif'},String(anchorAges[i]));
+    agePoints.push({ageNum:anchorAges[i], ageLabel:String(anchorAges[i]), energy:cornerEnergy[i], px, py, rad, isMid:false, anchor:true});
   }
 
   // ── GLOW the age point nearest to person's current age ──
