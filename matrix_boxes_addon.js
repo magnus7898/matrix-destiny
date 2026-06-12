@@ -11,7 +11,8 @@
 /* ---- 1. BOX DEFINITIONS (order = display order under the diagram) ---- */
 const MATRIX_BOXES = [
   // id            title (Georgian)                                  type      keys (which v.* circles)         color
-  { id:'cv',   title:'სექსუალურობა · კომფორტის ზონა',                kind:'single', keys:['Cv'],               color:'#d4a017' },
+  { id:'comfort', title:'კომფორტის ზონა',                            kind:'single', keys:['Cv'],               color:'#d4a017' },
+  { id:'sex',     title:'სექსუალურობა',                             kind:'single', keys:['Cv'],               color:'#d4a017' },
   { id:'l3',   title:'სავიზიტო ბარათი',                              kind:'single', keys:['L3'],               color:'#7F77DD' },
   { id:'persona', title:'პერსონა',                                  kind:'combo',  keys:['L3','L2','L1'],     color:'#7F77DD' },
   { id:'t3',   title:'ტალანტები',                                    kind:'single', keys:['T3'],               color:'#7F77DD' },
@@ -38,9 +39,14 @@ const MATRIX_BOXES = [
 /*    single circle: "N"   |   3-combo: "A-B-C"   |   2-combo: "A-B"                  */
 const MATRIX_ARTICLES = {
 
-  // ── Cv · სექსუალურობა / კომფორტის ზონა (single number 1–22) ──
-  cv: {
-    // "1":"<p>...</p>",  "2":"...", ... up to "22"
+  // ── Cv · კომფორტის ზონა (yellow center, single number 1–22) ──
+  comfort: {
+    // "1":"...", ... "22"
+  },
+
+  // ── Cv · სექსუალურობა (three center circles, method 1 only) ──
+  sex: {
+    // "1":"...", ... "22"
   },
 
   // ── L3 · სავიზიტო ბარათი (single) ──
@@ -90,8 +96,8 @@ function buildMatrixBoxes(v, method){
   wrap.style.display = 'flex';
 
   for(const box of MATRIX_BOXES){
-    // სექსუალურობა (Cv) only valid for method 1
-    if(box.id==='cv' && method!==1) continue;
+    // სექსუალურობა only exists as separate box in method 1; methods 2-4 only have კომფორტის ზონა
+    if(box.id==='sex' && method!==1) continue;
     // compute the key + label for this box
     let key, label;
     if(box.kind === 'chakra'){
