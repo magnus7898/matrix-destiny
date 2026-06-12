@@ -548,6 +548,12 @@ function draw(v){
       const px=Math.round(cx+outerR*Math.cos(rad)),py=Math.round(cy+outerR*Math.sin(rad));
       const isMid=d===3;
       el('circle',{cx:px,cy:py,r:isMid?5:3,fill:isMid?'#FFD700':'rgba(200,180,255,0.9)',stroke:'none'});
+      // age range label inside ring
+      const tA=0.20+(d/6)*0.60,aAng=sa+diff*tA,aR=aAng*Math.PI/180;
+      const ins=outerR-18,ax=Math.round(cx+ins*Math.cos(aR)),ay=Math.round(cy+ins*Math.sin(aR));
+      el('text',{x:ax,y:ay,'font-size':isMid?8:7,'font-weight':isMid?700:400,fill:isMid?'#FFD700':'rgba(200,180,255,0.85)','text-anchor':'middle','dominant-baseline':'central','font-family':'sans-serif'},ages[d]);
+      // energy number outside ring
+      if(!isCompat){const out=outerR+38,ex=Math.round(cx+out*Math.cos(rad)),ey=Math.round(cy+out*Math.sin(rad));el('text',{x:ex,y:ey,'font-size':isMid?17:15,'font-weight':isMid?700:600,fill:isMid?'#FFD700':'rgba(167,139,250,0.95)','text-anchor':'middle','dominant-baseline':'central','font-family':'Cinzel,serif'},ens[d]);}
       agePoints.push({ageNum:subMidAges[d], ageLabel:ages[d], energy:ens[d], px, py, rad, isMid, anchor:false});
     }
   }
@@ -557,11 +563,8 @@ function draw(v){
   for(let i=0;i<8;i++){
     const rad=anchorAngles[i]*Math.PI/180;
     const px=Math.round(cx+outerR*Math.cos(rad)),py=Math.round(cy+outerR*Math.sin(rad));
-    // visible gold dot (anchor = larger, like mid-points)
+    // visible gold dot ONLY (no label on decade anchors 10,20,30...)
     el('circle',{cx:px,cy:py,r:5,fill:'#FFD700',stroke:'#a87f00','stroke-width':1});
-    // anchor age number (10,20,30...) outside the ring
-    const out=outerR+40,ex=Math.round(cx+out*Math.cos(rad)),ey=Math.round(cy+out*Math.sin(rad));
-    el('text',{x:ex,y:ey,'font-size':15,'font-weight':700,fill:'#FFD700','text-anchor':'middle','dominant-baseline':'central','font-family':'Cinzel,serif'},String(anchorAges[i]));
     agePoints.push({ageNum:anchorAges[i], ageLabel:String(anchorAges[i]), energy:cornerEnergy[i], px, py, rad, isMid:false, anchor:true});
   }
 
