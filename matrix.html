@@ -250,7 +250,8 @@
 
 <p class="footer-text">✦ სამყაროს რიცხვები · ენერგიის ნიმუში ✦</p>
 
-<!-- ▼ Interpretation boxes + articles (edit article texts in matrix_boxes_addon.js) ▼ -->
+<!-- ▼ Interpretation boxes + articles (edit article texts in THIS block) ▼ -->
+<!-- Interpretation boxes + articles (edit in matrix_boxes_addon.js) -->
 <script src="matrix_boxes_addon.js"></script>
 
 <script>
@@ -363,7 +364,12 @@ function calculate(){
   sc('c-t3',T3);sc('c-l3',L3);sc('c-s1',r22(T3+L3));sc('c-t2',T2);sc('c-l2',L2);sc('c-s2',r22(T2+L2));sc('c-t1',T1);sc('c-l1',L1);sc('c-s3',r22(T1+L1));sc('c-g2',G2);sc('c-g1',G1);sc('c-s4',r22(G2+G1));sc('c-cv',Cv);sc('c-cv2',Cv);sc('c-s5',r22(Cv+Cv));sc('c-b1',B1);sc('c-r1',R1);sc('c-s6',r22(B1+R1));sc('c-b3',B3);sc('c-r3',R3);sc('c-s7',r22(B3+R3));
   const eV=[T3,T2,T1,G2,Cv,B1,B3],lV=[L3,L2,L1,G1,Cv,R1,R3],sV=[r22(T3+L3),r22(T2+L2),r22(T1+L1),r22(G2+G1),r22(Cv+Cv),r22(B1+R1),r22(B3+R3)];
   sc('c-sum-e',r22(eV.reduce((a,b)=>a+b,0)));sc('c-sum-l',r22(lV.reduce((a,b)=>a+b,0)));sc('c-sum-s',r22(sV.reduce((a,b)=>a+b,0)));
-  if(typeof buildMatrixBoxes==='function')buildMatrixBoxes({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TL2,TL1,TR3,TR2,TR1,BR3,BR2,BR1,BL3,BL2,BL1,W1,W2,W3});
+  if(typeof buildMatrixBoxes==='function'){
+    buildMatrixBoxes({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TL2,TL1,TR3,TR2,TR1,BR3,BR2,BR1,BL3,BL2,BL1,W1,W2,W3},CUR);
+  }else{
+    const mb=document.getElementById('matrix-boxes');
+    if(mb){mb.style.display='flex';mb.innerHTML='<div style="padding:14px;border:1px solid rgba(255,120,120,.5);border-radius:10px;color:#ffb0b0;font-size:12px;">⚠ matrix_boxes_addon.js ვერ ჩაიტვირთა — შეამოწმეთ ფაილი იმავე საქაღალდეშია matrix.html-თან.</div>';}
+  }
 }
 
 // ── Age Table ─────────────────────────────────────────────────────────────
