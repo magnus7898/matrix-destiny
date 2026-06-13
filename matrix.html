@@ -170,10 +170,7 @@
     <svg id="diagram" width="1800" height="1800" viewBox="-120 -120 1440 1440" xmlns="http://www.w3.org/2000/svg"></svg>
   </div>
 
-  <!-- Single-row age/energy reveal (replaces age table) -->
-  <div id="age-row-panel" style="display:none;width:100%;max-width:860px;margin:18px 0;">
-    <table class="age-table"><tbody id="age-row-body"></tbody></table>
-  </div>
+
 
 </div>
 
@@ -218,6 +215,11 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Single-row age/energy reveal (replaces age table) -->
+  <div id="age-row-panel" style="display:none;width:100%;max-width:860px;margin:18px 0;">
+    <table class="age-table"><tbody id="age-row-body"></tbody></table>
   </div>
 
   <div class="table-wrapper" id="chakra-panel">
@@ -564,7 +566,8 @@ function draw(v){
   const cornerEnergy=[v.L3,v.TL3,v.T3,v.TR3,v.R3,v.BR3,v.B3,v.BL3];
   for(let i=0;i<8;i++){
     const rad=anchorAngles[i]*Math.PI/180;
-    const px=Math.round(cx+outerR*Math.cos(rad)),py=Math.round(cy+outerR*Math.sin(rad));
+    const aR2=outerR+24; // push decade anchor dots clear of the big circles for easy clicking
+    const px=Math.round(cx+aR2*Math.cos(rad)),py=Math.round(cy+aR2*Math.sin(rad));
     // visible gold dot ONLY (no label on decade anchors 10,20,30...)
     el('circle',{cx:px,cy:py,r:7,fill:'#FFD700',stroke:'#a87f00','stroke-width':1});
     agePoints.push({ageNum:anchorAges[i], ageLabel:String(anchorAges[i]), energy:cornerEnergy[i], px, py, rad, isMid:false, anchor:true});
@@ -608,18 +611,6 @@ function draw(v){
     }
   }
 
-  // ── CLICKABLE age points → reveal single energy row ──
-  if(!isCompat && typeof showAgeRow==='function'){
-    for(const ap of agePoints){
-      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      hit.setAttribute('cx',ap.px);hit.setAttribute('cy',ap.py);
-      hit.setAttribute('r',12);
-      hit.setAttribute('fill','rgba(0,0,0,0.01)');
-      hit.style.cursor='pointer';
-      hit.addEventListener('click',()=>showAgeRow(ap.ageLabel, ap.energy));
-      svg.appendChild(hit);
-    }
-  }
 
   // ▼▼ CLICKABLE CIRCLES → open matching interpretation box (methods 1-3 only) ▼▼
   if(!isCompat && typeof openBoxById==='function'){
@@ -656,6 +647,19 @@ function draw(v){
     }
   }
   // ▲▲ END CIRCLE CLICKS ▲▲
+
+  // ── CLICKABLE age points → reveal single energy row ──
+  if(!isCompat && typeof showAgeRow==='function'){
+    for(const ap of agePoints){
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hit.setAttribute('cx',ap.px);hit.setAttribute('cy',ap.py);
+      hit.setAttribute('r',12);
+      hit.setAttribute('fill','rgba(0,0,0,0.01)');
+      hit.style.cursor='pointer';
+      hit.addEventListener('click',()=>showAgeRow(ap.ageLabel, ap.energy));
+      svg.appendChild(hit);
+    }
+  }
 }
 </script>
 </body>
