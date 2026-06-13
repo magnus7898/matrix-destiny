@@ -42,7 +42,7 @@
     .compat-row input.yyyy{width:78px;}
     .compat-row input:focus{border-color:rgba(167,139,250,0.8);}
 
-    .main-layout{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:1;width:100%;max-width:1120px;margin:0 auto;}
+    .main-layout{display:flex;flex-direction:column;align-items:center;gap:32px;position:relative;z-index:1;width:100%;max-width:1120px;margin:0 auto;}
     .diagram-wrapper{width:100%;max-width:min(90vh,1120px);}
     .diagram-wrapper svg{width:100%;height:auto;display:block;}
 
@@ -55,7 +55,7 @@
     .ep-circ.ep-big{width:63px;height:63px;font-size:21px;}
     .ep-label{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:8px;color:rgba(160,140,220,0.7);white-space:nowrap;font-family:sans-serif;}
 
-    .table-wrapper{width:100%;max-width:860px;border-radius:13px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+    .table-wrapper{width:100%;max-width:860px;border-radius:13px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.4);margin-top:12px;}
     .chakra-table{border-collapse:collapse;width:100%;font-family:'Noto Sans Georgian',sans-serif;}
     .chakra-table thead tr{background:linear-gradient(135deg,rgba(240,100,160,0.85),rgba(180,60,120,0.85));}
     .chakra-table th{padding:12px 14px;text-align:center;font-weight:700;font-size:13px;letter-spacing:1px;color:white;border-right:1px solid rgba(255,255,255,0.15);}
@@ -171,14 +171,14 @@
   </div>
 
   <!-- Single-row age/energy reveal (replaces age table) -->
-  <div id="age-row-panel" style="display:none;width:100%;max-width:860px;">
+  <div id="age-row-panel" style="display:none;width:100%;max-width:860px;margin:18px 0;">
     <table class="age-table"><tbody id="age-row-body"></tbody></table>
   </div>
 
 </div>
 
   <!-- ▼▼ INTERPRETATION BOXES (closed until a box header or its circle is clicked) ▼▼ -->
-  <div id="matrix-boxes" style="display:none;flex-direction:column;gap:8px;width:100%;max-width:860px;"></div>
+  <div id="matrix-boxes" style="display:none;flex-direction:column;gap:8px;width:100%;max-width:860px;margin:18px 0;"></div>
   <!-- ▲▲ END INTERPRETATION BOXES ▲▲ -->
 
   <div id="extra-panels">
