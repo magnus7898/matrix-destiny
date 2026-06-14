@@ -330,7 +330,7 @@ function calculate(){
   const W2=r22(B1+R1),W1=r22(B1+W2),W3=r22(R1+W2);
   draw({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TR3,BR3,BL3,RC1,RC2,TL1,TL2,TR1,TR2,BR1,BR2,BL1,BL2,W1,W2,W3,showRC:CUR!==2,m3Cv2,compat:false,age:_age});
   if(typeof buildMatrixBoxes==='function'){
-    buildMatrixBoxes({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TL2,TL1,TR3,TR2,TR1,BR3,BR2,BR1,BL3,BL2,BL1,W1,W2,W3},CUR);
+    buildMatrixBoxes({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,RC1,RC2,TL3,TL2,TL1,TR3,TR2,TR1,BR3,BR2,BR1,BL3,BL2,BL1,W1,W2,W3},CUR);
   }else{
     const mb=document.getElementById('matrix-boxes');
     if(mb){mb.style.display='flex';mb.innerHTML='<div style="padding:14px;border:1px solid rgba(255,120,120,.5);border-radius:10px;color:#ffb0b0;font-size:12px;">⚠ matrix_boxes_addon.js ვერ ჩაიტვირთა — შეამოწმეთ ფაილი იმავე საქაღალდეშია matrix.html-თან.</div>';}
