@@ -45,9 +45,9 @@
     .main-layout{display:flex;flex-direction:column;align-items:center;gap:32px;position:relative;z-index:1;width:100%;max-width:1180px;margin:0 auto;}
 
     /* ── diagram (left) + right column (chakra + age) ── */
-    .diagram-chakra-row{display:flex;gap:20px;align-items:stretch;justify-content:center;width:100%;flex-wrap:wrap;}
+    .diagram-chakra-row{display:flex;gap:20px;align-items:flex-start;justify-content:center;width:100%;flex-wrap:wrap;}
     .diagram-chakra-row .diagram-wrapper{flex:1 1 auto;display:flex;align-items:flex-start;justify-content:center;min-width:340px;background:none;border:none;padding:0;}
-    .diagram-chakra-row .diagram-wrapper svg{width:100%;height:auto;max-width:680px;display:block;}
+    .diagram-chakra-row .diagram-wrapper svg{width:100%;height:auto;max-width:600px;display:block;}
     .mx-right-col{flex:0 0 auto;width:540px;max-width:48%;min-width:300px;display:flex;flex-direction:column;gap:14px;}
     .mx-right-col #chakra-panel{margin-top:0;width:100%;}
     .mx-right-col #age-row-panel{width:100%;max-width:100%;margin:0;}
@@ -167,7 +167,7 @@
     <div class="mx-right-col">
       <div class="table-wrapper" id="chakra-panel">
         <table class="chakra-table">
-          <thead><tr><th>ჩაკრა</th><th>ენერგია</th><th>მატერია (სხეული)</th><th>ემოცია</th></tr></thead>
+          <thead><tr><th>ჩაკრა</th><th>ენერგია</th><th>ფიზიკა</th><th>ემოცია</th></tr></thead>
           <tbody>
             <tr class="row-sahasrara"><td>საჰასრარა (გვირგვინი)</td><td id="c-t3">-</td><td id="c-l3">-</td><td id="c-s1">-</td></tr>
             <tr class="row-ajna"><td>აჯნა (მესამე თვალი)</td><td id="c-t2">-</td><td id="c-l2">-</td><td id="c-s2">-</td></tr>
