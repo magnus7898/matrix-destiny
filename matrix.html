@@ -45,10 +45,10 @@
     .main-layout{display:flex;flex-direction:column;align-items:center;gap:32px;position:relative;z-index:1;width:100%;max-width:1180px;margin:0 auto;}
 
     /* ── diagram (left) + right column (chakra + age) ── */
-    .diagram-chakra-row{display:flex;gap:20px;align-items:flex-start;justify-content:center;width:100%;flex-wrap:wrap;}
+    .diagram-chakra-row{display:flex;gap:20px;align-items:center;justify-content:center;width:100%;flex-wrap:wrap;}
     .diagram-chakra-row .diagram-wrapper{flex:1 1 auto;display:flex;align-items:flex-start;justify-content:center;min-width:340px;background:none;border:none;padding:0;}
     .diagram-chakra-row .diagram-wrapper svg{width:100%;height:auto;max-width:600px;display:block;}
-    .mx-right-col{flex:0 0 auto;width:540px;max-width:48%;min-width:300px;display:flex;flex-direction:column;gap:14px;}
+    .mx-right-col{flex:0 0 auto;width:540px;max-width:48%;min-width:300px;display:flex;flex-direction:column-reverse;gap:14px;}
     .mx-right-col #chakra-panel{margin-top:0;width:100%;}
     .mx-right-col #age-row-panel{width:100%;max-width:100%;margin:0;}
     @media(max-width:860px){
@@ -159,7 +159,7 @@
 
 <div class="main-layout" id="main-layout">
 
-  <!-- diagram (left) + right column: chakra table over age-energy explanation -->
+  <!-- diagram (left) + right column: energy explanation over chakra table -->
   <div class="diagram-chakra-row">
     <div class="diagram-wrapper">
       <svg id="diagram" viewBox="30 30 1140 1140" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -180,7 +180,7 @@
           </tbody>
         </table>
       </div>
-      <!-- Single-row age/energy reveal (under the chakra table) -->
+      <!-- Single-row age/energy reveal (rendered above the chakra table via column-reverse) -->
       <div class="age-wrap" id="age-row-panel" style="display:none;">
         <table class="age-table"><tbody id="age-row-body"></tbody></table>
       </div>
