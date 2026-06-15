@@ -299,6 +299,7 @@ function setMethod(m){
   document.getElementById('chakra-panel').style.display='none';
   {const ap=document.getElementById('age-row-panel');if(ap)ap.style.display='none';}
   {const mb=document.getElementById('matrix-boxes');if(mb)mb.style.display='none';}
+  {const rc=document.querySelector('.mx-right-col');if(rc)rc.style.display=m===4?'none':'flex';}
 }
 
 function m3Preview(){
@@ -354,7 +355,8 @@ function calculateCompat(){
   const g=id=>parseInt(document.getElementById(id).value)||1;
   const p1={dd:g('c1-dd'),mm:g('c1-mm'),yyyy:g('c1-yyyy')},p2={dd:g('c2-dd'),mm:g('c2-mm'),yyyy:g('c2-yyyy')};
   const v1=base(p1),v2=base(p2);
-  const L3=r22(v1.L3+v2.L3),T3=r22(v1.T3+v2.T3),R3=r22(v1.R3+v2.R3),B3=r22(v1.B3+v2.B3),Cv=r22(L3+T3+R3+B3);
+  const cv1=r22(v1.L3+v1.T3+v1.R3+v1.B3),cv2=r22(v2.L3+v2.T3+v2.R3+v2.B3);
+  const L3=r22(v1.L3+v2.L3),T3=r22(v1.T3+v2.T3),R3=r22(v1.R3+v2.R3),B3=r22(v1.B3+v2.B3),Cv=r22(cv1+cv2);
   const TL3=r22(r22(v1.T3+v1.L3)+r22(v2.T3+v2.L3)),TR3=r22(r22(v1.T3+v1.R3)+r22(v2.T3+v2.R3)),BR3=r22(r22(v1.B3+v1.R3)+r22(v2.B3+v2.R3)),BL3=r22(r22(v1.B3+v1.L3)+r22(v2.B3+v2.L3));
   const RC1=r22(TL3+TR3+BR3+BL3),RC2=r22(RC1+Cv),B1=r22(Cv+B3),B2=r22(B1+B3),R1=r22(Cv+R3),R2=r22(R1+R3),L1=r22(Cv+L3),L2=r22(L1+L3),T1=r22(Cv+T3),T2=r22(T1+T3),G1=r22(L1+Cv),G2=r22(T1+Cv),W2=r22(B1+R1),W1=r22(B1+W2),W3=r22(R1+W2);
   draw({L3,T3,R3,B3,Cv,B1,B2,R1,R2,L1,L2,T1,T2,G1,G2,TL3,TR3,BR3,BL3,RC1,RC2,TL1:0,TL2:0,TR1:0,TR2:0,BR1:0,BR2:0,BL1:0,BL2:0,W1,W2,W3,showRC:false,m3Cv2:0,compat:true,age:null});
