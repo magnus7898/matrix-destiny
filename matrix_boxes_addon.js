@@ -30,7 +30,7 @@ const BOXES = [
   { id:'karmic_tail',    title:'კარმული კუდი',                     keys:['B3','B2','B1'],   color:'#8e44ad' },
   { id:'material_karma', title:'მატერიალური კარმა',                keys:['R3','R2','R1'],   color:'#d35400' },
   { id:'sex',            title:'სექსუალურობა',                     keys:['Cv','RC1','RC2'], color:'#d4a017', m1only:true },
-  { id:'talent_zone',    title:'ტალანტების ზონა',                  keys:['T3','T2','T1'],   color:'#2471a3', display:'sum' },
+  { id:'talent_zone',    title:'ტალანტების ზონა',                  keys:['T3','T2','T1'],   color:'#2471a3' },
   { id:'tl',             title:'ნიჭები კაცი წინაპრების ხაზით',     keys:['TL3','TL2','TL1'], color:'#d28aff' },
   { id:'tr',             title:'ნიჭები ქალი წინაპრების ხაზით',     keys:['TR3','TR2','TR1'], color:'#ff8c8c' },
   { id:'br',             title:'კაცი წინაპრების კარმა',            keys:['BR3','BR2','BR1'], color:'#b06bd0' },
