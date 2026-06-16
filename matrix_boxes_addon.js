@@ -1,218 +1,131 @@
-/* ════════════════════════════════════════════════════════════════════
-   MATRIX INTERPRETATION BOXES
-   Each box: closed on generate, click header (or its circle) to open,
-   click again to close. Article keys:
-     - single circle  → "N"            (one arcana number)
-     - combo of 3      → "A-B-C"       (outer-mid-inner)
-     - combo of 2      → "A-B"
-   Fill the empty article:"" strings with your text (HTML allowed).
-   ════════════════════════════════════════════════════════════════════ */
+/* ============================================================
+   matrix_boxes_addon.js — INTERPRETATION BOXES
+   ------------------------------------------------------------
+   Pairs with matrix_combos.js (MATRIX_DB + lookup()).
+   Load order in matrix.html (combos FIRST):
+       <script src="matrix_combos.js"></script>
+       <script src="matrix_boxes_addon.js"></script>
 
-/* ---- 1. BOX DEFINITIONS (order = display order under the diagram) ---- */
-const MATRIX_BOXES = [
-  // id            title (Georgian)                                  type      keys (which v.* circles)         color
-  { id:'comfort', title:'კომფორტის ზონა',                            kind:'single', keys:['Cv'],               color:'#d4a017' },
-  { id:'sex',  title:'სექსუალურობა',  kind:'combo', keys:['Cv','RC1','RC2'], color:'#d4a017' },
-  { id:'l3',   title:'სავიზიტო ბარათი',                              kind:'single', keys:['L3'],               color:'#7F77DD' },
-  { id:'persona', title:'პერსონა',                                  kind:'combo',  keys:['L3','L2','L1'],     color:'#7F77DD' },
-  { id:'t3',   title:'ტალანტები',                                    kind:'single', keys:['T3'],               color:'#7F77DD' },
-  { id:'r3',   title:'მატერიალური კარმა',                            kind:'combo',  keys:['R3','R2','R1'],     color:'#E24B4A' },
-  { id:'b3',   title:'კარმული კუდი',                                 kind:'combo',  keys:['B3','B2','B1'],     color:'#E24B4A' },
-  { id:'l2',   title:'ბავშვობის ტრამვები და როგორ ვხედავთ სამყაროს', kind:'single', keys:['L2'],               color:'#2060a8' },
-  { id:'t2',   title:'ჩვენი უნიკალური ხედვა · ნიჭი',                 kind:'single', keys:['T2'],               color:'#2060a8' },
-  { id:'l1',   title:'მშობლებისა და შვილების ურთიერთობა, კომუნიკაცია', kind:'single', keys:['L1'],             color:'#4a8cc8' },
-  { id:'t1',   title:'გადმოცემის ნიჭი',                              kind:'single', keys:['T1'],               color:'#4a8cc8' },
-  { id:'g1',   title:'ჩვენი ფიზიკური სურვილები',                     kind:'single', keys:['G1'],               color:'#639922' },
-  { id:'g2',   title:'ჩვენი სოციალური სურვილები',                    kind:'single', keys:['G2'],               color:'#639922' },
-  { id:'b1',   title:'როგორ შევდივართ ურთიერთობაში',                 kind:'single', keys:['B1'],               color:'#EF9F27' },
-  { id:'r1',   title:'როგორი სტილის სამუშაო გარემო გვჭირდება',       kind:'single', keys:['R1'],               color:'#EF9F27' },
-  { id:'love', title:'პირადი ურთიერთობების ხაზი',                    kind:'combo',  keys:['B1','W1','W2'],     color:'#ff6b8a' },
-  { id:'money',title:'ფულის ხაზი',                                   kind:'combo',  keys:['R1','W3','W2'],     color:'#7ec850' },
-  { id:'tl',   title:'ნიჭები — კაცი წინაპრების ხაზიდან',             kind:'combo',  keys:['TL3','TL2','TL1'],  color:'#a06cff' },
-  { id:'tr',   title:'ნიჭები — ქალი წინაპრების ხაზიდან',             kind:'combo',  keys:['TR3','TR2','TR1'],  color:'#ff8cc0' },
-  { id:'br',   title:'კაცი წინაპრების კარმა',                        kind:'combo',  keys:['BR3','BR2','BR1'],  color:'#a06cff' },
-  { id:'bl',   title:'ქალი წინაპრების კარმა',                        kind:'combo',  keys:['BL3','BL2','BL1'],  color:'#ff8cc0' },
-  { id:'health', title:'ჯანმრთელობა',                               kind:'chakra', keys:[],                   color:'#7e57c2' },
+   Called by calculate():  buildMatrixBoxes(vals, method)
+   Called by circle click:  openBoxById(id)
+
+   ── BOX FIELDS ───────────────────────────────────────────────
+   id      : matches circle ids in draw() so a click opens the box
+   title   : zone name shown in the header
+   keys    : circle/value names. 1 name = single number, 3 = combo
+   color   : accent dot
+   m1only  : true → shown ONLY in method 1 (sexiness)
+   display : 'combo' (default, shows n-n-n) | 'sum' (shows r22 of the
+             three) | 'one' (shows first number only)
+   todo    : true → keys not set yet (define the circles, see chat)
+
+   Article text comes from MATRIX_DB[id] in matrix_combos.js,
+   looked up by the actual numbers. Single numbers with no entry
+   fall back to the ENERGIES tarot meaning.
+   ============================================================ */
+
+const BOXES = [
+  /* ───── COMBOS (three numbers) ───── */
+  { id:'persona',        title:'პერსონა',                          keys:[],                 color:'#a78bfa', todo:true },
+  { id:'karmic_tail',    title:'კარმული კუდი',                     keys:['B3','B2','B1'],   color:'#8e44ad' },
+  { id:'material_karma', title:'მატერიალური კარმა',                keys:[],                 color:'#d35400', todo:true },
+  { id:'sex',            title:'სექსუალურობა',                     keys:['G1','Cv','RC1'],  color:'#d4a017', m1only:true },
+  { id:'talent_zone',    title:'ტალანტების ზონა',                  keys:['T3','T2','T1'],   color:'#2471a3', display:'sum' },
+  { id:'tl',             title:'ნიჭები კაცი წინაპრების ხაზით',     keys:['TL3','TL2','TL1'], color:'#d28aff' },
+  { id:'tr',             title:'ნიჭები ქალი წინაპრების ხაზით',     keys:['TR3','TR2','TR1'], color:'#ff8c8c' },
+  { id:'br',             title:'კაცი წინაპრების კარმა',            keys:['BR3','BR2','BR1'], color:'#b06bd0' },
+  { id:'bl',             title:'ქალი წინაპრების კარმა',            keys:['BL3','BL2','BL1'], color:'#e06b6b' },
+  { id:'love',           title:'პირადი ურთიერთობების ხაზი',       keys:['B1','W1','W2'],   color:'#ff6b8a', flag:true },
+  { id:'money',          title:'ფულის ხაზი',                       keys:['W2','W3','R1'],   color:'#7ec850', flag:true },
+
+  /* ───── SINGLE NUMBERS ───── */
+  { id:'b3',      title:'მთავარი ცხოვრებისეული გაკვეთილი',             keys:['B3'], color:'#e24b4a' },
+  { id:'r3',      title:'მთავარი ცხოვრებისეული მატერიალური გაკვეთილი', keys:['R3'], color:'#e24b4a' },
+  { id:'b1',      title:'როგორ შევდივართ ურთიერთობებში',               keys:['B1'], color:'#ef9f27' },
+  { id:'r1',      title:'რა თვისებები გვჭირდება სამუშაო პროცესში',      keys:['R1'], color:'#ef9f27' },
+  { id:'comfort', title:'კომფორტის ზონა',                              keys:['Cv'], color:'#ffd700' },
+  { id:'g1',      title:'ფიზიკური სურვილები',                          keys:['G1'], color:'#639922' },
+  { id:'g2',      title:'სოციალური სურვილები',                         keys:['G2'], color:'#639922' },
+  { id:'l1',      title:'მშობელი-შვილის ურთიერთობა',                   keys:['L1'], color:'#4a8cc8' },
+  { id:'t1',      title:'ნიჭები, კომუნიკაცია',                         keys:['T1'], color:'#4a8cc8' },
+  { id:'l2',      title:'ბავშვობის ტრამვები, ხედვა',                   keys:['L2'], color:'#2060a8' },
+  { id:'t2',      title:'მენტალური უნარები',                           keys:['T2'], color:'#2060a8' },
+  { id:'l3',      title:'სავიზიტო ბარათი, უმაღლესი მე',                keys:['L3'], color:'#7f77dd' },
+  { id:'t3',      title:'შთაგონება',                                   keys:['T3'], color:'#7f77dd' },
+
+  /* ───── CHAKRA EMOTIONS (ემოცია column) ───── */
+  { id:'emo_crown',    title:'გვირგვინოვანი ჩაკრა — ემოცია', keys:['S1'], color:'#7e57c2' },
+  { id:'emo_thirdeye', title:'მესამე თვალის ჩაკრა — ემოცია', keys:['S2'], color:'#5c9bd6' },
+  { id:'emo_throat',   title:'ხორხის ჩაკრა — ემოცია',        keys:['S3'], color:'#b5d4f4' },
+  { id:'emo_heart',    title:'გულის ჩაკრა — ემოცია',         keys:['S4'], color:'#66bb6a' },
+  { id:'emo_solar',    title:'მზის წნულის ჩაკრა — ემოცია',   keys:['S5'], color:'#ffd700' },
+  { id:'emo_sacral',   title:'საკრალური ჩაკრა — ემოცია',     keys:['S6'], color:'#ef9f27' },
+  { id:'emo_root',     title:'ფუძის ჩაკრა — ემოცია',         keys:['S7'], color:'#dc4646' },
 ];
 
-/* ---- B3 karmic-tail combination NAMES (shown automatically when box opens) ---- */
-const B3_NAMES = {
-  "10-13-3":"სუიციდი", "10-4-21":"უუფლებო სული", "19-22-3":"დაუბადებელი ბავშვი",
-  "11-8-15":"მოძალადე", "11-17-6":"დაკარგული ნიჭი", "20-8-6":"გვარის ღალატი",
-  "3-12-9":"მარტოხელა ქალი", "12-3-18":"ფიზიკური ტანჯვა", "21-3-9":"ჯალათი, ზედამხედველი",
-  "4-16-12":"იმპერატორი", "13-7-21":"მასობრივი სიკვდილი", "22-7-3":"თავისუფლება წართმეული სული",
-  "5-20-15":"მეამბოხე", "14-20-6":"მსხვერპლი", "6-6-18":"სასიყვარულო მაგია",
-  "6-15-9":"ზღაპრული სამყარო", "15-6-18":"შავი მაგი", "7-10-21":"რწმენის რაინდი",
-  "7-19-12":"მეომარი", "16-10-21":"სულიერი წინამძღოლი", "8-5-15":"ღალატი, ოჯახური პრობლემები",
-  "8-14-6":"დიქტატორი", "17-5-6":"სიამაყე", "9-9-18":"ჯადოქარი",
-  "9-18-9":"მაგიური მსხვერპლი", "18-9-9":"ჯადოქარი",
-};
-
-/* ---- 2. ARTICLES — fill these in. Keys are arcana numbers (joined for combos). ---- */
-/*    single circle: "N"   |   3-combo: "A-B-C"   |   2-combo: "A-B"                  */
-const MATRIX_ARTICLES = {
-
-  // ── Cv · კომფორტის ზონა (yellow center, single number 1–22) ──
-  comfort: {
-    // "1":"...", ... "22"
-  },
-
-  // ── Cv · სექსუალურობა (three center circles, method 1 only) ──
-  sex: {
-    // "1":"...", ... "22"
-  },
-
-  // ── L3 · სავიზიტო ბარათი (single) ──
-  l3: {
-    // "1":"...", ... "22"
-  },
-
-  // ── L3-L2-L1 · პერსონა (combo) ──
-  persona: {
-    // "3-7-12":"...", etc.
-  },
-
-  // ── T3 · ტალანტები (single) ──
-  t3: {
-    // "1":"...", ... "22"
-  },
-
-  // ── R3-R2-R1 · მატერიალური კარმა (combo) ──
-  r3: {
-    // "8-5-15":"...", etc.
-  },
-
-  // ── B3-B2-B1 · კარმული კუდი (your 26 combos) ──
-  b3: {
-    "10-13-3":"",  "10-4-21":"",  "19-22-3":"",  "11-8-15":"",  "11-17-6":"",
-    "20-8-6":"",   "3-12-9":"",   "12-3-18":"",  "21-3-9":"",   "4-16-12":"",
-    "13-7-21":"",  "22-7-3":"",   "5-20-15":"",  "14-20-6":"",  "6-6-18":"",
-    "6-15-9":"",   "15-6-18":"",  "7-10-21":"",  "7-19-12":"",  "16-10-21":"",
-    "8-5-15":"",   "8-14-6":"",   "17-5-6":"",   "9-9-18":"",   "9-18-9":"",  "18-9-9":"",
-  },
-
-  l2: {}, t2: {}, l1: {}, t1: {}, g1: {}, g2: {}, b1: {}, r1: {},
-  love: {}, money: {}, tl: {}, tr: {}, br: {}, bl: {},
-};
-
-/* Titles per combo (optional override). If a combo has a named meaning by its
-   numbers you can show it; otherwise the box title is used. */
-
-/* ---- 3. BUILD the boxes (called from calculate(), after draw) ---- */
-let _MATRIX_V = null;   // holds the last computed values
 function buildMatrixBoxes(v, method){
-  _MATRIX_V = v;
-  method = method || 1;
-  const wrap = document.getElementById('matrix-boxes');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-  wrap.style.display = 'flex';
+  const panel=document.getElementById('matrix-boxes');
+  if(!panel) return;
+  const R=(typeof r22==='function')?r22:(n=>n);
 
-  for(const box of MATRIX_BOXES){
-    // სექსუალურობა only exists as separate box in method 1; methods 2-4 only have კომფორტის ზონა
-    if(box.id==='sex' && method!==1) continue;
-    // compute the key + label for this box
-    let key, label;
-    if(box.kind === 'chakra'){
-      key = '_chakra'; label = '';
-    } else {
-      const nums = box.keys.map(k => v[k]).filter(n => n != null);
-      if(nums.length !== box.keys.length) continue;   // skip if a value missing (e.g. RC hidden)
-      key = nums.join('-');
-      label = nums.join('–');
+  // chakra emotion values (same formulas as the table's ემოცია column)
+  const S={
+    S1:R(v.T3+v.L3), S2:R(v.T2+v.L2), S3:R(v.T1+v.L1),
+    S4:R(v.G2+v.G1), S5:R(v.Cv+v.Cv), S6:R(v.B1+v.R1), S7:R(v.B3+v.R3)
+  };
+  const VAL=Object.assign({},v,S);
+
+  panel.innerHTML='';
+  panel.style.display='flex';
+
+  for(const box of BOXES){
+    if(box.m1only && method!==1) continue;                 // sexiness: method 1 only
+
+    const nums=(box.keys||[]).map(k=>VAL[k]).filter(n=>n!==undefined);
+    const hasNums=nums.length>0;
+
+    // header number(s)
+    let headNums='—';
+    if(hasNums){
+      if(box.display==='sum')      headNums=String(R(nums.reduce((a,b)=>a+b,0)));
+      else if(box.display==='one') headNums=String(nums[0]);
+      else                         headNums=nums.join('-');
     }
 
-    // for B3, append the karmic-tail name to the header title
-    let headTitle = box.title;
-    if(box.id === 'b3' && typeof B3_NAMES !== 'undefined' && B3_NAMES[key]){
-      headTitle = box.title + ' · <span style="opacity:.85">' + B3_NAMES[key] + '</span>';
+    // article: MATRIX_DB first, then ENERGIES fallback for singles
+    let art=null;
+    if(hasNums && typeof lookup==='function') art=lookup(box.id,nums);
+    if(!art && nums.length===1 && typeof getE==='function'){
+      const e=getE(nums[0]); art={title:e.name, text:e.desc};
     }
-    const el = document.createElement('div');
-    el.className = 'mx-box';
-    el.dataset.boxid = box.id;
-    el.dataset.key = key;
-    el.style.borderColor = box.color + '88';
-    el.innerHTML = `
-      <div class="mx-box-head" style="background:${box.color}22;">
-        <span><span class="mx-dot" style="background:${box.color}"></span>${headTitle}</span>
-        <span class="mx-key">${label ? label : ''} <span class="mx-arrow">▼</span></span>
-      </div>
-      <div class="mx-box-body" style="display:none;"></div>`;
-    el.querySelector('.mx-box-head').addEventListener('click', ()=>toggleMatrixBox(box.id));
-    wrap.appendChild(el);
+    const subtitle=art&&art.title?art.title:'';
+    const body=art&&art.text?art.text
+              :(box.todo?'⚠ ამ ბოქსს წრეები ჯერ არ აქვს მითითებული (keys)':'სტატია ჯერ არ არის დამატებული');
+
+    const wrap=document.createElement('div');
+    wrap.className='mx-box'; wrap.id='mxbox-'+box.id;
+
+    const head=document.createElement('div'); head.className='mx-box-head';
+    head.innerHTML='<span><span class="mx-dot" style="background:'+box.color+'"></span>'+box.title+'</span>'+
+                   '<span class="mx-key">'+headNums+'<span class="mx-arrow">▼</span></span>';
+
+    const bod=document.createElement('div'); bod.className='mx-box-body'; bod.style.display='none';
+    bod.innerHTML=(subtitle?'<div style="font-weight:600;color:#e8dcff;margin-bottom:6px">'+subtitle+'</div>':'')+body;
+
+    head.addEventListener('click',()=>{ bod.style.display=(bod.style.display==='block')?'none':'block'; });
+
+    wrap.appendChild(head); wrap.appendChild(bod);
+    panel.appendChild(wrap);
   }
 }
 
-function fillBoxBody(box, key, bodyEl){
-  if(box.kind === 'chakra'){
-    bodyEl.innerHTML = renderChakraHealth();
-    return;
-  }
-  // karmic-tail name (B3 box) shown automatically above the article
-  let nameHtml = '';
-  if(box.id === 'b3' && typeof B3_NAMES !== 'undefined' && B3_NAMES[key]){
-    nameHtml = `<div style="font-size:16px;font-weight:700;color:${box.color};margin-bottom:10px;
-                 padding-bottom:8px;border-bottom:1px solid ${box.color}44;">
-                 🔻 ${B3_NAMES[key]} <span style="font-size:11px;opacity:.55;font-weight:400">${key}</span></div>`;
-  }
-  const articles = MATRIX_ARTICLES[box.id] || {};
-  const txt = articles[key];
-  if(txt && txt.trim()){
-    bodyEl.innerHTML = nameHtml + txt;
-  }else if(nameHtml){
-    // B3 with a known name but no article yet → show the name + a soft note
-    bodyEl.innerHTML = nameHtml + `<div style="color:rgba(180,160,220,0.5);font-style:italic;">
-        სტატია ჯერ არ არის შევსებული.</div>`;
-  }else{
-    bodyEl.innerHTML = `<div style="color:rgba(180,160,220,0.5);font-style:italic;">
-        სტატია ჯერ არ არის შევსებული — კომბინაცია: <b style="color:${box.color}">${key}</b>
-      </div>`;
-  }
-}
-
-function toggleMatrixBox(id){
-  const el = document.querySelector(`.mx-box[data-boxid="${id}"]`);
-  if(!el) return;
-  const body  = el.querySelector('.mx-box-body');
-  const arrow = el.querySelector('.mx-arrow');
-  const box   = MATRIX_BOXES.find(b=>b.id===id);
-  const open  = body.style.display !== 'none';
-  if(open){
-    body.style.display = 'none';
-    if(arrow) arrow.textContent = '▼';
-  }else{
-    fillBoxBody(box, el.dataset.key, body);
-    body.style.display = 'block';
-    if(arrow) arrow.textContent = '▲';
-    el.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }
-}
-
-/* Chakra "health" box pulls the already-rendered chakra table numbers */
-function renderChakraHealth(){
-  const get = id => (document.getElementById(id)?.textContent || '–');
-  const rows = [
-    ['საჰასრარა',   'c-t3','c-l3','c-s1'],
-    ['აჯნა',        'c-t2','c-l2','c-s2'],
-    ['ვიშუდჰა',     'c-t1','c-l1','c-s3'],
-    ['ანაჰატა',     'c-g2','c-g1','c-s4'],
-    ['მანიპურა',    'c-cv','c-cv2','c-s5'],
-    ['სვადჰისტანა', 'c-b1','c-r1','c-s6'],
-    ['მულადჰარა',   'c-b3','c-r3','c-s7'],
-  ];
-  let html = '<div style="font-size:12px;line-height:1.9;">';
-  for(const [name,e,l,s] of rows){
-    html += `<div><b style="color:#b39ddb">${name}</b> — ენერგია ${get(e)} · მატერია ${get(l)} · ემოცია ${get(s)}</div>`;
-  }
-  html += '</div>';
-  return html;
-}
-
-/* Open a specific box by the circle key (called from diagram circle clicks) */
 function openBoxById(id){
-  const el = document.querySelector(`.mx-box[data-boxid="${id}"]`);
+  const el=document.getElementById('mxbox-'+id);
   if(!el) return;
-  const body = el.querySelector('.mx-box-body');
-  if(body.style.display === 'none') toggleMatrixBox(id);   // open if closed
-  else el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const bod=el.querySelector('.mx-box-body');
+  if(bod) bod.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'center'});
 }
+
+window.buildMatrixBoxes=buildMatrixBoxes;
+window.openBoxById=openBoxById;
