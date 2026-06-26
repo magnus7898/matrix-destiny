@@ -372,7 +372,7 @@ async function calculate() {
   const min   = document.getElementById('minute').value.padStart(2,'0');
   const sec   = document.getElementById('second').value.padStart(2,'0');
   const date  = `${year}-${month}-${day}`;
-  const time  = `${hour}:${min}`;
+  const time  = `${hour}:${min}:${sec}`;
 
   try {
     const r = await fetch(`${BACKEND}/api/moon?date=${date}&time=${time}&timezone=${encodeURIComponent(tz)}`);
@@ -389,18 +389,16 @@ async function calculate() {
     const pct = ((d.age_days / 29.53059) * 100).toFixed(1);
     document.getElementById('barFill').style.width = pct + '%';
 
-    // Lunar day
-    const ld = d.lunar_day;
+    // Lunar day — ZET convention = tithi (elongation / 12°). Fallback to synodic.
+    const ld = (d.tithi != null) ? d.tithi : d.lunar_day;
     document.getElementById('lunarDayNum').textContent   = ld || '—';
     document.getElementById('lunarDayPhase').textContent = PHASES_KA[d.phase] || d.phase;
 
-    // ── ZET-style tithi readout: "☽ 12 · 92.56%" + progress bar (added) ──
-    if (d.tithi != null && d.tithi_pct != null) {
-      document.getElementById('lunarDayZetTxt').textContent =
-        `${d.tithi} · ${d.tithi_pct.toFixed(2)}%`;
+    // ── ZET-style percent complete + progress bar ──
+    if (d.tithi_pct != null) {
+      document.getElementById('lunarDayZetTxt').textContent = `${d.tithi_pct.toFixed(2)}%`;
       document.getElementById('lunarDayProgFill').style.width = d.tithi_pct + '%';
     } else {
-      // Fallback if backend not yet updated
       document.getElementById('lunarDayZet').style.display = 'none';
     }
 
