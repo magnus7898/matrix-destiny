@@ -168,8 +168,19 @@ input::placeholder{color:rgba(155,168,184,.35)}
 }
 .lunar-day-info{text-align:left;flex:1}
 .lunar-day-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
-.lunar-day-phase{font-family:'IM Fell English',serif;font-style:italic;font-size:16px;color:var(--gold-l)}
+.lunar-day-title{font-family:'IM Fell English',serif;font-style:italic;font-size:18px;color:var(--gold-l)}
+.lunar-day-paksha{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-family:'Cinzel',serif;margin-top:2px}
 .lunar-next{font-size:11px;color:var(--dim);margin-top:4px}
+
+/* ── Tithi info (you fill the text in the TITHIS table) ── */
+.tithi-info{
+  background:rgba(8,6,20,.6);border:1px solid rgba(45,31,110,.4);
+  border-left:2px solid rgba(201,168,76,.45);border-radius:10px;
+  padding:16px 18px;margin-top:14px;backdrop-filter:blur(8px);
+  font-size:14px;line-height:1.85;color:var(--txt);
+}
+.tithi-info:empty{display:none}
+.tithi-info b{color:var(--gold);font-weight:400}
 
 /* ── ZET-style tithi readout (added) ── */
 .lunar-day-zet{
@@ -252,15 +263,57 @@ input::placeholder{color:rgba(155,168,184,.35)}
     <div class="lunar-day-num" id="lunarDayNum">—</div>
     <div class="lunar-day-info">
       <div class="lunar-day-label">მთვარის დღე · Lunar Day</div>
-      <div class="lunar-day-phase" id="lunarDayPhase">—</div>
+      <div class="lunar-day-title" id="lunarDayTitle">—</div>
+      <div class="lunar-day-paksha" id="lunarDayPaksha"></div>
       <div class="lunar-day-zet" id="lunarDayZet"><span class="glyph">☽</span><span id="lunarDayZetTxt">—</span></div>
       <div class="lunar-day-progress"><div class="lunar-day-progress-fill" id="lunarDayProgFill"></div></div>
     </div>
   </div>
+
+  <div class="tithi-info" id="tithiInfo"></div>
 </div>
 
 <script>
 const BACKEND = 'https://astrology-production-b165.up.railway.app';
+
+/* ════════════════════════════════════════════════════════════════
+   TITHI NAMES (titles generated) — fill the `info` strings yourself.
+   1–15  = შუქლა (waxing) Pratipada … Purnima
+   16–30 = კრიშნა (waning) Pratipada … Amavasya
+   info supports HTML: <b>bold</b>, <br> line break, <ul><li>…</li></ul>.
+   ════════════════════════════════════════════════════════════════ */
+const TITHIS = {
+  1:  { paksha:"შუქლა", name:"პრატიპადა",  sanskrit:"Pratipada",   info:"" },
+  2:  { paksha:"შუქლა", name:"დვიტია",      sanskrit:"Dvitiya",     info:"" },
+  3:  { paksha:"შუქლა", name:"ტრიტია",      sanskrit:"Tritiya",     info:"" },
+  4:  { paksha:"შუქლა", name:"ჩატურთი",     sanskrit:"Chaturthi",   info:"" },
+  5:  { paksha:"შუქლა", name:"პანჩამი",     sanskrit:"Panchami",    info:"" },
+  6:  { paksha:"შუქლა", name:"შაშტი",       sanskrit:"Shashthi",    info:"" },
+  7:  { paksha:"შუქლა", name:"საპტამი",     sanskrit:"Saptami",     info:"" },
+  8:  { paksha:"შუქლა", name:"აშტამი",      sanskrit:"Ashtami",     info:"" },
+  9:  { paksha:"შუქლა", name:"ნავამი",      sanskrit:"Navami",      info:"" },
+  10: { paksha:"შუქლა", name:"დაშამი",      sanskrit:"Dashami",     info:"" },
+  11: { paksha:"შუქლა", name:"ეკადაში",     sanskrit:"Ekadashi",    info:"" },
+  12: { paksha:"შუქლა", name:"დვადაში",     sanskrit:"Dvadashi",    info:"" },
+  13: { paksha:"შუქლა", name:"ტრაიოდაში",   sanskrit:"Trayodashi",  info:"" },
+  14: { paksha:"შუქლა", name:"ჩატურდაში",   sanskrit:"Chaturdashi", info:"" },
+  15: { paksha:"შუქლა", name:"პურნიმა",     sanskrit:"Purnima",     info:"" },
+  16: { paksha:"კრიშნა", name:"პრატიპადა",  sanskrit:"Pratipada",   info:"" },
+  17: { paksha:"კრიშნა", name:"დვიტია",     sanskrit:"Dvitiya",     info:"" },
+  18: { paksha:"კრიშნა", name:"ტრიტია",     sanskrit:"Tritiya",     info:"" },
+  19: { paksha:"კრიშნა", name:"ჩატურთი",    sanskrit:"Chaturthi",   info:"" },
+  20: { paksha:"კრიშნა", name:"პანჩამი",    sanskrit:"Panchami",    info:"" },
+  21: { paksha:"კრიშნა", name:"შაშტი",      sanskrit:"Shashthi",    info:"" },
+  22: { paksha:"კრიშნა", name:"საპტამი",    sanskrit:"Saptami",     info:"" },
+  23: { paksha:"კრიშნა", name:"აშტამი",     sanskrit:"Ashtami",     info:"" },
+  24: { paksha:"კრიშნა", name:"ნავამი",     sanskrit:"Navami",      info:"" },
+  25: { paksha:"კრიშნა", name:"დაშამი",     sanskrit:"Dashami",     info:"" },
+  26: { paksha:"კრიშნა", name:"ეკადაში",    sanskrit:"Ekadashi",    info:"" },
+  27: { paksha:"კრიშნა", name:"დვადაში",    sanskrit:"Dvadashi",    info:"" },
+  28: { paksha:"კრიშნა", name:"ტრაიოდაში",  sanskrit:"Trayodashi",  info:"" },
+  29: { paksha:"კრიშნა", name:"ჩატურდაში",  sanskrit:"Chaturdashi", info:"" },
+  30: { paksha:"კრიშნა", name:"ამავასია",   sanskrit:"Amavasya",    info:"" },
+};
 
 const PHASES_KA = {
   'New Moon':        'ახალმთვარე',
@@ -356,8 +409,13 @@ async function calculate() {
 
     // Lunar day — ZET convention = tithi (elongation / 12°). Fallback to synodic.
     const ld = (d.tithi != null) ? d.tithi : d.lunar_day;
-    document.getElementById('lunarDayNum').textContent   = ld || '—';
-    document.getElementById('lunarDayPhase').textContent = PHASES_KA[d.phase] || d.phase;
+    document.getElementById('lunarDayNum').textContent = ld || '—';
+
+    // Tithi name (title) + paksha + info, from the TITHIS table
+    const t = TITHIS[ld];
+    document.getElementById('lunarDayTitle').textContent  = t ? t.name : '—';
+    document.getElementById('lunarDayPaksha').textContent = t ? t.paksha : '';
+    document.getElementById('tithiInfo').innerHTML        = (t && t.info) ? t.info : '';
 
     // ── ZET-style percent complete + progress bar ──
     if (d.tithi_pct != null) {
