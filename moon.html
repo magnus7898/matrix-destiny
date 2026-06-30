@@ -264,7 +264,6 @@ input::placeholder{color:rgba(155,168,184,.35)}
     <div class="lunar-day-info">
       <div class="lunar-day-label">მთვარის დღე · Lunar Day</div>
       <div class="lunar-day-title" id="lunarDayTitle">—</div>
-      <div class="lunar-day-paksha" id="lunarDayPaksha"></div>
       <div class="lunar-day-zet" id="lunarDayZet"><span class="glyph">☽</span><span id="lunarDayZetTxt">—</span></div>
       <div class="lunar-day-progress"><div class="lunar-day-progress-fill" id="lunarDayProgFill"></div></div>
     </div>
@@ -277,42 +276,43 @@ input::placeholder{color:rgba(155,168,184,.35)}
 const BACKEND = 'https://astrology-production-b165.up.railway.app';
 
 /* ════════════════════════════════════════════════════════════════
-   TITHI NAMES (titles generated) — fill the `info` strings yourself.
-   1–15  = შუქლა (waxing) Pratipada … Purnima
-   16–30 = კრიშნა (waning) Pratipada … Amavasya
+   მთვარის დღეები — ქართული/ეზოთერული 30-დღიანი სიმბოლოების სისტემა.
+   titles (name = სიმბოლო) generated — fill the `info` strings yourself.
    info supports HTML: <b>bold</b>, <br> line break, <ul><li>…</li></ul>.
+   შენიშვნა: სიმბოლოს დასახელება შესაძლოა წყაროების მიხედვით ოდნავ
+   განსხვავდებოდეს — შეცვალე `name` შენი წყაროს მიხედვით საჭიროების შემთხვევაში.
    ════════════════════════════════════════════════════════════════ */
-const TITHIS = {
-  1:  { paksha:"შუქლა", name:"პრატიპადა",  sanskrit:"Pratipada",   info:"" },
-  2:  { paksha:"შუქლა", name:"დვიტია",      sanskrit:"Dvitiya",     info:"" },
-  3:  { paksha:"შუქლა", name:"ტრიტია",      sanskrit:"Tritiya",     info:"" },
-  4:  { paksha:"შუქლა", name:"ჩატურთი",     sanskrit:"Chaturthi",   info:"" },
-  5:  { paksha:"შუქლა", name:"პანჩამი",     sanskrit:"Panchami",    info:"" },
-  6:  { paksha:"შუქლა", name:"შაშტი",       sanskrit:"Shashthi",    info:"" },
-  7:  { paksha:"შუქლა", name:"საპტამი",     sanskrit:"Saptami",     info:"" },
-  8:  { paksha:"შუქლა", name:"აშტამი",      sanskrit:"Ashtami",     info:"" },
-  9:  { paksha:"შუქლა", name:"ნავამი",      sanskrit:"Navami",      info:"" },
-  10: { paksha:"შუქლა", name:"დაშამი",      sanskrit:"Dashami",     info:"" },
-  11: { paksha:"შუქლა", name:"ეკადაში",     sanskrit:"Ekadashi",    info:"" },
-  12: { paksha:"შუქლა", name:"დვადაში",     sanskrit:"Dvadashi",    info:"" },
-  13: { paksha:"შუქლა", name:"ტრაიოდაში",   sanskrit:"Trayodashi",  info:"" },
-  14: { paksha:"შუქლა", name:"ჩატურდაში",   sanskrit:"Chaturdashi", info:"" },
-  15: { paksha:"შუქლა", name:"პურნიმა",     sanskrit:"Purnima",     info:"" },
-  16: { paksha:"კრიშნა", name:"პრატიპადა",  sanskrit:"Pratipada",   info:"" },
-  17: { paksha:"კრიშნა", name:"დვიტია",     sanskrit:"Dvitiya",     info:"" },
-  18: { paksha:"კრიშნა", name:"ტრიტია",     sanskrit:"Tritiya",     info:"" },
-  19: { paksha:"კრიშნა", name:"ჩატურთი",    sanskrit:"Chaturthi",   info:"" },
-  20: { paksha:"კრიშნა", name:"პანჩამი",    sanskrit:"Panchami",    info:"" },
-  21: { paksha:"კრიშნა", name:"შაშტი",      sanskrit:"Shashthi",    info:"" },
-  22: { paksha:"კრიშნა", name:"საპტამი",    sanskrit:"Saptami",     info:"" },
-  23: { paksha:"კრიშნა", name:"აშტამი",     sanskrit:"Ashtami",     info:"" },
-  24: { paksha:"კრიშნა", name:"ნავამი",     sanskrit:"Navami",      info:"" },
-  25: { paksha:"კრიშნა", name:"დაშამი",     sanskrit:"Dashami",     info:"" },
-  26: { paksha:"კრიშნა", name:"ეკადაში",    sanskrit:"Ekadashi",    info:"" },
-  27: { paksha:"კრიშნა", name:"დვადაში",    sanskrit:"Dvadashi",    info:"" },
-  28: { paksha:"კრიშნა", name:"ტრაიოდაში",  sanskrit:"Trayodashi",  info:"" },
-  29: { paksha:"კრიშნა", name:"ჩატურდაში",  sanskrit:"Chaturdashi", info:"" },
-  30: { paksha:"კრიშნა", name:"ამავასია",   sanskrit:"Amavasya",    info:"" },
+const MOON_DAYS = {
+  1:  { name:"ლამპარი",        info:"" },   // lamp / luminary / light
+  2:  { name:"უხვობის რქა",    info:"" },   // cornucopia / mouth
+  3:  { name:"ლეოპარდი",       info:"" },   // leopard / panther
+  4:  { name:"შემეცნების ხე",  info:"" },   // tree of knowledge (Adam & Eve)
+  5:  { name:"ერთრქა",         info:"" },   // unicorn
+  6:  { name:"წერო",           info:"" },   // crane / rainbow
+  7:  { name:"ქარის ვარდი",    info:"" },   // wind rose / rooster
+  8:  { name:"ფენიქსი",        info:"" },   // phoenix / casket
+  9:  { name:"ღამურა",         info:"" },   // bat  (heavy day)
+  10: { name:"შადრევანი",      info:"" },   // fountain
+  11: { name:"გვირგვინი",      info:"" },   // crown / fiery sword
+  12: { name:"გული",           info:"" },   // heart / chalice
+  13: { name:"ბორბალი",        info:"" },   // spinning wheel / snake
+  14: { name:"საყვირი",        info:"" },   // trumpet / mace
+  15: { name:"გველი",          info:"" },   // serpent / chameleon
+  16: { name:"პეპელა",         info:"" },   // butterfly / dove
+  17: { name:"ზარი",           info:"" },   // bell / grapes
+  18: { name:"სარკე",          info:"" },   // mirror / monkey
+  19: { name:"ობობა",          info:"" },   // spider / net  (heavy day)
+  20: { name:"არწივი",         info:"" },   // eagle
+  21: { name:"ცხენი",          info:"" },   // horse / herd
+  22: { name:"სპილო",          info:"" },   // elephant / golden key
+  23: { name:"ნიანგი",         info:"" },   // crocodile / chimera
+  24: { name:"დათვი",          info:"" },   // bear
+  25: { name:"კუ",             info:"" },   // turtle / shell        (confirmed)
+  26: { name:"გომბეშო",        info:"" },   // toad / frog
+  27: { name:"სამკაპი",        info:"" },   // trident (Neptune)     (confirmed)
+  28: { name:"ლოტოსი",         info:"" },   // lotus / sun           (confirmed)
+  29: { name:"რვაფეხა",        info:"" },   // octopus  (heavy day)  (confirmed)
+  30: { name:"ოქროს გედი",     info:"" },   // golden swan / boat    (confirmed)
 };
 
 const PHASES_KA = {
@@ -411,11 +411,10 @@ async function calculate() {
     const ld = (d.tithi != null) ? d.tithi : d.lunar_day;
     document.getElementById('lunarDayNum').textContent = ld || '—';
 
-    // Tithi name (title) + paksha + info, from the TITHIS table
-    const t = TITHIS[ld];
-    document.getElementById('lunarDayTitle').textContent  = t ? t.name : '—';
-    document.getElementById('lunarDayPaksha').textContent = t ? t.paksha : '';
-    document.getElementById('tithiInfo').innerHTML        = (t && t.info) ? t.info : '';
+    // Moon day name (symbol) + info, from the MOON_DAYS table
+    const t = MOON_DAYS[ld];
+    document.getElementById('lunarDayTitle').textContent = t ? t.name : '—';
+    document.getElementById('tithiInfo').innerHTML       = (t && t.info) ? t.info : '';
 
     // ── ZET-style percent complete + progress bar ──
     if (d.tithi_pct != null) {
